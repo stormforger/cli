@@ -5,9 +5,14 @@ import (
 	"crypto/sha256"
 	"crypto/tls"
 	"crypto/x509"
+	"io"
+	"io/ioutil"
 	"log"
+	"mime/multipart"
 	"net"
 	"net/http"
+	"os"
+	"path/filepath"
 	"time"
 )
 
@@ -93,4 +98,54 @@ func (c *Client) Ping() (bool, error) {
 	defer resp.Body.Close()
 
 	return (resp.StatusCode == 200), nil
+}
+
+func (c *Client) Har(file string) (string, error) {
+	// TODO how to pass options, like --skip-assets here?
+	//      definiting a struct maybe, but where?
+	//      finally: add options here
+	extraParams := map[string]string{}
+
+	req, err := newfileUploadRequest(c.APIEndpoint+"/har", extraParams, "har_file", file)
+
+	resp, err := c.HTTPClient.Do(req)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return "", err
+	}
+	resp.Body.Close()
+
+	return string(body), nil
+}
+
+func newfileUploadRequest(uri string, params map[string]string, paramName, path string) (*http.Request, error) {
+	file, err := os.Open(path)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+
+	body := &bytes.Buffer{}
+	writer := multipart.NewWriter(body)
+	part, err := writer.CreateFormFile(paramName, filepath.Base(path))
+	if err != nil {
+		return nil, err
+	}
+	_, err = io.Copy(part, file)
+
+	for key, val := range params {
+		_ = writer.WriteField(key, val)
+	}
+	err = writer.Close()
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", uri, body)
+	req.Header.Set("Content-Type", writer.FormDataContentType())
+	return req, err
 }
