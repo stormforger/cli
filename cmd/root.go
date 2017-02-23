@@ -43,5 +43,5 @@ func readJwt() string {
 }
 
 func init() {
-	RootCmd.PersistentFlags().StringVar(&rootOpts.APIEndpoint, "api-endpoint", "https://api.stormforger.com", "API Domain")
+	RootCmd.PersistentFlags().StringVar(&rootOpts.APIEndpoint, "api-endpoint", "https://api.stormforger.com", "API Endpoint")
 }
