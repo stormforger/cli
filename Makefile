@@ -1,7 +1,8 @@
 BINARY=forge
 
-VERSION=0.1.0
-BUILD_TIME=`date +%FT%T%z`
-
-all:
+all: fmt
 	go build -o ${BINARY}
+
+fmt:
+	gofmt -w .
+	goimports -w .

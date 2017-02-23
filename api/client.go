@@ -9,9 +9,6 @@ import (
 	"net"
 	"net/http"
 	"time"
-	"io/ioutil"
-	"encoding/json"
-	"fmt"
 )
 
 type Dialer func(network, addr string) (net.Conn, error)
@@ -61,42 +58,39 @@ func defaultHTTPClient() *http.Client {
 }
 
 type Client struct {
-	HTTPClient *http.Client
-	APIDomain string
-	JWT string
-	UserAgent string
+	HTTPClient  *http.Client
+	APIEndpoint string
+	JWT         string
+	UserAgent   string
 }
 
-func NewClient(apiDomain string, jwtToken string) *Client {
+func NewClient(apiEndpoint string, jwtToken string) *Client {
 	return &Client{
-		HTTPClient: defaultHTTPClient(),
-		APIDomain: apiDomain,
-		JWT: jwtToken,
-		UserAgent: "StormForger CLI (https://stormforger.com)",
+		HTTPClient:  defaultHTTPClient(),
+		APIEndpoint: apiEndpoint,
+		JWT:         jwtToken,
+		UserAgent:   "StormForger CLI (https://stormforger.com)",
 	}
 }
 
-func (c *Client) Ping() {
-	req, err := http.NewRequest("GET", c.APIDomain + "/authenticated_ping", nil)
+// FIXME would be nice to return a struct
+//       where we see the status and in case of
+//       success also the email address of the
+//       authenticated user (useful) to check
+//       if we are authenticated as the correct user
+func (c *Client) Ping() (bool, error) {
+	req, err := http.NewRequest("GET", c.APIEndpoint+"/authenticated_ping", nil)
 
 	// TODO how to set these on all requests?
-	req.Header.Add("Authorization", "Bearer "+ c.JWT)
+	req.Header.Add("Authorization", "Bearer "+c.JWT)
 	req.Header.Set("User-Agent", c.UserAgent)
+
 	resp, err := c.HTTPClient.Do(req)
 	if err != nil {
-		log.Fatal(err)
+		return false, err
 	}
 
 	defer resp.Body.Close()
 
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	var prettyJSON bytes.Buffer
-	json.Indent(&prettyJSON, body, "", "  ")
-
-	fmt.Printf("%s\n\n %s", resp.Status, prettyJSON.Bytes())
+	return (resp.Status == "200"), nil
 }
-

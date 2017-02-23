@@ -1,4 +1,8 @@
+# binary
 forge
-cli
 
+# secrets
 .stormforger_jwt
+
+# Sandbox
+sandbox
