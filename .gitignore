@@ -3,6 +3,7 @@ forge
 
 # secrets
 .stormforger_jwt
+.goxc.local.json
 
 # Sandbox
 sandbox
