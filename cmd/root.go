@@ -16,8 +16,8 @@ var (
 		Use:   "forge",
 		Short: "Command line client to StormForger (https://stormforger.com)",
 		Long: `The command line client "forge" to StormForger offers a interface
-to the StormForger API and several convinience methods
-to work on load and performance tests.
+to the StormForger API and several convenience methods
+to handle load and performance tests.
 
 Happy Load Testing :)`,
 	}
