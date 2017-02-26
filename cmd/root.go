@@ -22,15 +22,15 @@ to work on load and performance tests.
 Happy Load Testing :)`,
 	}
 
-const (
-	CONFIG_FILENAME = ".stormforger"
-	ENV_PREFIX      = "stormforger"
-)
-
 	rootOpts struct {
 		APIEndpoint string
 		JWTToken    string
 	}
+)
+
+const (
+	CONFIG_FILENAME = ".stormforger"
+	ENV_PREFIX      = "stormforger"
 )
 
 type BuildInfo struct {
