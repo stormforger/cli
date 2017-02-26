@@ -32,5 +32,4 @@ func foo(cmd *cobra.Command, args []string) {
 
 func init() {
 	RootCmd.AddCommand(pingCmd)
-
 }
