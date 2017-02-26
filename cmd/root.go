@@ -23,9 +23,27 @@ var (
 	}
 )
 
+type BuildInfo struct {
+	Version string
+	Time    string
+	Commit  string
+}
+
+func (buildInfo BuildInfo) String() string {
+	return fmt.Sprintf("%v %v (%v - %v) - https://stormforger.com", RootCmd.Use, buildInfo.Version, buildInfo.Time, buildInfo.Commit)
+}
+
+func (buildInfo BuildInfo) ShortString() string {
+	return buildInfo.Version
+}
+
+var buildInfo BuildInfo
+
 // Execute adds all child commands to the root command sets flags appropriately.
 // This is called by main.main(). It only needs to happen once to the rootCmd.
-func Execute() {
+func Execute(version string, buildTime string, buildCommit string) {
+	buildInfo = BuildInfo{version, buildTime, buildCommit}
+
 	if err := RootCmd.Execute(); err != nil {
 		fmt.Println(err)
 		os.Exit(-1)

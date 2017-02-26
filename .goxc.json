@@ -4,12 +4,12 @@
     "go-vet",
     "go-test",
     "go-install",
+    "publish-github",
     "publish-github"
   ],
-  "Arch": "amd64",
-  "Os": "darwin,linux,windows",
+  "TasksExclude": [
+  ],
   "BuildConstraints": "darwin,amd64 linux,amd64 windows,amd64",
-  "PackageVersion": "0.0.1",
   "TaskSettings": {
     "publish-github": {
       "include": "*.zip,*.tar.gz",
