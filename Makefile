@@ -9,3 +9,6 @@ release: fmt
 fmt:
 	gofmt -w .
 	goimports -w .
+
+test: all
+	go test -v ./...
