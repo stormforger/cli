@@ -79,7 +79,7 @@ func NewClient() *api.Client {
 
 // JWT token must be either in one of these locations
 // .stormforger.toml
-// $HOMR/.stormforger.toml
+// $HOME/.stormforger.toml
 // $ENV["STORMFORGER_JWT"]
 // via cli flag --jwt-token
 func findJwt() bool {
