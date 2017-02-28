@@ -59,9 +59,10 @@ flag.
 Dependencies:
 
 ```
-go get golang.org/x/tools/cmd/goimports
-go get github.com/laher/goxc
+go get github.com/fatih/color
 go get github.com/inconshreveable/mousetrap # required to cross compile for windows
+go get github.com/laher/goxc
+go get golang.org/x/tools/cmd/goimports
 ```
 
 In order to publish releases, you need a personal access token, which you can acquire here: https://github.com/settings/tokens.
