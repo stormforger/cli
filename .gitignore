@@ -1,8 +1,7 @@
 # binary
 forge
 
-# secrets
-.stormforger_jwt
+# secrets & configuration
 .stormforger.toml
 .goxc.local.json
 

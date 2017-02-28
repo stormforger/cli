@@ -24,7 +24,7 @@ Happy Load Testing :)`,
 
 	rootOpts struct {
 		APIEndpoint string
-		JWTToken    string
+		JWT         string
 	}
 )
 
@@ -33,33 +33,13 @@ const (
 	ENV_PREFIX      = "stormforger"
 )
 
-type BuildInfo struct {
-	Version string
-	Time    string
-	Commit  string
-}
-
-func (buildInfo BuildInfo) String() string {
-	return fmt.Sprintf("%v %v (%v - %v) - https://stormforger.com", RootCmd.Use, buildInfo.Version, buildInfo.Time, buildInfo.Commit)
-}
-
-func (buildInfo BuildInfo) ShortString() string {
-	return buildInfo.Version
-}
-
-var buildInfo BuildInfo
-
 // Execute
 // searchs for JWT-token,
 // adds all child commands to the root command
 // and sets flags appropriately.
 // This is called by main.main(). It only needs to happen once to the rootCmd.
-func Execute(version string, buildTime string, buildCommit string) {
-	buildInfo = BuildInfo{version, buildTime, buildCommit}
-
-	// most important thing is the jwt
-	//viper.SetDefault("jwt", "")
-	findJwt()
+func Execute() {
+	setupConfig()
 
 	if err := RootCmd.Execute(); err != nil {
 		fmt.Println(err)
@@ -67,9 +47,7 @@ func Execute(version string, buildTime string, buildCommit string) {
 	}
 
 	if viper.GetString("jwt") == "" {
-		color.Yellow("\nNo JWT token in config file, environment or via command line flag!\nPlease provide JWT token to talk to the StormForger API. See README.md.\n")
-	} else {
-		color.Green("\nUsing token: %s\n", viper.GetString("jwt"))
+		color.Yellow("\nNo JWT token in config file, environment or via command line flag!\n")
 	}
 }
 
@@ -77,35 +55,25 @@ func NewClient() *api.Client {
 	return api.NewClient(rootOpts.APIEndpoint, viper.GetString("jwt"))
 }
 
-// JWT token must be either in one of these locations
-// .stormforger.toml
-// $HOME/.stormforger.toml
-// $ENV["STORMFORGER_JWT"]
-// via cli flag --jwt-token
-func findJwt() bool {
-	// ENV overrides config
+/*
+	Configuration for JWT can come from (in this order)
+	* Environment
+	* Configuration ~/.stormforger.toml, ./.stormforger.toml
+	* Command line flag
+*/
+func setupConfig() {
 	viper.SetEnvPrefix(ENV_PREFIX)
 	viper.BindEnv("jwt")
 
-	// config
-	viper.SetConfigName(CONFIG_FILENAME) // name of config file (without extension)
-	viper.AddConfigPath("$HOME")         // call multiple times to add many search paths
-	viper.AddConfigPath(".")             // optionally look for config in the working directory
-	err := viper.ReadInConfig()          // Find and read the config file
-	if err != nil {
-		// Handle errors reading the config file
-		// no config
-		// TODO I don't think that we inform the user at this stage about a missing config file
-		// log.Println("No config file: %s \n", err)
-	}
+	viper.SetConfigName(CONFIG_FILENAME)
+	viper.AddConfigPath("$HOME")
+	viper.AddConfigPath(".")
+	viper.ReadInConfig()
 
-	// command line flag overrides config and ENV
-	viper.BindPFlag("jwt", RootCmd.Flags().Lookup("jwt-token"))
-
-	return true
+	viper.BindPFlag("jwt", RootCmd.Flags().Lookup("jwt"))
 }
 
 func init() {
-	RootCmd.PersistentFlags().StringVar(&rootOpts.APIEndpoint, "api-endpoint", "https://api.stormforger.com", "API Endpoint")
-	RootCmd.Flags().StringVar(&rootOpts.JWTToken, "jwt-token", "", "JWT Token")
+	RootCmd.PersistentFlags().StringVar(&rootOpts.APIEndpoint, "endpoint", "https://api.stormforger.com", "API Endpoint")
+	RootCmd.Flags().StringVar(&rootOpts.JWT, "jwt", "", "JWT access token")
 }
