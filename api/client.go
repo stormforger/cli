@@ -99,7 +99,7 @@ func (c *Client) Ping() (bool, error) {
 
 	defer resp.Body.Close()
 
-	return (resp.StatusCode == 200), nil
+	return (resp.StatusCode == 200), errors.New("Could not perform authenticated ping!")
 }
 
 func (c *Client) Har(file string) (string, error) {

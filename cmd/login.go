@@ -1,8 +1,7 @@
 package cmd
 
 import (
-	"fmt"
-	"os"
+	"log"
 
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
@@ -22,7 +21,7 @@ var (
 			jwt, err := client.Login(loginEmail, loginPassword)
 
 			if err != nil {
-				fmt.Fatal(err)
+				log.Fatal(err)
 			} else {
 				color.Green("Login successful! Here is your JWT access token:\n\n")
 				color.Green("  " + jwt)
