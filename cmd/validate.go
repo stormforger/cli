@@ -17,9 +17,9 @@ var (
 		Short: "Validate source files for data source usage",
 		Long: `validate will check a given file for its compliance.
 
-		File fixtures may not contain the following in fields:
-		* newlines (NL, \n), carriage return (CR, \r)
-		* \0 or \1`,
+	File fixtures may not contain the following in fields:
+	* newlines (NL, \n), carriage return (CR, \r)
+	* \0 or \1`,
 		Example: "forge validate --input users.csv",
 		Run:     RunValidate,
 	}
