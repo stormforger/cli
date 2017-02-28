@@ -60,6 +60,7 @@ Dependencies:
 
 ```
 go get github.com/fatih/color
+go get github.com/howeyc/gopass
 go get github.com/inconshreveable/mousetrap # required to cross compile for windows
 go get github.com/laher/goxc
 go get golang.org/x/tools/cmd/goimports
