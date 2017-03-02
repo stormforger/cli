@@ -1,4 +1,5 @@
 [ ![Travis CI Status](https://travis-ci.org/stormforger/cli.svg?branch=master)](https://travis-ci.org/stormforger/cli)
+[ ![Go Report Card](https://goreportcard.com/badge/github.com/stormforger/cli)](https://goreportcard.com/report/github.com/stormforger/cli)
 
 
 
@@ -70,6 +71,13 @@ jwt = "your-jwt-token"
 ### Dependencies
 
 We use [`godep`](https://github.com/tools/godep) to vendor dependencies.
+
+Build dependencies:
+
+```
+go get -u golang.org/x/tools/cmd/goimports
+go get -u github.com/golang/lint/golint
+```
 
 
 ### Release

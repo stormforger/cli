@@ -21,7 +21,7 @@ var (
 	* newlines (NL, \n), carriage return (CR, \r)
 	* \0 or \1`,
 		Example: "forge validate --input users.csv",
-		Run:     RunValidate,
+		Run:     runValidate,
 	}
 
 	validateOpts struct {
@@ -31,15 +31,17 @@ var (
 	}
 )
 
-type CsvError struct {
-	Row     int
-	Column  int
-	Message string
-}
+// CsvError represents a error in a CSV source. It is defined
+// by Row, Column and a human-readable Message.
+// type CsvError struct {
+// 	Row     int
+// 	Column  int
+// 	Message string
+// }
 
-func RunValidate(cmd *cobra.Command, args []string) {
+func runValidate(cmd *cobra.Command, args []string) {
 	if len(args) < 1 {
-		log.Fatal(errors.New("The file argument is required!"))
+		log.Fatal(errors.New("the file argument is required"))
 	}
 
 	validateOpts.InputFile = args[0]

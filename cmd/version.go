@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/spf13/cobra"
-	"github.com/stormforger/cli/misc"
+	"github.com/stormforger/cli/buildinfo"
 )
 
 var (
@@ -13,9 +13,9 @@ var (
 		Short: "Show forge version",
 		Run: func(cmd *cobra.Command, args []string) {
 			if versionOpts.Verbose == true {
-				fmt.Println(misc.BuildInfo)
+				fmt.Println(buildinfo.BuildInfo)
 			} else {
-				fmt.Println(misc.BuildInfo.ShortString())
+				fmt.Println(buildinfo.BuildInfo.ShortString())
 			}
 		},
 	}
