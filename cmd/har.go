@@ -14,9 +14,8 @@ var (
 	harCmd = &cobra.Command{
 		Use:   "har",
 		Short: "Convert HAR to test case",
-		Long: `Will convert a given HAR archive into a
-		StormForger test case definition.`,
-		Run: runHar,
+		Long:  `Will convert a given HAR archive into a StormForger test case definition.`,
+		Run:   runHar,
 	}
 
 	harOpts struct {

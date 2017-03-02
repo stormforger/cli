@@ -22,7 +22,6 @@ func foo(cmd *cobra.Command, args []string) {
 	status, err := client.Ping()
 
 	if !status {
-		fmt.Println("Could not perform authenticated ping!")
 		fmt.Println(err)
 		os.Exit(-1)
 	} else {
@@ -32,5 +31,4 @@ func foo(cmd *cobra.Command, args []string) {
 
 func init() {
 	RootCmd.AddCommand(pingCmd)
-
 }

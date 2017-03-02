@@ -5,6 +5,8 @@ import (
 	"crypto/sha256"
 	"crypto/tls"
 	"crypto/x509"
+	"encoding/json"
+	"errors"
 	"io"
 	"io/ioutil"
 	"log"
@@ -97,7 +99,7 @@ func (c *Client) Ping() (bool, error) {
 
 	defer resp.Body.Close()
 
-	return (resp.StatusCode == 200), nil
+	return (resp.StatusCode == 200), errors.New("Could not perform authenticated ping!")
 }
 
 func (c *Client) Har(file string) (string, error) {
@@ -120,6 +122,40 @@ func (c *Client) Har(file string) (string, error) {
 	resp.Body.Close()
 
 	return string(body), nil
+}
+
+func (c *Client) Login(email string, password string) (string, error) {
+	data := map[string]string{"email": email, "password": password}
+
+	body := new(bytes.Buffer)
+	json.NewEncoder(body).Encode(data)
+
+	req, err := http.NewRequest("POST", c.APIEndpoint+"/beta/user/token", body)
+
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return "", err
+	}
+
+	defer resp.Body.Close()
+
+	responseBody, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return "", err
+	}
+
+	if resp.StatusCode != 200 {
+		return "", errors.New("Login unsuccessful!")
+	}
+
+	var dat map[string]interface{}
+	if err := json.Unmarshal(responseBody, &dat); err != nil {
+		return "", err
+	}
+
+	return dat["jwt"].(string), nil
 }
 
 func newfileUploadRequest(uri string, params map[string]string, paramName, path string) (*http.Request, error) {

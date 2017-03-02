@@ -1,6 +1,9 @@
 package main
 
-import "github.com/stormforger/cli/cmd"
+import (
+	"github.com/stormforger/cli/cmd"
+	"github.com/stormforger/cli/misc"
+)
 
 // Build infos are set during build
 var (
@@ -10,5 +13,7 @@ var (
 )
 
 func main() {
-	cmd.Execute(VERSION, BUILD_TIME, BUILD_COMMIT)
+	misc.InitInfo(VERSION, BUILD_COMMIT, BUILD_TIME)
+
+	cmd.Execute()
 }
