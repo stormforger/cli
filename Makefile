@@ -23,8 +23,8 @@ build_release:
 local_release:
 	goxc \
 		-pv=${VERSION} \
-		-build-ldflags="-X buildinfo.Version=${VERSION} -X buildinfo.BuildTime=${BUILD_TIME} -X buildinfo.BuildCommit=${BUILD_COMMIT}"
-		# -tasks+="publish-github"
+		-build-ldflags="-X buildinfo.Version=${VERSION} -X buildinfo.BuildTime=${BUILD_TIME} -X buildinfo.BuildCommit=${BUILD_COMMIT}" \
+		-tasks+="publish-github"
 
 fmt:
 	gofmt -w -s ${GOFILES_NOVENDOR}
