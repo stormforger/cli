@@ -71,6 +71,13 @@ jwt = "your-jwt-token"
 
 We use [`godep`](https://github.com/tools/godep) to vendor dependencies.
 
+Build dependencies:
+
+```
+go get -u golang.org/x/tools/cmd/goimports
+go get -u github.com/golang/lint/golint
+```
+
 
 ### Release
 
