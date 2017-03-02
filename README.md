@@ -1,3 +1,7 @@
+[ ![Travis CI Status](https://travis-ci.org/stormforger/cli.svg?branch=master)](https://travis-ci.org/stormforger/cli)
+
+
+
 # forge! The StormForger Command Line Client
 
 **HEAVY WORK IN PROGRESS**
