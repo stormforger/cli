@@ -14,7 +14,7 @@ var (
 )
 
 func defaultValidatorOptions() Validator {
-	return csv.Validator{
+	return Validator{
 		ColSeparator: ';',
 		MaxErrors:    10,
 	}
