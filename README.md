@@ -3,55 +3,61 @@
 **HEAVY WORK IN PROGRESS**
 
 ```
-This is the StormForger command line client!
+The command line client "forge" to StormForger offers a interface
+to the StormForger API and several convenience methods
+to handle load and performance tests.
+
+Happy Load Testing :)
 
 Usage:
   forge [command]
 
 Available Commands:
+  datasource  Work with and manage data sources
   har         Convert HAR to test case
+  login       Login to StormForger
   ping        Ping the StormForger API
+  version     Show forge version
 
 Flags:
-      --api-endpoint string   API Endpoint (default "https://api.stormforger.com")
-      --jwt-token string      JWT Token
+      --endpoint string   API Endpoint (default "https://api.stormforger.com")
+      --jwt string        JWT access token
 
 Use "forge [command] --help" for more information about a command.
 ```
 
 
-## Authentication
-To use the StormForger CLI and access the API you need to authenticate with your personal JWT token and give it to the StormForger CLI.
+
+## Installation
+
+Download the latest release from [GitHub](https://github.com/stormforger/cli/releases).
 
 
-### Get your personal JWT token
-Please write to support@stormforger.com to request your token.
 
+## Getting Started
 
-## Configuration
-There are three ways to give your JWT token to the CLI. The source of the JWT token is prioritized, means the last option overrides the first option.
+Most actions require authentication. So in case you don't have a StormForger account yet, you have to [sign up](https://app.stormforger.com) first.
 
+When done, you can login via
 
-### 1. Configuration File
+```
+forge login your-email@example.com
+```
 
-Copy the `.stormforger.toml` configuration file either to the root folder of the cli binary or in your `$HOME` directory and fill it with your JWT token
+You will be asked for your credentials. On successful authentication, you will be presented with a JWT.
 
-`cp .stormforger.toml.example $HOME/.stormforger.toml`
+For following requests you have multiple options to provide your token:
 
+1. TOML configuration: `.stormforger.toml` or `$HOME/.stormforger.toml`:
 
-### 2. Environment Variable
+```
+jwt = "your-jwt-token"
+```
 
-Set the environment variable `STORMFORGER_JWT` to your JWT token to use the StormForger CLI in [Twelve-Factor-App](https://12factor.net/) setups like your CI/CD and Build Pipeline.
+2. Environment: `export STORMFORGER_JWT="your-jwt-token"`
 
-`export STORMFORGER_JWT="your-jwt-token"`
+3. Command Line Flag: `--jwt "your-jwt-token"`
 
-
-### 3. Command Line Flag
-Run the StormForger CLI with the
-
-`--jwt-token "your-jwt-token"`
-
-flag.
 
 
 ## Release
