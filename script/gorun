@@ -1,0 +1,11 @@
+#!/bin/sh
+
+set -e
+
+packages=$(go list ./... | grep -v /vendor/)
+
+pushd $GOPATH/src
+
+echo $packages | xargs $@
+
+popd
