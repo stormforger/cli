@@ -1,12 +1,16 @@
 {
   "AppName": "forge",
   "Tasks": [
-    "publish-github"
   ],
+  "ArtifactsDest": "./build",
   "TasksExclude": [
     "go-vet",
     "go-test",
-    "go-install"
+    "go-install",
+    "deb",
+    "deb-dev",
+    "deb-source",
+    "publish-github"
   ],
   "BuildConstraints": "darwin,amd64 linux,amd64 windows,amd64",
   "TaskSettings": {
