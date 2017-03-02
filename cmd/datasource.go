@@ -6,6 +6,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// DatasourceCmd is the cobra definition
 var DatasourceCmd = &cobra.Command{
 	Use:   "datasource",
 	Short: "Work with and manage data sources",

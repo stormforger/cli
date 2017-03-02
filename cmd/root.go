@@ -12,6 +12,7 @@ import (
 )
 
 var (
+	// RootCmd represents the cobra root command
 	RootCmd = &cobra.Command{
 		Use:   "forge",
 		Short: "Command line client to StormForger (https://stormforger.com)",
@@ -29,10 +30,13 @@ Happy Load Testing :)`,
 )
 
 const (
-	CONFIG_FILENAME = ".stormforger"
-	ENV_PREFIX      = "stormforger"
+	// ConfigFilename is the forge config file without extension
+	ConfigFilename = ".stormforger"
+	// EnvPrefix is the prefix for environment configuration
+	EnvPrefix = "stormforger"
 )
 
+// Execute is the entry function for cobra
 func Execute() {
 	setupConfig()
 
@@ -46,6 +50,7 @@ func Execute() {
 	}
 }
 
+// NewClient initializes a new API Client
 func NewClient() *api.Client {
 	return api.NewClient(rootOpts.APIEndpoint, viper.GetString("jwt"))
 }
@@ -57,10 +62,10 @@ func NewClient() *api.Client {
 	* Command line flag
 */
 func setupConfig() {
-	viper.SetEnvPrefix(ENV_PREFIX)
+	viper.SetEnvPrefix(EnvPrefix)
 	viper.BindEnv("jwt")
 
-	viper.SetConfigName(CONFIG_FILENAME)
+	viper.SetConfigName(ConfigFilename)
 	viper.AddConfigPath("$HOME")
 	viper.AddConfigPath(".")
 	viper.ReadInConfig()

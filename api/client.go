@@ -18,9 +18,9 @@ import (
 	"time"
 )
 
-type Dialer func(network, addr string) (net.Conn, error)
+type dialer func(network, addr string) (net.Conn, error)
 
-func newDialer(fingerprint []byte, skipCAVerification bool) Dialer {
+func newDialer(fingerprint []byte, skipCAVerification bool) dialer {
 	return func(network, addr string) (net.Conn, error) {
 		c, err := tls.Dial(network, addr, &tls.Config{InsecureSkipVerify: skipCAVerification})
 		if err != nil {
@@ -64,6 +64,7 @@ func defaultHTTPClient() *http.Client {
 	}
 }
 
+// Client represents the API client
 type Client struct {
 	HTTPClient  *http.Client
 	APIEndpoint string
@@ -71,6 +72,7 @@ type Client struct {
 	UserAgent   string
 }
 
+// NewClient returns a new initialized API client
 func NewClient(apiEndpoint string, jwtToken string) *Client {
 	return &Client{
 		HTTPClient:  defaultHTTPClient(),
@@ -80,6 +82,9 @@ func NewClient(apiEndpoint string, jwtToken string) *Client {
 	}
 }
 
+// Ping performs an authenticated ping to check if the API
+// is working and the user is properly authenticated.
+//
 // FIXME would be nice to return a struct
 //       where we see the status and in case of
 //       success also the email address of the
@@ -99,12 +104,14 @@ func (c *Client) Ping() (bool, error) {
 
 	defer resp.Body.Close()
 
-	return (resp.StatusCode == 200), errors.New("Could not perform authenticated ping!")
+	return (resp.StatusCode == 200), errors.New("could not perform authenticated ping")
 }
 
+// Har converts the given HAR archive file into
+// a StormForger test case definition
 func (c *Client) Har(file string) (string, error) {
 	// TODO how to pass options, like --skip-assets here?
-	//      definiting a struct maybe, but where?
+	//      defining a struct maybe, but where?
 	//      finally: add options here
 	extraParams := map[string]string{}
 
@@ -124,6 +131,7 @@ func (c *Client) Har(file string) (string, error) {
 	return string(body), nil
 }
 
+// Login acquires a JWT access token for the given email/password
 func (c *Client) Login(email string, password string) (string, error) {
 	data := map[string]string{"email": email, "password": password}
 
@@ -147,7 +155,7 @@ func (c *Client) Login(email string, password string) (string, error) {
 	}
 
 	if resp.StatusCode != 200 {
-		return "", errors.New("Login unsuccessful!")
+		return "", errors.New("login not successful")
 	}
 
 	var dat map[string]interface{}

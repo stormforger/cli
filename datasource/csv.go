@@ -10,24 +10,21 @@ import (
 
 const quotingRune = '"'
 
+// Validator configures the CSV datasource validator
 type Validator struct {
 	ColSeparator rune
 	MaxErrors    int
 }
 
+// CsvError represents a error in a CSV source. It is defined
+// by Row, Column and a human-readable Message.
 type CsvError struct {
 	Row     int
 	Column  int
 	Message string
 }
 
-func DefaultValidatorOptions() Validator {
-	return Validator{
-		ColSeparator: ';',
-		MaxErrors:    10,
-	}
-}
-
+// ValidateCSV performs a CSV validation
 func ValidateCSV(input io.Reader, options Validator) ([]CsvError, error) {
 	reader := csv.NewReader(bufio.NewReader(input))
 	reader.Comma = options.ColSeparator
@@ -57,7 +54,7 @@ func ValidateCSV(input io.Reader, options Validator) ([]CsvError, error) {
 			break
 		}
 
-		currentRow += 1
+		currentRow++
 	}
 
 	return errors, nil
@@ -84,7 +81,7 @@ func checkField(value string, options Validator, row int, column int) CsvError {
 
 	if errorMessage != "" {
 		return CsvError{Row: row, Column: column, Message: errorMessage}
-	} else {
-		return CsvError{}
 	}
+
+	return CsvError{}
 }

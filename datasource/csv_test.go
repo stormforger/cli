@@ -13,6 +13,13 @@ var (
 	validCsv   string
 )
 
+func defaultValidatorOptions() Validator {
+	return csv.Validator{
+		ColSeparator: ';',
+		MaxErrors:    10,
+	}
+}
+
 func TestMain(m *testing.M) {
 	invalidCsvBytes, err := ioutil.ReadFile("../testdata/csv/invalid.csv")
 	if err != nil {
@@ -32,7 +39,7 @@ func TestMain(m *testing.M) {
 func TestValidateCSVPositive(t *testing.T) {
 	r := strings.NewReader(validCsv)
 
-	results, err := ValidateCSV(r, DefaultValidatorOptions())
+	results, err := ValidateCSV(r, defaultValidatorOptions())
 
 	if err != nil {
 		t.Error(err)
@@ -46,7 +53,7 @@ func TestValidateCSVPositive(t *testing.T) {
 func TestValidateCSVNegative(t *testing.T) {
 	r := strings.NewReader(invalidCsv)
 
-	results, err := ValidateCSV(r, DefaultValidatorOptions())
+	results, err := ValidateCSV(r, defaultValidatorOptions())
 
 	if err != nil {
 		t.Error(err)
