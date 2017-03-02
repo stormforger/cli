@@ -7,6 +7,8 @@ BUILD_COMMIT=`git rev-parse HEAD | cut -c1-10`
 
 GOFILES_NOVENDOR = $(shell find . -type f -name '*.go' -not -path "./vendor/*")
 
+.PHONY: all test build build_release local_release fmt vet
+
 all: build
 
 test: vet
