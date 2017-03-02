@@ -82,7 +82,25 @@ go get -u github.com/golang/lint/golint
 
 ### Release
 
-In order to publish releases, you need a personal access token, which you can acquire here: https://github.com/settings/tokens.
+Releases are done via Travis CI.
+
+When ready, tag a new release and push the new tag
+
+```
+git tag vA.B.C
+git push --tag
+```
+
+Travis will make a build and on success automatically publish a release to [GitHub releases](https://github.com/stormforger/cli/releases).
+
+Now go to the [releases page](https://github.com/stormforger/cli/releases) and add release notes.
+
+
+#### Local Release
+
+In case there is an issue with the normal release process, a manual (or local) release can be done as well.
+
+In order to publish releases to GitHub, you need a personal access token, which you can acquire here: https://github.com/settings/tokens.
 
 Copy the token an add it to your local goxc configuration (will be written to .goxc.local.json):
 
@@ -90,8 +108,8 @@ Copy the token an add it to your local goxc configuration (will be written to .g
 goxc -wlc default publish-github -apikey=$API_KEY
 ```
 
-To make a release, run:
+Now you can make a release with
 
 ```
-make release
+make test local_release
 ```
