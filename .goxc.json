@@ -1,13 +1,12 @@
 {
   "AppName": "forge",
   "Tasks": [
-    "go-vet",
-    "go-test",
-    "go-install",
-    "publish-github",
     "publish-github"
   ],
   "TasksExclude": [
+    "go-vet",
+    "go-test",
+    "go-install"
   ],
   "BuildConstraints": "darwin,amd64 linux,amd64 windows,amd64",
   "TaskSettings": {
