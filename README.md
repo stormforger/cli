@@ -60,17 +60,15 @@ jwt = "your-jwt-token"
 
 
 
-## Release
+## Build
 
-Dependencies:
 
-```
-go get github.com/fatih/color
-go get github.com/howeyc/gopass
-go get github.com/inconshreveable/mousetrap # required to cross compile for windows
-go get github.com/laher/goxc
-go get golang.org/x/tools/cmd/goimports
-```
+### Dependencies
+
+We use [`godep`](https://github.com/tools/godep) to vendor dependencies.
+
+
+### Release
 
 In order to publish releases, you need a personal access token, which you can acquire here: https://github.com/settings/tokens.
 
