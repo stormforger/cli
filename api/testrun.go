@@ -20,11 +20,11 @@ type testRunResources struct {
 func (c *Client) TestRunCallLog(pathID string, preview bool) (io.ReadCloser, error) {
 	testRun := extractResources(pathID)
 
-	path := ""
+	var path string
 	if testRun.uid == "" {
-		path = "/test_cases/" + testRun.organisation + "/" + testRun.testCase + "/test_runs/" + testRun.sequenceID
+		path = "/beta/test_cases/" + testRun.organisation + "/" + testRun.testCase + "/test_runs/" + testRun.sequenceID
 	} else {
-		path = "/t/" + testRun.uid
+		path = "/beta/t/" + testRun.uid
 	}
 
 	path += "/call_log"
@@ -41,6 +41,8 @@ func (c *Client) TestRunCallLog(pathID string, preview bool) (io.ReadCloser, err
 	// TODO how to set these on all requests?
 	req.Header.Add("Authorization", "Bearer "+c.JWT)
 	req.Header.Set("User-Agent", c.UserAgent)
+
+	req.Header.Set("Accept-Encoding", "gzip")
 
 	response, err := c.HTTPClient.Do(req)
 	if err != nil {
