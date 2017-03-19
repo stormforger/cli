@@ -2,13 +2,14 @@ package buildinfo
 
 import (
 	"fmt"
+	"log"
 )
 
 // Build infos are set during build
 var (
-	Version     = "0.0.42"
-	BuildTime   = "build-time"
-	BuildCommit = "build-commit-sha"
+	version     string
+	buildTime   string
+	buildCommit string
 )
 
 // BuildInfo holds build information like version, build time and commit
@@ -32,5 +33,7 @@ func (buildInfo BuildInfos) ShortString() string {
 }
 
 func init() {
-	BuildInfo = BuildInfos{Version, BuildCommit, BuildTime}
+	log.Println(version)
+
+	BuildInfo = BuildInfos{version, buildCommit, buildTime}
 }

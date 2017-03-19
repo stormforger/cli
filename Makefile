@@ -1,4 +1,4 @@
-VERSION="0.0.2"
+VERSION="0.2.1"
 
 BINARY=forge
 
@@ -6,6 +6,10 @@ BUILD_TIME=`date +%FT%T%z`
 BUILD_COMMIT=`git rev-parse HEAD | cut -c1-10`
 
 GOFILES_NOVENDOR = $(shell find . -type f -name '*.go' -not -path "./vendor/*")
+
+BUILDINFO_PACKAGE="github.com/stormforger/cli/buildinfo"
+
+LDFLAGS="-X ${BUILDINFO_PACKAGE}.version=${VERSION} -X ${BUILDINFO_PACKAGE}.buildTime=${BUILD_TIME} -X ${BUILDINFO_PACKAGE}.buildCommit=${BUILD_COMMIT}"
 
 .PHONY: all test build build_release local_release fmt vet
 
@@ -20,12 +24,12 @@ build:
 build_release:
 	goxc \
 		-pv=${VERSION} \
-		-build-ldflags="-X buildinfo.Version=${VERSION} -X buildinfo.BuildTime=${BUILD_TIME} -X buildinfo.BuildCommit=${BUILD_COMMIT}"
+		-build-ldflags=${LDFLAGS}
 
 local_release:
 	goxc \
 		-pv=${VERSION} \
-		-build-ldflags="-X buildinfo.Version=${VERSION} -X buildinfo.BuildTime=${BUILD_TIME} -X buildinfo.BuildCommit=${BUILD_COMMIT}" \
+		-build-ldflags=${LDFLAGS}
 		-tasks+="publish-github"
 
 fmt:
