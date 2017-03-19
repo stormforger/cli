@@ -52,7 +52,7 @@ func Execute() {
 
 // NewClient initializes a new API Client
 func NewClient() *api.Client {
-	return api.NewClient(rootOpts.APIEndpoint, viper.GetString("jwt"))
+	return api.NewClient(viper.GetString("endpoint"), viper.GetString("jwt"))
 }
 
 /*
@@ -64,16 +64,18 @@ func NewClient() *api.Client {
 func setupConfig() {
 	viper.SetEnvPrefix(EnvPrefix)
 	viper.BindEnv("jwt")
+	viper.BindEnv("endpoint")
 
 	viper.SetConfigName(ConfigFilename)
 	viper.AddConfigPath("$HOME")
 	viper.AddConfigPath(".")
 	viper.ReadInConfig()
 
-	viper.BindPFlag("jwt", RootCmd.Flags().Lookup("jwt"))
+	viper.BindPFlag("jwt", RootCmd.PersistentFlags().Lookup("jwt"))
+	viper.BindPFlag("endpoint", RootCmd.PersistentFlags().Lookup("endpoint"))
 }
 
 func init() {
 	RootCmd.PersistentFlags().StringVar(&rootOpts.APIEndpoint, "endpoint", "https://api.stormforger.com", "API Endpoint")
-	RootCmd.Flags().StringVar(&rootOpts.JWT, "jwt", "", "JWT access token")
+	RootCmd.PersistentFlags().StringVar(&rootOpts.JWT, "jwt", "", "JWT access token")
 }

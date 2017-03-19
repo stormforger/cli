@@ -8,6 +8,8 @@
 **HEAVY WORK IN PROGRESS**
 
 ```
+$ forge --help
+
 The command line client "forge" to StormForger offers a interface
 to the StormForger API and several convenience methods
 to handle load and performance tests.
@@ -22,6 +24,7 @@ Available Commands:
   har         Convert HAR to test case
   login       Login to StormForger
   ping        Ping the StormForger API
+  test-run    Work with and manage test runs
   version     Show forge version
 
 Flags:
