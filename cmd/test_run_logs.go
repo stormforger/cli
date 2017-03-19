@@ -13,8 +13,11 @@ var (
 	// calllogCmd represents the calllog command
 	calllogCmd = &cobra.Command{
 		Use:   "logs <test-run-ref>",
-		Short: "Fetch up to 10k lines of the test runs call log",
-		Long: `Will fetch up to 10k lines of the test runs call log.
+		Short: "Fetch the the test runs call log (request log)",
+		Long: `Will fetch the the test runs call log (request log).
+
+By default, you will get the first 10k lines. Using --full you
+will download the entire request log.
 
 The call log contains:
   * time (epoch in seconds)
@@ -29,8 +32,9 @@ The call log contains:
 	}
 
 	logOpts struct {
-		Type    string
-		Preview bool
+		Type       string
+		Full       bool
+		OutputFile string
 	}
 )
 
@@ -38,16 +42,13 @@ func init() {
 	TestRunCmd.AddCommand(calllogCmd)
 
 	calllogCmd.Flags().StringVar(&logOpts.Type, "type", "request", "type of logs")
-	calllogCmd.Flags().BoolVarP(&logOpts.Preview, "preview", "p", true, "Preview of logs")
+	calllogCmd.Flags().BoolVarP(&logOpts.Full, "full", "f", false, "download full logs")
+	calllogCmd.Flags().StringVar(&logOpts.OutputFile, "output", "-", "save logs to file or '-' for stdout")
 }
 
 func run(cmd *cobra.Command, args []string) {
-	if len(args) == 0 {
-		log.Fatal("Missing argument: Test Run Reference")
-	}
-
-	if len(args) > 2 {
-		log.Fatal("Too many arguments")
+	if len(args) != 1 {
+		log.Fatal("Expecting exactly one argument: Test Run Reference")
 	}
 
 	if logOpts.Type != "request" {
@@ -56,15 +57,15 @@ func run(cmd *cobra.Command, args []string) {
 
 	client := NewClient()
 
-	reader, err := client.TestRunCallLog(args[0], logOpts.Preview)
+	reader, err := client.TestRunCallLog(args[0], !logOpts.Full)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	if len(args) == 1 {
+	if logOpts.OutputFile == "-" {
 		io.Copy(os.Stdout, reader)
 	} else {
-		file, err := os.Create(args[1])
+		file, err := os.Create(logOpts.OutputFile)
 		if err != nil {
 			log.Fatal(err)
 		}
