@@ -1,8 +1,9 @@
 package api
 
 import (
+	"compress/gzip"
 	"errors"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"strings"
 )
@@ -14,9 +15,9 @@ type testRunResources struct {
 	sequenceID   string
 }
 
-// TestRunCallLogPreview will download the first 10k lines
+// TestRunCallLog will download the first 10k lines
 // of the test run's call log
-func (c *Client) TestRunCallLogPreview(pathID string) (string, error) {
+func (c *Client) TestRunCallLog(pathID string, preview bool) (io.ReadCloser, error) {
 	testRun := extractResources(pathID)
 
 	path := ""
@@ -26,33 +27,44 @@ func (c *Client) TestRunCallLogPreview(pathID string) (string, error) {
 		path = "/t/" + testRun.uid
 	}
 
-	// pathID looks like foo/demo/test_runs/19
-	req, err := http.NewRequest("GET", c.APIEndpoint+path+"/call_log_preview", nil)
+	path += "/call_log"
+
+	if preview {
+		path += "?preview=true"
+	}
+
+	req, err := http.NewRequest("GET", c.APIEndpoint+path, nil)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	// TODO how to set these on all requests?
 	req.Header.Add("Authorization", "Bearer "+c.JWT)
 	req.Header.Set("User-Agent", c.UserAgent)
 
-	resp, err := c.HTTPClient.Do(req)
+	response, err := c.HTTPClient.Do(req)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
-	if resp.StatusCode != 200 {
-		return "", errors.New("could not download call log")
+	if response.StatusCode != 200 {
+		return nil, errors.New("could not download call log")
 	}
 
-	defer resp.Body.Close()
+	var reader io.ReadCloser
+	switch response.Header.Get("Content-Encoding") {
+	case "gzip":
+		reader, err = gzip.NewReader(response.Body)
+		if err != nil {
+			return nil, err
+		}
 
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return "", err
+		defer reader.Close()
+	default:
+		reader = response.Body
 	}
 
-	return string(body), nil
+	return reader, nil
 }
 
 // extractResources will try to extract information to the

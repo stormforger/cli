@@ -2,7 +2,9 @@ package cmd
 
 import (
 	"fmt"
+	"io"
 	"log"
+	"os"
 
 	"github.com/spf13/cobra"
 )
@@ -27,7 +29,8 @@ The call log contains:
 	}
 
 	logOpts struct {
-		Type string
+		Type    string
+		Preview bool
 	}
 )
 
@@ -35,11 +38,16 @@ func init() {
 	TestRunCmd.AddCommand(calllogCmd)
 
 	calllogCmd.Flags().StringVar(&logOpts.Type, "type", "request", "type of logs")
+	calllogCmd.Flags().BoolVarP(&logOpts.Preview, "preview", "p", true, "Preview of logs")
 }
 
 func run(cmd *cobra.Command, args []string) {
-	if len(args) != 1 {
-		log.Fatal("Expect exactly one argument: Test Run Reference")
+	if len(args) == 0 {
+		log.Fatal("Missing argument: Test Run Reference")
+	}
+
+	if len(args) > 2 {
+		log.Fatal("Too many arguments")
 	}
 
 	if logOpts.Type != "request" {
@@ -48,10 +56,21 @@ func run(cmd *cobra.Command, args []string) {
 
 	client := NewClient()
 
-	result, err := client.TestRunCallLogPreview(args[0])
+	reader, err := client.TestRunCallLog(args[0], logOpts.Preview)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	fmt.Print(result)
+	if len(args) == 1 {
+		io.Copy(os.Stdout, reader)
+	} else {
+		file, err := os.Create(args[1])
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer file.Close()
+		defer reader.Close()
+
+		io.Copy(file, reader)
+	}
 }
