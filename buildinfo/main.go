@@ -2,7 +2,6 @@ package buildinfo
 
 import (
 	"fmt"
-	"log"
 )
 
 // Build infos are set during build
@@ -33,7 +32,5 @@ func (buildInfo BuildInfos) ShortString() string {
 }
 
 func init() {
-	log.Println(version)
-
 	BuildInfo = BuildInfos{version, buildCommit, buildTime}
 }
