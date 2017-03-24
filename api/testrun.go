@@ -39,8 +39,7 @@ func (c *Client) TestRunCallLog(pathID string, preview bool) (io.ReadCloser, err
 	}
 
 	// TODO how to set these on all requests?
-	req.Header.Add("Authorization", "Bearer "+c.JWT)
-	req.Header.Set("User-Agent", c.UserAgent)
+	c.addDefaultHeaders(req)
 
 	req.Header.Set("Accept-Encoding", "gzip")
 

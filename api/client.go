@@ -5,10 +5,9 @@ import (
 	"crypto/sha256"
 	"crypto/tls"
 	"crypto/x509"
-	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"mime/multipart"
 	"net"
@@ -16,6 +15,8 @@ import (
 	"os"
 	"path/filepath"
 	"time"
+
+	"github.com/stormforger/cli/buildinfo"
 )
 
 type dialer func(network, addr string) (net.Conn, error)
@@ -78,7 +79,7 @@ func NewClient(apiEndpoint string, jwtToken string) *Client {
 		HTTPClient:  defaultHTTPClient(),
 		APIEndpoint: apiEndpoint,
 		JWT:         jwtToken,
-		UserAgent:   "StormForger CLI (https://stormforger.com)",
+		UserAgent:   fmt.Sprintf("StormForger-CLI/%v (%v; +https://github.com/stormforger/cli)", buildinfo.BuildInfo.Version, buildinfo.BuildInfo.Commit),
 	}
 }
 
@@ -94,8 +95,7 @@ func (c *Client) Ping() (bool, error) {
 	req, err := http.NewRequest("GET", c.APIEndpoint+"/authenticated_ping", nil)
 
 	// TODO how to set these on all requests?
-	req.Header.Add("Authorization", "Bearer "+c.JWT)
-	req.Header.Set("User-Agent", c.UserAgent)
+	c.addDefaultHeaders(req)
 
 	resp, err := c.HTTPClient.Do(req)
 	if err != nil {
@@ -105,65 +105,6 @@ func (c *Client) Ping() (bool, error) {
 	defer resp.Body.Close()
 
 	return (resp.StatusCode == 200), errors.New("could not perform authenticated ping")
-}
-
-// Har converts the given HAR archive file into
-// a StormForger test case definition
-func (c *Client) Har(file string) (string, error) {
-	// TODO how to pass options, like --skip-assets here?
-	//      defining a struct maybe, but where?
-	//      finally: add options here
-	extraParams := map[string]string{}
-
-	req, err := newfileUploadRequest(c.APIEndpoint+"/har", extraParams, "har_file", file)
-
-	resp, err := c.HTTPClient.Do(req)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return "", err
-	}
-	resp.Body.Close()
-
-	return string(body), nil
-}
-
-// Login acquires a JWT access token for the given email/password
-func (c *Client) Login(email string, password string) (string, error) {
-	data := map[string]string{"email": email, "password": password}
-
-	body := new(bytes.Buffer)
-	json.NewEncoder(body).Encode(data)
-
-	req, err := http.NewRequest("POST", c.APIEndpoint+"/beta/user/token", body)
-
-	req.Header.Set("Content-Type", "application/json")
-
-	resp, err := c.HTTPClient.Do(req)
-	if err != nil {
-		return "", err
-	}
-
-	defer resp.Body.Close()
-
-	responseBody, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return "", err
-	}
-
-	if resp.StatusCode != 200 {
-		return "", errors.New("login not successful")
-	}
-
-	var dat map[string]interface{}
-	if err := json.Unmarshal(responseBody, &dat); err != nil {
-		return "", err
-	}
-
-	return dat["jwt"].(string), nil
 }
 
 func newfileUploadRequest(uri string, params map[string]string, paramName, path string) (*http.Request, error) {
@@ -192,4 +133,9 @@ func newfileUploadRequest(uri string, params map[string]string, paramName, path 
 	req, err := http.NewRequest("POST", uri, body)
 	req.Header.Set("Content-Type", writer.FormDataContentType())
 	return req, err
+}
+
+func (c *Client) addDefaultHeaders(request *http.Request) {
+	request.Header.Set("Authorization", "Bearer "+c.JWT)
+	request.Header.Set("User-Agent", c.UserAgent)
 }
