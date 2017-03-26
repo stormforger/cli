@@ -6,18 +6,34 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// DatasourceCmd is the cobra definition
-var DatasourceCmd = &cobra.Command{
-	Use:   "datasource",
-	Short: "Work with and manage data sources",
-	Long: `Work with and manage data sources.
+var (
+	datasourceCmd = &cobra.Command{
+		Use:     "datasource",
+		Aliases: []string{"ds"},
+		Short:   "Work with and manage data sources",
+		Long: `Work with and manage data sources.
 
   Currently only a rough validation is implemented.`,
-	Run: func(cmd *cobra.Command, args []string) {
-		log.Fatal("Cannot be run without subcommand, like validate!")
-	},
-}
+		Run: func(cmd *cobra.Command, args []string) {
+			log.Fatal("Cannot be run without subcommand, like validate!")
+		},
+
+		PersistentPreRun: ensureOrganisation,
+	}
+
+	datasourceOpts struct {
+		Organisation string
+	}
+)
 
 func init() {
-	RootCmd.AddCommand(DatasourceCmd)
+	RootCmd.AddCommand(datasourceCmd)
+
+	datasourceCmd.PersistentFlags().StringVarP(&datasourceOpts.Organisation, "organization", "o", "", "Name of the organization")
+}
+
+func ensureOrganisation(cmd *cobra.Command, args []string) {
+	if datasourceOpts.Organisation == "" {
+		log.Fatal("Missing organization flag")
+	}
 }

@@ -79,7 +79,7 @@ func runValidate(cmd *cobra.Command, args []string) {
 }
 
 func init() {
-	DatasourceCmd.AddCommand(validateCmd)
+	datasourceCmd.AddCommand(validateCmd)
 
 	validateCmd.PersistentFlags().StringVar(&validateOpts.ColSeparator, "separator", ",", "Column separator")
 	validateCmd.PersistentFlags().IntVar(&validateOpts.MaxErrors, "max-errors", 10, "Stop when encountering more errors")
