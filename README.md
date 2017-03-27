@@ -73,8 +73,6 @@ jwt = "your-jwt-token"
 
 ### Dependencies
 
-We use [`godep`](https://github.com/tools/godep) to vendor dependencies.
-
 Build dependencies:
 
 ```
@@ -82,6 +80,11 @@ go get -u golang.org/x/tools/cmd/goimports
 go get -u github.com/golang/lint/golint
 ```
 
+We use [`godep`](https://github.com/tools/godep) to vendor dependencies.
+
+To add a new dependency, use `go get` to install it, use it (import it) and use
+`godep save` to add the dependency to the `vendor` directory. **Make sure you
+add dependencies in a dedicated commit!**.
 
 ### Release
 
