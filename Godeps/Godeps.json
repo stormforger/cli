@@ -14,6 +14,10 @@
 			"Rev": "a904159b9206978bb6d53fcc7a769e5cd726c737"
 		},
 		{
+			"ImportPath": "github.com/google/jsonapi",
+			"Rev": "bce762968295cf96afcbbf082a2e15ca7e664c91"
+		},
+		{
 			"ImportPath": "github.com/hashicorp/hcl",
 			"Rev": "630949a3c5fa3c613328e1b8256052cbc2327c9b"
 		},
