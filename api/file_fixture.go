@@ -2,6 +2,7 @@ package api
 
 import (
 	"io/ioutil"
+	"log"
 	"net/http"
 )
 
@@ -16,6 +17,8 @@ type FileFixtureParams struct {
 // ListFileFixture returns a list of the organizations fixtures
 func (c *Client) ListFileFixture(organization string) ([]byte, error) {
 	path := "/file_fixtures/" + organization
+
+	log.Println(c.APIEndpoint + path)
 
 	req, err := http.NewRequest("GET", c.APIEndpoint+path, nil)
 	if err != nil {
