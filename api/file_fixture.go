@@ -42,10 +42,16 @@ func (c *Client) ListFileFixture(organization string) ([]byte, error) {
 // PushFileFixture uploads (insert or update) a file fixture
 func (c *Client) PushFileFixture(file string, organization string, params *FileFixtureParams) (string, error) {
 	extraParams := map[string]string{
-		"file_fixture[name]":                              params.Name,
-		"file_fixture[type]":                              params.Type,
-		"file_fixture[file_fixture_version][field_names]": params.FieldNames,
-		"file_fixture[file_fixture_version][delimiter]":   params.Delimiter,
+		"file_fixture[name]": params.Name,
+		"file_fixture[type]": params.Type,
+	}
+
+	if params.Delimiter != "" {
+		extraParams["file_fixture[file_fixture_version][delimiter]"] = params.Delimiter
+	}
+
+	if params.FieldNames != "" {
+		extraParams["file_fixture[file_fixture_version][field_names]"] = params.FieldNames
 	}
 
 	req, err := newfileUploadRequest(c.APIEndpoint+"/file_fixtures/"+organization, extraParams, "file_fixture[file_fixture_version][original]", file)
