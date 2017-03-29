@@ -107,6 +107,22 @@ func (c *Client) Ping() (bool, error) {
 	return (resp.StatusCode == 200), errors.New("could not perform authenticated ping")
 }
 
+func newPatchRequest(uri string, params map[string]string) (*http.Request, error) {
+	body := &bytes.Buffer{}
+	writer := multipart.NewWriter(body)
+	for key, val := range params {
+		_ = writer.WriteField(key, val)
+	}
+	err := writer.Close()
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PATCH", uri, body)
+	req.Header.Set("Content-Type", writer.FormDataContentType())
+	return req, err
+}
+
 func newfileUploadRequest(uri string, params map[string]string, paramName, path string) (*http.Request, error) {
 	file, err := os.Open(path)
 	if err != nil {

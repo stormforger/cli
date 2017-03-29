@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/spf13/cobra"
@@ -20,5 +21,15 @@ func init() {
 }
 
 func runDataSourceMove(cmd *cobra.Command, args []string) {
-	log.Fatal("NOT IMPLEMENTED")
+	client := NewClient()
+
+	fileUID := args[0]
+	newName := args[1]
+
+	result, err := client.MoveFileFixture(datasourceOpts.Organisation, fileUID, newName)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Println(result)
 }

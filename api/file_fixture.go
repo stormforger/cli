@@ -14,6 +14,31 @@ type FileFixtureParams struct {
 	Delimiter  string
 }
 
+// MoveFileFixture renames a filefixtures
+func (c *Client) MoveFileFixture(organization string, fileFixtureUID string, newName string) ([]byte, error) {
+	params := map[string]string{"file_fixture[name]": newName}
+
+	req, err := newPatchRequest(c.APIEndpoint+"/file_fixtures/"+organization+"/"+fileFixtureUID, params)
+	if err != nil {
+		return nil, err
+	}
+
+	c.addDefaultHeaders(req)
+
+	resp, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+	resp.Body.Close()
+
+	return body, nil
+}
+
 // ListFileFixture returns a list of the organizations fixtures
 func (c *Client) ListFileFixture(organization string) ([]byte, error) {
 	path := "/file_fixtures/" + organization
