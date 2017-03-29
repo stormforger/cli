@@ -106,7 +106,7 @@ func (c *Client) PushFileFixture(file string, organization string, params *FileF
 
 // DeleteFileFixture deletes a file fixture
 func (c *Client) DeleteFileFixture(fileFixtureUID string, organization string) (string, error) {
-	req, err := http.NewRequest("DELETE", c.APIEndpoint+"/file_fixtures/"+fileFixtureUID+"?organisation_uid="+organization, nil)
+	req, err := http.NewRequest("DELETE", c.APIEndpoint+"/file_fixtures/"+organization+"/"+fileFixtureUID, nil)
 	if err != nil {
 		return "", err
 	}
