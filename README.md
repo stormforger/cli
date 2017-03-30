@@ -76,6 +76,7 @@ jwt = "your-jwt-token"
 Build dependencies:
 
 ```
+go get -u github.com/tools/godep
 go get -u golang.org/x/tools/cmd/goimports
 go get -u github.com/golang/lint/golint
 ```
