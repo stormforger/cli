@@ -1,7 +1,6 @@
 package api
 
 import (
-	"io/ioutil"
 	"log"
 	"net/http"
 )
@@ -15,28 +14,20 @@ type FileFixtureParams struct {
 }
 
 // MoveFileFixture renames a filefixtures
-func (c *Client) MoveFileFixture(organization string, fileFixtureUID string, newName string) ([]byte, error) {
+func (c *Client) MoveFileFixture(organization string, fileFixtureUID string, newName string) (string, error) {
 	params := map[string]string{"file_fixture[name]": newName}
 
 	req, err := newPatchRequest(c.APIEndpoint+"/file_fixtures/"+organization+"/"+fileFixtureUID, params)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
-	c.addDefaultHeaders(req)
-
-	resp, err := c.HTTPClient.Do(req)
+	body, err := c.doRequest(req)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return nil, err
-	}
-	resp.Body.Close()
-
-	return body, nil
+	return string(body), nil
 }
 
 // ListFileFixture returns a list of the organizations fixtures
@@ -50,19 +41,10 @@ func (c *Client) ListFileFixture(organization string) ([]byte, error) {
 		return nil, err
 	}
 
-	// TODO how to set these on all requests?
-	c.addDefaultHeaders(req)
-
-	resp, err := c.HTTPClient.Do(req)
+	body, err := c.doRequest(req)
 	if err != nil {
 		return nil, err
 	}
-
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return nil, err
-	}
-	resp.Body.Close()
 
 	return body, nil
 }
@@ -87,19 +69,10 @@ func (c *Client) PushFileFixture(file string, organization string, params *FileF
 		return "", err
 	}
 
-	// TODO how to set these on all requests?
-	c.addDefaultHeaders(req)
-
-	resp, err := c.HTTPClient.Do(req)
+	body, err := c.doRequest(req)
 	if err != nil {
 		return "", err
 	}
-
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return "", err
-	}
-	resp.Body.Close()
 
 	return string(body), nil
 }
@@ -111,19 +84,10 @@ func (c *Client) DeleteFileFixture(fileFixtureUID string, organization string) (
 		return "", err
 	}
 
-	// TODO how to set these on all requests?
-	c.addDefaultHeaders(req)
-
-	resp, err := c.HTTPClient.Do(req)
+	body, err := c.doRequest(req)
 	if err != nil {
 		return "", err
 	}
-
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return "", err
-	}
-	defer resp.Body.Close()
 
 	return string(body), nil
 }

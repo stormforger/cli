@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"log"
 	"mime/multipart"
 	"net"
@@ -94,8 +95,7 @@ func NewClient(apiEndpoint string, jwtToken string) *Client {
 func (c *Client) Ping() (bool, error) {
 	req, err := http.NewRequest("GET", c.APIEndpoint+"/authenticated_ping", nil)
 
-	// TODO how to set these on all requests?
-	c.addDefaultHeaders(req)
+	c.setUserAgent(req)
 
 	resp, err := c.HTTPClient.Do(req)
 	if err != nil {
@@ -153,5 +153,32 @@ func newfileUploadRequest(uri string, params map[string]string, paramName, path 
 
 func (c *Client) addDefaultHeaders(request *http.Request) {
 	request.Header.Set("Authorization", "Bearer "+c.JWT)
+	c.setUserAgent(request)
+}
+
+func (c *Client) setUserAgent(request *http.Request) {
 	request.Header.Set("User-Agent", c.UserAgent)
+}
+
+func (c *Client) doRequestRaw(request *http.Request) (*http.Response, error) {
+	c.addDefaultHeaders(request)
+
+	response, err := c.HTTPClient.Do(request)
+	if err != nil {
+		return nil, err
+	}
+
+	return response, nil
+}
+
+func (c *Client) doRequest(request *http.Request) ([]byte, error) {
+	response, err := c.doRequestRaw(request)
+
+	body, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		return nil, err
+	}
+	defer response.Body.Close()
+
+	return body, nil
 }
