@@ -11,9 +11,10 @@ import (
 
 var (
 	datasourcePushCmd = &cobra.Command{
-		Use:   "push <file>",
-		Short: "Upload a file",
-		Run:   runDataSourcePush,
+		Use:              "push <file>",
+		Short:            "Upload a file",
+		Run:              runDataSourcePush,
+		PersistentPreRun: ensureDatasourcePushOptionsOptions,
 	}
 
 	pushOpts struct {
@@ -32,11 +33,11 @@ func init() {
 
 	datasourcePushCmd.Flags().StringVarP(&pushOpts.Delimiter, "delimiter", "d", "", "Column Delimiter")
 	datasourcePushCmd.Flags().StringVarP(&pushOpts.Name, "name", "n", "", "Name for the file fixture")
-	datasourcePushCmd.Flags().StringVarP(&pushOpts.NamePrefixPath, "name-prefix-prefix", "p", "", "Prefix for name for the file fixture")
+	datasourcePushCmd.Flags().StringVarP(&pushOpts.NamePrefixPath, "name-prefix-path", "p", "", "Prefix for name for the file fixture")
 	datasourcePushCmd.Flags().StringVarP(&pushOpts.FieldNames, "fields", "f", "", "Name for the fields/columns, comma separated")
 }
 
-func runDataSourcePush(cmd *cobra.Command, args []string) {
+func ensureDatasourcePushOptionsOptions(cmd *cobra.Command, args []string) {
 	if len(args) < 1 {
 		log.Fatal("Expecting one or more arguments: File(s) to upload")
 	}
@@ -44,7 +45,9 @@ func runDataSourcePush(cmd *cobra.Command, args []string) {
 	if len(args) > 1 && (pushOpts.Name != "" || pushOpts.FieldNames != "") {
 		log.Fatal("--name and --fields is not supported for multiple uploads")
 	}
+}
 
+func runDataSourcePush(cmd *cobra.Command, args []string) {
 	var fixtureNameFor func(string) string
 	if len(args) == 1 {
 		fixtureNameFor = func(fileName string) string {

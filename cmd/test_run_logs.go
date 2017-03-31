@@ -28,7 +28,8 @@ The call log contains:
   * response size (in Bytes)
   * duration (in ms)
   * request tag`,
-		Run: run,
+		Run:              runTestRunLogsOptions,
+		PersistentPreRun: ensureTestRunLogsOptions,
 	}
 
 	logOpts struct {
@@ -46,7 +47,7 @@ func init() {
 	calllogCmd.Flags().StringVar(&logOpts.OutputFile, "output", "-", "save logs to file or '-' for stdout")
 }
 
-func run(cmd *cobra.Command, args []string) {
+func ensureTestRunLogsOptions(cmd *cobra.Command, args []string) {
 	if len(args) != 1 {
 		log.Fatal("Expecting exactly one argument: Test Run Reference")
 	}
@@ -54,7 +55,9 @@ func run(cmd *cobra.Command, args []string) {
 	if logOpts.Type != "request" {
 		log.Fatal(fmt.Sprintf("Unsupported log type %s", logOpts.Type))
 	}
+}
 
+func runTestRunLogsOptions(cmd *cobra.Command, args []string) {
 	client := NewClient()
 
 	reader, err := client.TestRunCallLog(args[0], !logOpts.Full)

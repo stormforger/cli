@@ -20,8 +20,9 @@ var (
 	File fixtures may not contain the following in fields:
 	* newlines (NL, \n), carriage return (CR, \r)
 	* \0 or \1`,
-		Example: "forge validate --input users.csv",
-		Run:     runValidate,
+		Example:          "forge validate --input users.csv",
+		Run:              runDatasourceValidate,
+		PersistentPreRun: ensureDatasourceValidate,
 	}
 
 	validateOpts struct {
@@ -31,6 +32,12 @@ var (
 	}
 )
 
+func ensureDatasourceValidate(cmd *cobra.Command, args []string) {
+	if len(args) < 1 {
+		log.Fatal(errors.New("the file argument is required"))
+	}
+}
+
 // CsvError represents a error in a CSV source. It is defined
 // by Row, Column and a human-readable Message.
 // type CsvError struct {
@@ -39,11 +46,7 @@ var (
 // 	Message string
 // }
 
-func runValidate(cmd *cobra.Command, args []string) {
-	if len(args) < 1 {
-		log.Fatal(errors.New("the file argument is required"))
-	}
-
+func runDatasourceValidate(cmd *cobra.Command, args []string) {
 	validateOpts.InputFile = args[0]
 
 	// FIXME where should be put the validation/check
