@@ -1,7 +1,6 @@
 package api
 
 import (
-	"log"
 	"net/http"
 )
 
@@ -30,11 +29,29 @@ func (c *Client) MoveFileFixture(organization string, fileFixtureUID string, new
 	return string(body), nil
 }
 
+// GetFileFixture returns a list of the organizations fixtures
+func (c *Client) GetFileFixture(organization string, fileUID string) ([]byte, error) {
+	path := "/file_fixtures/" + organization + "/" + fileUID
+
+	req, err := http.NewRequest("GET", c.APIEndpoint+path, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	body, err := c.doRequest(req)
+	if err != nil {
+		return nil, err
+	}
+
+	// TODO how to opt-in for debugging?
+	// log.Println(string(body))
+
+	return body, nil
+}
+
 // ListFileFixture returns a list of the organizations fixtures
 func (c *Client) ListFileFixture(organization string) ([]byte, error) {
 	path := "/file_fixtures/" + organization
-
-	log.Println(c.APIEndpoint + path)
 
 	req, err := http.NewRequest("GET", c.APIEndpoint+path, nil)
 	if err != nil {
@@ -90,4 +107,21 @@ func (c *Client) DeleteFileFixture(fileFixtureUID string, organization string) (
 	}
 
 	return string(body), nil
+}
+
+// DownloadFileFixture retrieves the originally uploaded file
+func (c *Client) DownloadFileFixture(organization string, fileFixtureUID string, version string) ([]byte, error) {
+	path := "/file_fixtures/" + organization + "/" + fileFixtureUID + "/download/" + version
+
+	req, err := http.NewRequest("GET", c.APIEndpoint+path, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	body, err := c.doRequest(req)
+	if err != nil {
+		return nil, err
+	}
+
+	return body, nil
 }
