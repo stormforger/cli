@@ -6,6 +6,7 @@ import (
 	"log"
 	"reflect"
 	"strconv"
+	"time"
 
 	humanize "github.com/dustin/go-humanize"
 	"github.com/google/jsonapi"
@@ -101,11 +102,34 @@ func ShowDetails(fileFixture *FileFixture) {
 	if err != nil {
 		log.Fatal(err)
 	}
+	fixtureCreatedAt := parseTime(fileFixture.CreatedAt)
+	fixtureUpdatedAt := parseTime(fileFixture.UpdatedAt)
+	fixtureCurrentVersionCreatedAt := parseTime(fileFixture.CurrentVersion.CreatedAt)
 
 	fmt.Printf("Name:            %s\n", fileFixture.Name)
 	fmt.Printf("UID:             %s\n", fileFixture.ID)
+	fmt.Printf("Created:         %s (%s)\n", convertToLocalTZ(fixtureCreatedAt), humanize.Time(fixtureCreatedAt))
+	fmt.Printf("Updated:         %s (%s)\n", convertToLocalTZ(fixtureUpdatedAt), humanize.Time(fixtureUpdatedAt))
 	fmt.Printf("Current Version: %s\n", fileFixture.CurrentVersion.ID)
 	fmt.Printf("  SHA256 Hash:   %s\n", fileFixture.CurrentVersion.OriginalHash)
 	fmt.Printf("  Size:          %s\n", humanize.Bytes(bytes))
-	fmt.Printf("  Created:       %s\n", fileFixture.CurrentVersion.CreatedAt)
+	fmt.Printf("  Created:       %s (%s)\n", convertToLocalTZ(fixtureCurrentVersionCreatedAt), humanize.Time(fixtureCurrentVersionCreatedAt))
+}
+
+func convertToLocalTZ(timeToConvert time.Time) time.Time {
+	loc, err := time.LoadLocation("Local")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return timeToConvert.In(loc)
+}
+
+func parseTime(subject string) time.Time {
+	parsedTime, err := time.Parse(time.RFC3339Nano, subject)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return parsedTime
 }
