@@ -5,7 +5,6 @@ import (
 	"io"
 	"log"
 	"reflect"
-	"strconv"
 	"time"
 
 	humanize "github.com/dustin/go-humanize"
@@ -31,7 +30,7 @@ type FileFixture struct {
 type Version struct {
 	ID               string `jsonapi:"primary,file_fixture_version_structureds"`
 	OriginalHash     string `jsonapi:"attr,hash"`
-	OriginalFileSize string `jsonapi:"attr,file_size"`
+	OriginalFileSize int    `jsonapi:"attr,file_size"`
 	FieldNames       string `jsonapi:"attr,field_names"`
 	CreatedAt        string `jsonapi:"attr,created_at"`
 	UpdatedAt        string `jsonapi:"attr,updated_at"`
@@ -98,10 +97,6 @@ func ShowName(input io.Reader) {
 // ShowDetails print out details of a file fixture, including its current version
 func ShowDetails(fileFixture *FileFixture) {
 	// TODO where to move this? shouldn't this be already done earlier?
-	bytes, err := strconv.ParseUint(fileFixture.CurrentVersion.OriginalFileSize, 10, 64)
-	if err != nil {
-		log.Fatal(err)
-	}
 	fixtureCreatedAt := parseTime(fileFixture.CreatedAt)
 	fixtureUpdatedAt := parseTime(fileFixture.UpdatedAt)
 	fixtureCurrentVersionCreatedAt := parseTime(fileFixture.CurrentVersion.CreatedAt)
@@ -112,7 +107,7 @@ func ShowDetails(fileFixture *FileFixture) {
 	fmt.Printf("Updated:         %s (%s)\n", convertToLocalTZ(fixtureUpdatedAt), humanize.Time(fixtureUpdatedAt))
 	fmt.Printf("Current Version: %s\n", fileFixture.CurrentVersion.ID)
 	fmt.Printf("  SHA256 Hash:   %s\n", fileFixture.CurrentVersion.OriginalHash)
-	fmt.Printf("  Size:          %s\n", humanize.Bytes(bytes))
+	fmt.Printf("  Size:          %s\n", humanize.Bytes(uint64(fileFixture.CurrentVersion.OriginalFileSize)))
 	fmt.Printf("  Created:       %s (%s)\n", convertToLocalTZ(fixtureCurrentVersionCreatedAt), humanize.Time(fixtureCurrentVersionCreatedAt))
 }
 
