@@ -18,12 +18,12 @@ type List struct {
 
 // FileFixture represents a single file fixture
 type FileFixture struct {
-	ID             string   `jsonapi:"primary,file_fixture_structureds"`
-	Name           string   `jsonapi:"attr,name"`
-	CurrentVersion *Version `jsonapi:"relation,current_version"`
-	Versions       *Version `jsonapi:"relation,versions"`
-	CreatedAt      string   `jsonapi:"attr,created_at"`
-	UpdatedAt      string   `jsonapi:"attr,updated_at"`
+	ID             string     `jsonapi:"primary,file_fixture_structureds"`
+	Name           string     `jsonapi:"attr,name"`
+	CurrentVersion *Version   `jsonapi:"relation,current_version"`
+	Versions       []*Version `jsonapi:"relation,versions"`
+	CreatedAt      string     `jsonapi:"attr,created_at"`
+	UpdatedAt      string     `jsonapi:"attr,updated_at"`
 }
 
 // Version respresents a concrete version of a file fixture
@@ -109,6 +109,12 @@ func ShowDetails(fileFixture *FileFixture) {
 	fmt.Printf("  SHA256 Hash:   %s\n", fileFixture.CurrentVersion.OriginalHash)
 	fmt.Printf("  Size:          %s\n", humanize.Bytes(uint64(fileFixture.CurrentVersion.OriginalFileSize)))
 	fmt.Printf("  Created:       %s (%s)\n", convertToLocalTZ(fixtureCurrentVersionCreatedAt), humanize.Time(fixtureCurrentVersionCreatedAt))
+	fmt.Printf("Version(s):      %v\n", len(fileFixture.Versions))
+	for _, version := range fileFixture.Versions {
+		versionCreatedAt := parseTime(version.CreatedAt)
+
+		fmt.Printf("  - %s (created %s)\n", version.ID, convertToLocalTZ(versionCreatedAt))
+	}
 }
 
 func convertToLocalTZ(timeToConvert time.Time) time.Time {

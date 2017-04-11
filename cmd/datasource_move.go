@@ -45,7 +45,8 @@ func runDataSourceMove(cmd *cobra.Command, args []string) {
 	}
 
 	fileFixture := fileFixtures.FindByName(fileName)
-	if fileFixture == *new(filefixture.FileFixture) {
+	// TODO how to make this better?
+	if fileFixture.ID == "" {
 		log.Fatal(fmt.Printf("Filefixture %s not found!", fileName))
 	}
 
