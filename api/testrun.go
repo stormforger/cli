@@ -38,12 +38,9 @@ func (c *Client) TestRunCallLog(pathID string, preview bool) (io.ReadCloser, err
 		return nil, err
 	}
 
-	// TODO how to set these on all requests?
-	c.addDefaultHeaders(req)
-
 	req.Header.Set("Accept-Encoding", "gzip")
 
-	response, err := c.HTTPClient.Do(req)
+	response, err := c.doRequestRaw(req)
 	if err != nil {
 		return nil, err
 	}

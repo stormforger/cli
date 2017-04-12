@@ -4,6 +4,10 @@
 	"GodepVersion": "v79",
 	"Deps": [
 		{
+			"ImportPath": "github.com/dustin/go-humanize",
+			"Rev": "259d2a102b871d17f30e3cd9881a642961a1e486"
+		},
+		{
 			"ImportPath": "github.com/fatih/color",
 			"Comment": "v1.4.0",
 			"Rev": "7824417a424b65227be8ac9b14d545a7f3e6c3f0"
@@ -12,6 +16,10 @@
 			"ImportPath": "github.com/fsnotify/fsnotify",
 			"Comment": "v1.4.2-3-ga904159",
 			"Rev": "a904159b9206978bb6d53fcc7a769e5cd726c737"
+		},
+		{
+			"ImportPath": "github.com/google/jsonapi",
+			"Rev": "bce762968295cf96afcbbf082a2e15ca7e664c91"
 		},
 		{
 			"ImportPath": "github.com/hashicorp/hcl",
