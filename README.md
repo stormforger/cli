@@ -2,49 +2,34 @@
 [ ![Go Report Card](https://goreportcard.com/badge/github.com/stormforger/cli)](https://goreportcard.com/report/github.com/stormforger/cli)
 
 
-
 # forge! The StormForger Command Line Client
 
-**HEAVY WORK IN PROGRESS**
+Please note that this tool is still **HEAVY WORK IN PROGRESS**. If you have any questions, don't hesitate to [contact](https://stormforger.com/support).
 
-```
-$ forge --help
+Using `forge` you can:
 
-The command line client "forge" to StormForger offers a interface
-to the StormForger API and several convenience methods
-to handle load and performance tests.
+* use StormForger's HAR converter
+* work with test runs (only fetching logs currently)
+* work with data sources (private beta currently)
 
-Happy Load Testing :)
-
-Usage:
-  forge [command]
-
-Available Commands:
-  datasource  Work with and manage data sources
-  har         Convert HAR to test case
-  login       Login to StormForger
-  ping        Ping the StormForger API
-  test-run    Work with and manage test runs
-  version     Show forge version
-
-Flags:
-      --endpoint string   API Endpoint (default "https://api.stormforger.com")
-      --jwt string        JWT access token
-
-Use "forge [command] --help" for more information about a command.
-```
-
+You can use `--help` to get usage information on all commands.
 
 
 ## Installation
 
-Download the latest release from [GitHub](https://github.com/stormforger/cli/releases).
+Download the latest release from [GitHub releases](https://github.com/stormforger/cli/releases) page.
 
+In case you are on macOS and using [Homebrew](https://brew.sh/) you can:
+
+```
+brew tap stormforger/forge
+brew install forge
+```
 
 
 ## Getting Started
 
-Most actions require authentication. So in case you don't have a StormForger account yet, you have to [sign up](https://app.stormforger.com) first.
+Most actions require authentication. So in case you don't have a StormForger account yet, you have to [sign up](https://app.stormforger.com) first - no worries, it's free!
 
 When done, you can login via
 
@@ -70,6 +55,7 @@ jwt = "your-jwt-token"
 
 ## Build
 
+In case you want to use `forge`, you can stop reading now. This section describes how to build `forge` from source.
 
 ### Dependencies
 
@@ -83,7 +69,7 @@ go get -u github.com/golang/lint/golint
 
 We use [`godep`](https://github.com/tools/godep) to vendor dependencies.
 
-To add a new dependency, use `go get` to install it, use it (import it) and use
+To add a new dependency, use `go get` to install it, use it (as in import it) and use
 `godep save` to add the dependency to the `vendor` directory. **Make sure you
 add dependencies in a dedicated commit!**.
 
