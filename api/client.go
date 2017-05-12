@@ -95,9 +95,7 @@ func NewClient(apiEndpoint string, jwtToken string) *Client {
 func (c *Client) Ping() (bool, error) {
 	req, err := http.NewRequest("GET", c.APIEndpoint+"/authenticated_ping", nil)
 
-	c.setUserAgent(req)
-
-	resp, err := c.HTTPClient.Do(req)
+	resp, err := c.doRequestRaw(req)
 	if err != nil {
 		return false, err
 	}
