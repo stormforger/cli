@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"fmt"
-	"io"
 	"io/ioutil"
 	"log"
 	"os"
@@ -63,27 +62,6 @@ func runHar(cmd *cobra.Command, args []string) {
 	} else {
 		log.Fatal("Missing argument; HAR file or - to read from stdin")
 	}
-}
-
-// TODO check if this is really the way to go :-)
-func readFromStdin() string {
-	var buffer string
-
-	for {
-		var input string
-		_, err := fmt.Scan(&input)
-
-		if err != nil {
-			if err != io.EOF {
-				log.Fatal(err)
-			}
-			break
-		}
-
-		buffer += input
-	}
-
-	return buffer
 }
 
 func init() {
