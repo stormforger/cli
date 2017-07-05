@@ -26,6 +26,7 @@ func runHar(cmd *cobra.Command, args []string) {
 	if len(args) > 0 {
 		var harFile string
 
+		// FIXME this is the same as in testcase_validate.go. Can we extract and generalize this?
 		if args[0] == "-" {
 			harInput := readFromStdin()
 			tmpFile, err := ioutil.TempFile(os.TempDir(), "forge-har")
