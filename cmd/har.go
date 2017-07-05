@@ -58,7 +58,6 @@ func runHar(cmd *cobra.Command, args []string) {
 		}
 
 		fmt.Println(result)
-
 	} else {
 		log.Fatal("Missing argument; HAR file or - to read from stdin")
 	}
