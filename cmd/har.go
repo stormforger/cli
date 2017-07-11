@@ -2,9 +2,7 @@ package cmd
 
 import (
 	"fmt"
-	"io/ioutil"
 	"log"
-	"os"
 
 	"github.com/spf13/cobra"
 )
@@ -24,36 +22,14 @@ var (
 
 func runHar(cmd *cobra.Command, args []string) {
 	if len(args) > 0 {
-		var harFile string
-
-		// FIXME this is the same as in testcase_validate.go. Can we extract and generalize this?
-		if args[0] == "-" {
-			harInput := readFromStdin()
-			tmpFile, err := ioutil.TempFile(os.TempDir(), "forge-har")
-			if err != nil {
-				log.Fatal(err)
-			}
-			defer os.Remove(tmpFile.Name())
-
-			harFile = tmpFile.Name()
-
-			// TODO what/why this compact syntax with ;?
-			if _, err := tmpFile.Write([]byte(harInput)); err != nil {
-				log.Fatal(err)
-			}
-
-			if err := tmpFile.Close(); err != nil {
-				log.Fatal(err)
-			}
-
-		} else {
-			// FIXME check if file exists here?
-			harFile = args[0]
+		fileName, harFile, err := readFromStdinOrReadFirstArgument(args, "har.json")
+		if err != nil {
+			log.Fatal(err)
 		}
 
 		client := NewClient()
 
-		result, err := client.Har(harFile)
+		result, err := client.Har(fileName, harFile)
 		if err != nil {
 			log.Fatal(err)
 		}

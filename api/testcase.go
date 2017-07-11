@@ -1,18 +1,19 @@
 package api
 
 import (
+	"io"
 	"io/ioutil"
 )
 
 // TestCaseValidate will send a test case definition (JS) to the API
 // to validate.
-func (c *Client) TestCaseValidate(file string) (bool, string, error) {
+func (c *Client) TestCaseValidate(fileName string, data io.Reader) (bool, string, error) {
 	// TODO how to pass options here?
 	//      defining a struct maybe, but where?
 	//      finally: add options here
 	extraParams := map[string]string{}
 
-	req, err := newfileUploadRequest(c.APIEndpoint+"/test_cases/validate", extraParams, "test_case", file)
+	req, err := newfileUploadRequest(c.APIEndpoint+"/test_cases/validate", extraParams, "test_case", fileName, data)
 	if err != nil {
 		return false, "", err
 	}

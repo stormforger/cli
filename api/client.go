@@ -13,8 +13,6 @@ import (
 	"mime/multipart"
 	"net"
 	"net/http"
-	"os"
-	"path/filepath"
 	"time"
 
 	"github.com/stormforger/cli/buildinfo"
@@ -121,20 +119,14 @@ func newPatchRequest(uri string, params map[string]string) (*http.Request, error
 	return req, err
 }
 
-func newfileUploadRequest(uri string, params map[string]string, paramName, path string) (*http.Request, error) {
-	file, err := os.Open(path)
-	if err != nil {
-		return nil, err
-	}
-	defer file.Close()
-
+func newfileUploadRequest(uri string, params map[string]string, paramName string, fileName string, data io.Reader) (*http.Request, error) {
 	body := &bytes.Buffer{}
 	writer := multipart.NewWriter(body)
-	part, err := writer.CreateFormFile(paramName, filepath.Base(path))
+	part, err := writer.CreateFormFile(paramName, fileName)
 	if err != nil {
 		return nil, err
 	}
-	_, err = io.Copy(part, file)
+	_, err = io.Copy(part, data)
 
 	for key, val := range params {
 		_ = writer.WriteField(key, val)

@@ -3,7 +3,6 @@ package cmd
 import (
 	"bytes"
 	"encoding/json"
-	"io/ioutil"
 	"log"
 	"os"
 
@@ -26,42 +25,20 @@ func init() {
 
 func runTestCaseValidate(cmd *cobra.Command, args []string) {
 	if len(args) > 0 {
-		var testCaseFile string
-
-		// FIXME this is the same as in har.go. Can we extract and generalize this?
-		if args[0] == "-" {
-			fileInput := readFromStdin()
-			tmpFile, err := ioutil.TempFile(os.TempDir(), "forge-test-case")
-			if err != nil {
-				log.Fatal(err)
-			}
-			defer os.Remove(tmpFile.Name())
-
-			testCaseFile = tmpFile.Name()
-
-			// TODO what/why this compact syntax with ;?
-			if _, err := tmpFile.Write([]byte(fileInput)); err != nil {
-				log.Fatal(err)
-			}
-
-			if err := tmpFile.Close(); err != nil {
-				log.Fatal(err)
-			}
-
-		} else {
-			// FIXME check if file exists here?
-			testCaseFile = args[0]
+		fileName, testCaseFile, err := readFromStdinOrReadFirstArgument(args, "test_case.js")
+		if err != nil {
+			log.Fatal(err)
 		}
 
 		client := NewClient()
 
-		_, message, errValidation := client.TestCaseValidate(testCaseFile)
+		_, message, errValidation := client.TestCaseValidate(fileName, testCaseFile)
 		if errValidation != nil {
 			log.Fatal(errValidation)
 		}
 
 		var out bytes.Buffer
-		err := json.Indent(&out, []byte(message), "", "  ")
+		err = json.Indent(&out, []byte(message), "", "  ")
 		if err != nil {
 			log.Fatal(err)
 		}
