@@ -32,9 +32,13 @@ func runTestCaseValidate(cmd *cobra.Command, args []string) {
 
 		client := NewClient()
 
-		_, message, errValidation := client.TestCaseValidate(fileName, testCaseFile)
+		success, message, errValidation := client.TestCaseValidate(fileName, testCaseFile)
 		if errValidation != nil {
 			log.Fatal(errValidation)
+		}
+
+		if success {
+			os.Exit(0)
 		}
 
 		var out bytes.Buffer
@@ -44,6 +48,7 @@ func runTestCaseValidate(cmd *cobra.Command, args []string) {
 		}
 
 		out.WriteTo(os.Stdout)
+		os.Exit(1)
 	} else {
 		log.Fatal("Missing argument; test case file or - to read from stdin")
 	}
