@@ -3,6 +3,7 @@ package cmd
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"log"
 	"os"
 
@@ -48,6 +49,7 @@ func runTestCaseValidate(cmd *cobra.Command, args []string) {
 		}
 
 		out.WriteTo(os.Stdout)
+		fmt.Println()
 		os.Exit(1)
 	} else {
 		log.Fatal("Missing argument; test case file or - to read from stdin")
