@@ -13,6 +13,8 @@ import (
 	"mime/multipart"
 	"net"
 	"net/http"
+	"net/textproto"
+	"strings"
 	"time"
 
 	"github.com/stormforger/cli/buildinfo"
@@ -119,10 +121,23 @@ func newPatchRequest(uri string, params map[string]string) (*http.Request, error
 	return req, err
 }
 
-func newfileUploadRequest(uri string, params map[string]string, paramName string, fileName string, data io.Reader) (*http.Request, error) {
+func createFormFile(w *multipart.Writer, fieldname string, filename string, contenttype string) (io.Writer, error) {
+	replacer := strings.NewReplacer("\\", "\\\\", `"`, "\\\"")
+
+	h := make(textproto.MIMEHeader)
+	h.Set("Content-Disposition",
+		fmt.Sprintf(`form-data; name="%s"; filename="%s"`,
+			replacer.Replace(fieldname), replacer.Replace(filename)))
+	h.Set("Content-Type", contenttype)
+
+	return w.CreatePart(h)
+}
+
+func newfileUploadRequest(uri string, params map[string]string, paramName string, fileName string, mimeType string, data io.Reader) (*http.Request, error) {
 	body := &bytes.Buffer{}
 	writer := multipart.NewWriter(body)
-	part, err := writer.CreateFormFile(paramName, fileName)
+	part, err := createFormFile(writer, paramName, fileName, mimeType)
+
 	if err != nil {
 		return nil, err
 	}

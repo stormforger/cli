@@ -82,7 +82,7 @@ func (c *Client) PushFileFixture(fileName string, data io.Reader, organization s
 		extraParams["file_fixture[file_fixture_version][field_names]"] = params.FieldNames
 	}
 
-	req, err := newfileUploadRequest(c.APIEndpoint+"/file_fixtures/"+organization, extraParams, "file_fixture[file_fixture_version][original]", fileName, data)
+	req, err := newfileUploadRequest(c.APIEndpoint+"/file_fixtures/"+organization, extraParams, "file_fixture[file_fixture_version][original]", fileName, "application/octet-stream", data)
 	if err != nil {
 		return "", err
 	}

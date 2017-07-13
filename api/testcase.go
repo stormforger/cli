@@ -13,7 +13,7 @@ func (c *Client) TestCaseValidate(fileName string, data io.Reader) (bool, string
 	//      finally: add options here
 	extraParams := map[string]string{}
 
-	req, err := newfileUploadRequest(c.APIEndpoint+"/test_cases/validate", extraParams, "test_case", fileName, data)
+	req, err := newfileUploadRequest(c.APIEndpoint+"/test_cases/validate", extraParams, "test_case", fileName, "application/javascript", data)
 	if err != nil {
 		return false, "", err
 	}
