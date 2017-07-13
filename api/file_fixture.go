@@ -1,6 +1,7 @@
 package api
 
 import (
+	"io"
 	"net/http"
 )
 
@@ -67,7 +68,7 @@ func (c *Client) ListFileFixture(organization string) ([]byte, error) {
 }
 
 // PushFileFixture uploads (insert or update) a file fixture
-func (c *Client) PushFileFixture(file string, organization string, params *FileFixtureParams) (string, error) {
+func (c *Client) PushFileFixture(fileName string, data io.Reader, organization string, params *FileFixtureParams) (string, error) {
 	extraParams := map[string]string{
 		"file_fixture[name]": params.Name,
 		"file_fixture[type]": params.Type,
@@ -81,7 +82,7 @@ func (c *Client) PushFileFixture(file string, organization string, params *FileF
 		extraParams["file_fixture[file_fixture_version][field_names]"] = params.FieldNames
 	}
 
-	req, err := newfileUploadRequest(c.APIEndpoint+"/file_fixtures/"+organization, extraParams, "file_fixture[file_fixture_version][original]", file)
+	req, err := newfileUploadRequest(c.APIEndpoint+"/file_fixtures/"+organization, extraParams, "file_fixture[file_fixture_version][original]", fileName, "application/octet-stream", data)
 	if err != nil {
 		return "", err
 	}

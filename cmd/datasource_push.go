@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"log"
+	"os"
 	"path"
 
 	"github.com/spf13/cobra"
@@ -83,7 +84,12 @@ func runDataSourcePush(cmd *cobra.Command, args []string) {
 			Delimiter:  pushOpts.Delimiter,
 		}
 
-		result, err := client.PushFileFixture(fileName, datasourceOpts.Organisation, params)
+		data, err := os.OpenFile(fileName, os.O_RDONLY, 0755)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		result, err := client.PushFileFixture(fileName, data, datasourceOpts.Organisation, params)
 		if err != nil {
 			log.Fatal(err)
 		}

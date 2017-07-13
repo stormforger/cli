@@ -67,8 +67,8 @@ func setupConfig() {
 	viper.BindEnv("endpoint")
 
 	viper.SetConfigName(ConfigFilename)
-	viper.AddConfigPath("$HOME")
 	viper.AddConfigPath(".")
+	viper.AddConfigPath("$HOME")
 	viper.ReadInConfig()
 
 	viper.BindPFlag("jwt", RootCmd.PersistentFlags().Lookup("jwt"))
