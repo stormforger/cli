@@ -6,9 +6,9 @@ import (
 
 // Build infos are set during build
 var (
-	version     string
-	buildTime   string
-	buildCommit string
+	version string
+	date    string
+	commit  string
 )
 
 // BuildInfo holds build information like version, build time and commit
@@ -23,7 +23,7 @@ type BuildInfos struct {
 
 // String returns the version, build time and commit
 func (buildInfo BuildInfos) String() string {
-	return fmt.Sprintf("%v %v (%v - %v) - https://stormforger.com", "forge", BuildInfo.Version, BuildInfo.Time, BuildInfo.Commit)
+	return fmt.Sprintf("%v %v (%v - %v) - https://stormforger.com", "forge", BuildInfo.Version, BuildInfo.Commit, BuildInfo.Time)
 }
 
 // ShortString only returns the build version
@@ -32,5 +32,5 @@ func (buildInfo BuildInfos) ShortString() string {
 }
 
 func init() {
-	BuildInfo = BuildInfos{version, buildCommit, buildTime}
+	BuildInfo = BuildInfos{version, date, commit}
 }

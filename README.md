@@ -93,16 +93,16 @@ Now go to the [releases page](https://github.com/stormforger/cli/releases) and a
 
 In case there is an issue with the normal release process, a manual (or local) release can be done as well.
 
+Releases are done with `goreleaser`:
+
+```
+go get -u github.com/goreleaser/goreleaser
+```
+
 In order to publish releases to GitHub, you need a personal access token, which you can acquire here: https://github.com/settings/tokens.
-
-Copy the token an add it to your local goxc configuration (will be written to .goxc.local.json):
-
-```
-goxc -wlc default publish-github -apikey=$API_KEY
-```
 
 Now you can make a release with
 
 ```
-make test local_release
+GITHUB_TOKEN="geheim" make test local_release
 ```

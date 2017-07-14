@@ -1,0 +1,40 @@
+project_name: forge
+release:
+  github:
+    owner: stormforger
+    name: cli
+brew:
+  github:
+    owner: stormforger
+    name: homebrew-forge
+  install: bin.install "forge"
+  folder: Formula
+  homepage: "https://stormforger.com"
+  description: "The StormForger Command Line Client, called 'forge'"
+builds:
+- goos:
+  - linux
+  - darwin
+  - windows
+  goarch:
+  - amd64
+  main: .
+  ldflags: -s -w -X github.com/stormforger/cli/buildinfo.version={{.Version}} -X github.com/stormforger/cli/buildinfo.commit={{.Commit}} -X github.com/stormforger/cli/buildinfo.date={{.Date}}
+  binary: forge
+archive:
+  format: zip
+  format_overrides:
+    - goos: linux
+      format: tar.gz
+  name_template: '{{ .Binary }}_v{{.Version}}_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{.Arm }}{{ end }}'
+  files:
+  - licence*
+  - LICENCE*
+  - license*
+  - LICENSE*
+  - readme*
+  - README*
+  - changelog*
+  - CHANGELOG*
+snapshot:
+  name_template: SNAPSHOT-{{ .Commit }}
