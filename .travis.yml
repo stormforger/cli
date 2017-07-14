@@ -5,15 +5,9 @@ go:
 - master
 install:
 - go get github.com/laher/goxc
-script: make test build_release VERSION=$TRAVIS_TAG
-deploy:
-  provider: releases
-  skip_cleanup: true
-  api_key:
-    secure: CQcOuzCYYCDHrMurMwrddSZ4bSEEGA/Nuj7n1Fa01IE94Xce2WWAwjM0Yr7Of88bVmfDMXCXNo/A5THzKBv2ZO08xMjCk+ZVhgH03IK85S5KN7C6IwUZ9Bku1BRmFJwKKVvPLA0t3mT1dmOBiwIT3FUR2HfH9l8TjKiez3COnwt56qrnpnn8UegnM8yffvm4oCkRfzElb8mdErwOS1Ism7wljAL41oKmui5WWylbQFBsahKX7Gp8QKmPsrk0N4qikx3MuMA7OaLFT8U5R53UQynwjL/Jv1t3Zob0l40ZiLLjnE1D3ipuk/6mfgC+qnAGP8faoW2OD2Ab64rFdUQXvrWQbB6Cm2ruixfDSC6BPR3Imj7OUcZ3qF/H+DZuxGXLLgUPenlCkaErWI+riEsMJbNQR4f9/xWcx18JjfhB+dY75Ycpk5l+S7dXLPcfbjh6/wVE9Tv9mHnuR1aJHvhCoKNAATJ7swRK+ztc10eotWDPvjvzRqY4wHMCgxiIllkA8ny99UBexXNI0pZhQnWoYdB92OWe77I6vOb2LJ02Z+1Cl9/MVnvzz0F6LqqR4AwqGRMihHLTGKrCC+u6cqz8IMGu+34I5+/MtUIyliKvRaiz1ZCRefoGEcF0+TQUZU1+CbaZjWuZ+etBKQhWLq5JW5lMZNsaz8VPCbrST7e1J1M=
-  file:
-    - build/${TRAVIS_TAG}/forge_${TRAVIS_TAG}_darwin_amd64.zip
-    - build/${TRAVIS_TAG}/forge_${TRAVIS_TAG}_linux_amd64.tar.gz
-    - build/${TRAVIS_TAG}/forge_${TRAVIS_TAG}_windows_amd64.zip
-  on:
-    tags: true
+script: make test
+env:
+  # GITHUB_TOKEN: tisba/"stormforger/cli goreleaser"
+  - secure: "G+n4gBmpZU2AW9NA1DqKpg9rDYKYOKK2UGmg7nVmyG/tmqfI51852s+rAgQ1VKAlIbl/Wha+Et9rO17J26XaUuttkVAILqTgJXWVuedFVmLPYlKhyFbAONOwJIhK/1XMtCT8oDIWvSVtOJ9noAkstq5woySNwJ4RSMpZ91MT+ZCHXXM0ebP0L5prvgIgGN/0X9khbSG8jR3lCB/wOtmRVpI5c766mPexX5+F/aSKGnOOyE55PoYmUVVe7qW0dYqvcnJmlz4cUZXTCf1qAJzwO+iAzHxyzI2P9sa1f/ESDNgSUOQZuLzCB43cRsFlynbMYrrCUNbV8CZwW6T40KEMmo0XAcnfLuxQjR0YAaSXh0MuTHqkcetFkmx97hJA+jcQI1dsZCudbE1jLLxSb6fWvBWC9MfaV/sod9EnVak85PNliTGG7KWlasW2OcZl1TE9cnXps8jxPiwrk1X1V0xwe6frC+XeV08Xh//kvpa8uhPLSaSgOssngagiARae79cA43sf1rZLVBraec/loWyl5JW9pXPWvVrcDf/SBCvX46n/Z+FGEmMlqPexR5EmUWZAS9bNHEREmkfKKZKyP/Q76QnKhcPI45trRTkc1LfbyzKr7/HekJQFTzgi5uzU3Hbb6mUADHO7oekdU50b8RPo/2NSg2dkgVcDeGK9kapCeik="
+after_success:
+  - test -n "$TRAVIS_TAG" && curl -sL https://git.io/goreleaser | bash
