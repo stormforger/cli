@@ -179,6 +179,10 @@ func (c *Client) doRequestRaw(request *http.Request) (*http.Response, error) {
 func (c *Client) doRequest(request *http.Request) ([]byte, error) {
 	response, err := c.doRequestRaw(request)
 
+	if err != nil {
+		return nil, err
+	}
+
 	body, err := ioutil.ReadAll(response.Body)
 	if err != nil {
 		return nil, err

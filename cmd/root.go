@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"log"
 	"os"
 
 	"github.com/fatih/color"
@@ -62,17 +63,38 @@ func NewClient() *api.Client {
 	* Command line flag
 */
 func setupConfig() {
+	var err error
+
 	viper.SetEnvPrefix(EnvPrefix)
-	viper.BindEnv("jwt")
-	viper.BindEnv("endpoint")
+
+	err = viper.BindEnv("jwt")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	err = viper.BindEnv("endpoint")
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	viper.SetConfigName(ConfigFilename)
 	viper.AddConfigPath(".")
 	viper.AddConfigPath("$HOME")
-	viper.ReadInConfig()
 
-	viper.BindPFlag("jwt", RootCmd.PersistentFlags().Lookup("jwt"))
-	viper.BindPFlag("endpoint", RootCmd.PersistentFlags().Lookup("endpoint"))
+	err = viper.ReadInConfig()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	err = viper.BindPFlag("jwt", RootCmd.PersistentFlags().Lookup("jwt"))
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	err = viper.BindPFlag("endpoint", RootCmd.PersistentFlags().Lookup("endpoint"))
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 
 func init() {

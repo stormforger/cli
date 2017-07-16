@@ -25,7 +25,11 @@ func (c *Client) Har(fileName string, data io.Reader) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	resp.Body.Close()
+
+	err = resp.Body.Close()
+	if err != nil {
+		return "", err
+	}
 
 	return string(body), nil
 }

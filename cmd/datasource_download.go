@@ -62,5 +62,8 @@ func runDatasourceDownload(cmd *cobra.Command, args []string) {
 		log.Fatal(err)
 	}
 
-	io.Copy(os.Stdout, bytes.NewReader(result))
+	_, err = io.Copy(os.Stdout, bytes.NewReader(result))
+	if err != nil {
+		log.Fatal(err)
+	}
 }

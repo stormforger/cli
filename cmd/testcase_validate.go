@@ -48,7 +48,11 @@ func runTestCaseValidate(cmd *cobra.Command, args []string) {
 			log.Fatal(err)
 		}
 
-		out.WriteTo(os.Stdout)
+		_, err = out.WriteTo(os.Stdout)
+		if err != nil {
+			log.Fatal(err)
+		}
+
 		fmt.Println()
 		os.Exit(1)
 	} else {

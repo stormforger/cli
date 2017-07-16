@@ -13,7 +13,10 @@ func (c *Client) Login(email string, password string) (string, error) {
 	data := map[string]string{"email": email, "password": password}
 
 	body := new(bytes.Buffer)
-	json.NewEncoder(body).Encode(data)
+	err := json.NewEncoder(body).Encode(data)
+	if err != nil {
+		return "", err
+	}
 
 	req, err := http.NewRequest("POST", c.APIEndpoint+"/beta/user/token", body)
 
