@@ -27,3 +27,6 @@ fmt:
 
 vet:
 	script/gorun go vet
+
+errcheck:
+	script/gorun errcheck

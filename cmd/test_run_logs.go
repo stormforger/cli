@@ -66,7 +66,10 @@ func runTestRunLogsOptions(cmd *cobra.Command, args []string) {
 	}
 
 	if logOpts.OutputFile == "-" {
-		io.Copy(os.Stdout, reader)
+		_, err = io.Copy(os.Stdout, reader)
+		if err != nil {
+			log.Fatal(err)
+		}
 	} else {
 		file, err := os.Create(logOpts.OutputFile)
 		if err != nil {
@@ -75,6 +78,9 @@ func runTestRunLogsOptions(cmd *cobra.Command, args []string) {
 		defer file.Close()
 		defer reader.Close()
 
-		io.Copy(file, reader)
+		_, err = io.Copy(file, reader)
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
 }
