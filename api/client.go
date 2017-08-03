@@ -133,7 +133,7 @@ func createFormFile(w *multipart.Writer, fieldname string, filename string, cont
 	return w.CreatePart(h)
 }
 
-func newfileUploadRequest(uri string, params map[string]string, paramName string, fileName string, mimeType string, data io.Reader) (*http.Request, error) {
+func fileUploadRequest(uri string, method string, params map[string]string, paramName string, fileName string, mimeType string, data io.Reader) (*http.Request, error) {
 	body := &bytes.Buffer{}
 	writer := multipart.NewWriter(body)
 	part, err := createFormFile(writer, paramName, fileName, mimeType)
@@ -151,7 +151,7 @@ func newfileUploadRequest(uri string, params map[string]string, paramName string
 		return nil, err
 	}
 
-	req, err := http.NewRequest("POST", uri, body)
+	req, err := http.NewRequest(method, uri, body)
 	req.Header.Set("Content-Type", writer.FormDataContentType())
 	return req, err
 }
