@@ -9,7 +9,7 @@ import (
 var (
 	organisationCmd = &cobra.Command{
 		Use:     "organisation",
-		Aliases: []string{},
+		Aliases: []string{"o", "orga", "organization"},
 		Short:   "Manage organisations",
 		Run: func(cmd *cobra.Command, args []string) {
 			log.Fatal("Cannot be run without subcommand, like list!")
