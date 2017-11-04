@@ -1,7 +1,10 @@
 package cmd
 
 import (
+	"bytes"
+	"encoding/json"
 	"io"
+	"log"
 	"os"
 	"path/filepath"
 )
@@ -20,4 +23,22 @@ func readFromStdinOrReadFirstArgument(args []string, defaultFileName string) (fi
 	}
 
 	return fileName, reader, err
+}
+
+func printPrettyJson(message string) {
+	prettyJson := prettyFormatJson(message)
+
+	_, err := prettyJson.WriteTo(os.Stdout)
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+func prettyFormatJson(message string) (out bytes.Buffer) {
+	err := json.Indent(&out, []byte(message), "", "  ")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return out
 }

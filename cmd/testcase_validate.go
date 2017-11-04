@@ -1,8 +1,6 @@
 package cmd
 
 import (
-	"bytes"
-	"encoding/json"
 	"fmt"
 	"log"
 	"os"
@@ -17,11 +15,22 @@ var (
 		Short: "Upload a test case definition JavaScript and validate it",
 		Long:  `Upload a test case definition JavaScript and validate it.`,
 		Run:   runTestCaseValidate,
+		PersistentPreRun: func(cmd *cobra.Command, args []string) {
+			if testCaseValidateOpts.Organisation == "" {
+				log.Fatal("Missing organization flag")
+			}
+		},
+	}
+
+	testCaseValidateOpts struct {
+		Organisation string
 	}
 )
 
 func init() {
 	TestCaseCmd.AddCommand(testCaseValidateCmd)
+
+	testCaseValidateCmd.PersistentFlags().StringVarP(&testCaseValidateOpts.Organisation, "organization", "o", "", "Name of the organization")
 }
 
 func runTestCaseValidate(cmd *cobra.Command, args []string) {
@@ -33,25 +42,17 @@ func runTestCaseValidate(cmd *cobra.Command, args []string) {
 
 		client := NewClient()
 
-		success, message, errValidation := client.TestCaseValidate(fileName, testCaseFile)
+		success, message, errValidation := client.TestCaseValidate(testCaseValidateOpts.Organisation, fileName, testCaseFile)
 		if errValidation != nil {
 			log.Fatal(errValidation)
 		}
 
 		if success {
+			fmt.Println("test case ok")
 			os.Exit(0)
 		}
 
-		var out bytes.Buffer
-		err = json.Indent(&out, []byte(message), "", "  ")
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		_, err = out.WriteTo(os.Stdout)
-		if err != nil {
-			log.Fatal(err)
-		}
+		printPrettyJson(message)
 
 		fmt.Println()
 		os.Exit(1)
