@@ -2,10 +2,6 @@ sudo: false
 language: go
 go:
 - '1.9.1'
-- master
-matrix:
-  allow_failures:
-    - go: master
 script: make test
 env:
   # GITHUB_TOKEN: tisba/"stormforger/cli goreleaser"
