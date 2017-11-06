@@ -9,7 +9,7 @@ import (
 // TestCaseCmd is the cobra definition
 var TestCaseCmd = &cobra.Command{
 	Use:     "test-case",
-	Aliases: []string{"tc"},
+	Aliases: []string{"testcase", "tc"},
 	Short:   "Work with and manage test cases",
 	Long:    `Work with and manage test cases.`,
 	Run: func(cmd *cobra.Command, args []string) {

@@ -10,8 +10,7 @@ test: vet
 	script/gorun go test -v
 
 build:
-	go build \
-		-o ${BINARY}
+	go build -o ${BINARY}
 
 release:
 	goreleaser

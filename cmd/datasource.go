@@ -18,7 +18,11 @@ var (
 			log.Fatal("Cannot be run without subcommand, like validate!")
 		},
 
-		PersistentPreRun: ensureOrganisation,
+		PersistentPreRun: func(cmd *cobra.Command, args []string) {
+			if datasourceOpts.Organisation == "" {
+				log.Fatal("Missing organization flag")
+			}
+		},
 	}
 
 	datasourceOpts struct {
@@ -30,10 +34,4 @@ func init() {
 	RootCmd.AddCommand(datasourceCmd)
 
 	datasourceCmd.PersistentFlags().StringVarP(&datasourceOpts.Organisation, "organization", "o", "", "Name of the organization")
-}
-
-func ensureOrganisation(cmd *cobra.Command, args []string) {
-	if datasourceOpts.Organisation == "" {
-		log.Fatal("Missing organization flag")
-	}
 }

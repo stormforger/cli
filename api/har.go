@@ -14,7 +14,7 @@ func (c *Client) Har(fileName string, data io.Reader) (string, error) {
 	//      finally: add options here
 	extraParams := map[string]string{}
 
-	req, err := newfileUploadRequest(c.APIEndpoint+"/har", extraParams, "har_file", fileName, "application/json", data)
+	req, err := fileUploadRequest(c.APIEndpoint+"/har", "POST", extraParams, "har_file", fileName, "application/json", data)
 
 	resp, err := c.HTTPClient.Do(req)
 	if err != nil {
