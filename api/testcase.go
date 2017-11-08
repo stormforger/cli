@@ -7,37 +7,29 @@ import (
 )
 
 // ListTestCases returns a list of test cases
-func (c *Client) ListTestCases(organization string) ([]byte, error) {
-	path := "/test_cases?organisation_uid=" + organization
+func (c *Client) ListTestCases(organization string) (bool, []byte, error) {
+	path := "/organisations/" + organization + "/test_cases"
 
 	req, err := http.NewRequest("GET", c.APIEndpoint+path, nil)
 	if err != nil {
-		return nil, err
+		return false, nil, err
 	}
 
-	body, err := c.doRequest(req)
+	response, err := c.doRequestRaw(req)
 	if err != nil {
-		return nil, err
+		return false, nil, err
 	}
 
-	return body, nil
-}
-
-// CheckExistanceTestCase returns a list of test cases
-func (c *Client) CheckExistanceTestCase(organization string, testCaseName string) ([]byte, error) {
-	path := "/test_cases/" + testCaseName + "?organisation_uid=" + organization
-
-	req, err := http.NewRequest("GET", c.APIEndpoint+path, nil)
+	body, err := ioutil.ReadAll(response.Body)
 	if err != nil {
-		return nil, err
+		return false, nil, err
 	}
 
-	body, err := c.doRequest(req)
-	if err != nil {
-		return nil, err
+	if response.StatusCode != 200 {
+		return false, body, nil
 	}
 
-	return body, nil
+	return true, body, nil
 }
 
 // TestCaseValidate will send a test case definition (JS) to the API

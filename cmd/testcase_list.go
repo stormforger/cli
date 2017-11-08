@@ -2,7 +2,9 @@ package cmd
 
 import (
 	"bytes"
+	"fmt"
 	"log"
+	"os"
 
 	"github.com/spf13/cobra"
 	"github.com/stormforger/cli/api/testcase"
@@ -16,6 +18,12 @@ var (
 		Long:  `List a new test case.`,
 		Run:   runTestCaseList,
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
+			if len(args) >= 1 {
+				testCaseListOpts.Organisation = args[0]
+			} else {
+				testCaseListOpts.Organisation = ""
+			}
+
 			if testCaseListOpts.Organisation == "" {
 				testCaseListOpts.Organisation = readOrganisationUIDFromFile()
 				if testCaseListOpts.Organisation == "" {
@@ -33,17 +41,22 @@ var (
 
 func init() {
 	TestCaseCmd.AddCommand(testCaseListCmd)
-
-	testCaseListCmd.PersistentFlags().StringVarP(&testCaseListOpts.Organisation, "organization", "o", "", "Name of the organization")
 }
 
 func runTestCaseList(cmd *cobra.Command, args []string) {
 	client := NewClient()
 
-	result, err := client.ListTestCases(testCaseListOpts.Organisation)
+	status, result, err := client.ListTestCases(testCaseListOpts.Organisation)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	testcase.ShowNames(bytes.NewReader(result))
+	if status {
+		testcase.ShowNames(bytes.NewReader(result))
+	} else {
+		fmt.Fprintln(os.Stderr, "Could not list test cases!")
+		fmt.Fprintln(os.Stderr, string(result))
+
+		os.Exit(1)
+	}
 }
