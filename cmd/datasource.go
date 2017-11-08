@@ -20,7 +20,10 @@ var (
 
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
 			if datasourceOpts.Organisation == "" {
-				log.Fatal("Missing organization flag")
+				datasourceOpts.Organisation = readOrganisationUIDFromFile()
+				if datasourceOpts.Organisation == "" {
+					log.Fatal("Missing organization flag")
+				}
 			}
 		},
 	}

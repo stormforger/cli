@@ -17,9 +17,13 @@ var (
 		Run:   runTestCaseUpdate,
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
 			if testCaseUpdateOpts.Organisation == "" {
-				log.Fatal("Missing organization flag")
+				testCaseUpdateOpts.Organisation = readOrganisationUIDFromFile()
+				if testCaseUpdateOpts.Organisation == "" {
+					log.Fatal("Missing organization flag")
+				}
 			}
-			if testCaseUpdateOpts.Uid == "" {
+
+			if testCaseUpdateOpts.UID == "" {
 				log.Fatal("Missing test case UID flag")
 			}
 		},
@@ -27,7 +31,7 @@ var (
 
 	testCaseUpdateOpts struct {
 		Organisation string
-		Uid          string
+		UID          string
 	}
 )
 
@@ -35,7 +39,7 @@ func init() {
 	TestCaseCmd.AddCommand(testCaseUpdateCmd)
 
 	testCaseUpdateCmd.PersistentFlags().StringVarP(&testCaseUpdateOpts.Organisation, "organization", "o", "", "Name of the organization")
-	testCaseUpdateCmd.PersistentFlags().StringVarP(&testCaseUpdateOpts.Uid, "uid", "u", "", "UID of the test case")
+	testCaseUpdateCmd.PersistentFlags().StringVarP(&testCaseUpdateOpts.UID, "uid", "u", "", "UID of the test case")
 }
 
 func runTestCaseUpdate(cmd *cobra.Command, args []string) {
@@ -47,7 +51,7 @@ func runTestCaseUpdate(cmd *cobra.Command, args []string) {
 
 		client := NewClient()
 
-		success, message, err := client.TestCaseUpdate(testCaseUpdateOpts.Organisation, testCaseUpdateOpts.Uid, fileName, testCaseFile)
+		success, message, err := client.TestCaseUpdate(testCaseUpdateOpts.Organisation, testCaseUpdateOpts.UID, fileName, testCaseFile)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -56,7 +60,7 @@ func runTestCaseUpdate(cmd *cobra.Command, args []string) {
 			os.Exit(0)
 		}
 
-		printPrettyJson(message)
+		printPrettyJSON(message)
 
 		fmt.Println()
 		os.Exit(1)

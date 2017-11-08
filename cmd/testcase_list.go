@@ -17,7 +17,10 @@ var (
 		Run:   runTestCaseList,
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
 			if testCaseListOpts.Organisation == "" {
-				log.Fatal("Missing organization flag")
+				testCaseListOpts.Organisation = readOrganisationUIDFromFile()
+				if testCaseListOpts.Organisation == "" {
+					log.Fatal("Missing organization flag")
+				}
 			}
 		},
 	}

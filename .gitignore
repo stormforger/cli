@@ -6,6 +6,7 @@ dist/
 # secrets & configuration
 .stormforger.toml
 .goxc.local.json
+.stormforger-*
 
 # Sandbox
 sandbox
