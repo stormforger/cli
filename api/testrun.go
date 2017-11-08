@@ -67,36 +67,47 @@ func (c *Client) TestRunShow(uid string) (TestRun, error) {
 		return TestRun{}, err
 	}
 
-	_, err = c.doRequest(req)
+	body, err := c.doRequest(req)
 	if err != nil {
 		return TestRun{}, err
 	}
+
+	fmt.Println(string(body))
 
 	return TestRun{}, nil
 }
 
 // TestRunWatch will show some basic information on a given
 // test run
-func (c *Client) TestRunWatch(uid string) (TestRun, error) {
+func (c *Client) TestRunWatch(uid string) (TestRun, string, error) {
 	path := "/test_runs/" + uid + "/watch"
 
 	req, err := http.NewRequest("GET", c.APIEndpoint+path, nil)
 	if err != nil {
-		return TestRun{}, err
+		return TestRun{}, "", err
 	}
 
 	response, err := c.doRequestRaw(req)
 	if err != nil {
-		return TestRun{}, err
+		return TestRun{}, "", err
+	}
+
+	body, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		return TestRun{}, "", err
+	}
+
+	if response.StatusCode >= 400 {
+		log.Fatal(string(body))
 	}
 
 	testRun := new(TestRun)
-	err = jsonapi.UnmarshalPayload(response.Body, testRun)
+	err = jsonapi.UnmarshalPayload(bytes.NewReader(body), testRun)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	return *testRun, nil
+	return *testRun, string(body), nil
 }
 
 // TestRunCallLog will download the first 10k lines
@@ -104,14 +115,7 @@ func (c *Client) TestRunWatch(uid string) (TestRun, error) {
 func (c *Client) TestRunCallLog(pathID string, preview bool) (io.ReadCloser, error) {
 	testRun := extractResources(pathID)
 
-	var path string
-	if testRun.uid == "" {
-		path = "/test_cases/" + testRun.organisation + "/" + testRun.testCase + "/test_runs/" + testRun.sequenceID
-	} else {
-		path = "/beta/t/" + testRun.uid
-	}
-
-	path += "/call_log"
+	path := "/test_runs/" + testRun.uid + "/call_log"
 
 	if preview {
 		path += "?preview=true"
@@ -151,11 +155,11 @@ func (c *Client) TestRunCallLog(pathID string, preview bool) (io.ReadCloser, err
 
 // TestRunCreate will send a test case definition (JS) to the API
 // to update an existing test case it.
-func (c *Client) TestRunCreate(testCaseUID string) (bool, string, error) {
+func (c *Client) TestRunCreate(testCaseUID string, title string, notes string) (bool, string, error) {
 	payload := bytes.NewBuffer(nil)
 	newTestRun := &TestRun{
-		Title: "Title",
-		Notes: "Notizen!",
+		Title: title,
+		Notes: notes,
 	}
 	jsonapi.MarshalOnePayloadEmbedded(payload, newTestRun)
 
@@ -175,7 +179,7 @@ func (c *Client) TestRunCreate(testCaseUID string) (bool, string, error) {
 
 	defer response.Body.Close()
 
-	return false, string(body), nil
+	return response.StatusCode < 400, string(body), nil
 }
 
 // TestRunAbort will send a test case definition (JS) to the API
@@ -195,7 +199,7 @@ func (c *Client) TestRunAbort(testRunUID string) (bool, string, error) {
 
 	defer response.Body.Close()
 
-	return false, string(body), nil
+	return response.StatusCode < 400, string(body), nil
 }
 
 // extractResources will try to extract information to the

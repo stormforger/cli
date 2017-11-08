@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"encoding/json"
 	"fmt"
 	"log"
 	"os"
@@ -56,19 +55,12 @@ func testRunWatch(cmd *cobra.Command, args []string) {
 	for true {
 		runningSince := time.Now().Sub(started).Seconds()
 
-		testRun, err := client.TestRunWatch(args[0])
+		testRun, response, err := client.TestRunWatch(args[0])
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		dat := map[string]string{
-			"id":         testRun.ID,
-			"state":      testRun.State,
-			"started_at": testRun.StartedAt,
-		}
-
-		output, _ := json.Marshal(dat)
-		fmt.Println(string(output))
+		fmt.Println(response)
 
 		if !testRunOkay(&testRun) {
 			os.Exit(1)
@@ -82,7 +74,7 @@ func testRunWatch(cmd *cobra.Command, args []string) {
 			os.Exit(2)
 		}
 
-		time.Sleep(1 * time.Second)
+		time.Sleep(5 * time.Second)
 	}
 }
 

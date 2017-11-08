@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"log"
+	"os"
 
 	"github.com/spf13/cobra"
 )
@@ -24,10 +25,19 @@ func init() {
 func testRunAbort(cmd *cobra.Command, args []string) {
 	client := NewClient()
 
-	_, response, err := client.TestRunAbort(args[0])
+	status, response, err := client.TestRunAbort(args[0])
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	fmt.Println(response)
+	if status {
+		fmt.Println(response)
+
+		os.Exit(0)
+	} else {
+		fmt.Fprintln(os.Stderr, "Could not abort test run!")
+		fmt.Println(response)
+
+		os.Exit(1)
+	}
 }

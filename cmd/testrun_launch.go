@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"log"
+	"os"
 
 	"github.com/spf13/cobra"
 )
@@ -24,10 +25,22 @@ func init() {
 func testRunLaunch(cmd *cobra.Command, args []string) {
 	client := NewClient()
 
-	_, response, err := client.TestRunCreate(args[0])
+	title := "title"
+	notes := "notes"
+
+	status, response, err := client.TestRunCreate(args[0], title, notes)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	fmt.Println(response)
+	if status {
+		fmt.Println(response)
+
+		os.Exit(0)
+	} else {
+		fmt.Fprintln(os.Stderr, "Could not launch test run!")
+		fmt.Println(response)
+
+		os.Exit(1)
+	}
 }
