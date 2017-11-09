@@ -4,9 +4,11 @@ import (
 	"bytes"
 	"encoding/json"
 	"io"
+	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 func readFromStdinOrReadFirstArgument(args []string, defaultFileName string) (fileName string, reader io.Reader, err error) {
@@ -25,20 +27,29 @@ func readFromStdinOrReadFirstArgument(args []string, defaultFileName string) (fi
 	return fileName, reader, err
 }
 
-func printPrettyJson(message string) {
-	prettyJson := prettyFormatJson(message)
+func printPrettyJSON(message string) {
+	prettyJSON := prettyFormatJSON(message)
 
-	_, err := prettyJson.WriteTo(os.Stdout)
+	_, err := prettyJSON.WriteTo(os.Stdout)
 	if err != nil {
 		log.Fatal(err)
 	}
 }
 
-func prettyFormatJson(message string) (out bytes.Buffer) {
+func prettyFormatJSON(message string) (out bytes.Buffer) {
 	err := json.Indent(&out, []byte(message), "", "  ")
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	return out
+}
+
+func readOrganisationUIDFromFile() string {
+	content, err := ioutil.ReadFile(".stormforger-organisation")
+	if err != nil {
+		return ""
+	}
+
+	return strings.TrimSpace(string(content))
 }

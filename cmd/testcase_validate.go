@@ -17,7 +17,10 @@ var (
 		Run:   runTestCaseValidate,
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
 			if testCaseValidateOpts.Organisation == "" {
-				log.Fatal("Missing organization flag")
+				testCaseValidateOpts.Organisation = readOrganisationUIDFromFile()
+				if testCaseValidateOpts.Organisation == "" {
+					log.Fatal("Missing organization flag")
+				}
 			}
 		},
 	}
@@ -52,7 +55,7 @@ func runTestCaseValidate(cmd *cobra.Command, args []string) {
 			os.Exit(0)
 		}
 
-		printPrettyJson(message)
+		printPrettyJSON(message)
 
 		fmt.Println()
 		os.Exit(1)

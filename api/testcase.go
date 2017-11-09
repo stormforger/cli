@@ -7,37 +7,29 @@ import (
 )
 
 // ListTestCases returns a list of test cases
-func (c *Client) ListTestCases(organization string) ([]byte, error) {
-	path := "/test_cases?organisation_uid=" + organization
+func (c *Client) ListTestCases(organization string) (bool, []byte, error) {
+	path := "/organisations/" + organization + "/test_cases"
 
 	req, err := http.NewRequest("GET", c.APIEndpoint+path, nil)
 	if err != nil {
-		return nil, err
+		return false, nil, err
 	}
 
-	body, err := c.doRequest(req)
+	response, err := c.doRequestRaw(req)
 	if err != nil {
-		return nil, err
+		return false, nil, err
 	}
 
-	return body, nil
-}
-
-// CheckExistanceTestCase returns a list of test cases
-func (c *Client) CheckExistanceTestCase(organization string, testCaseName string) ([]byte, error) {
-	path := "/test_cases/" + testCaseName + "?organisation_uid=" + organization
-
-	req, err := http.NewRequest("GET", c.APIEndpoint+path, nil)
+	body, err := ioutil.ReadAll(response.Body)
 	if err != nil {
-		return nil, err
+		return false, nil, err
 	}
 
-	body, err := c.doRequest(req)
-	if err != nil {
-		return nil, err
+	if response.StatusCode != 200 {
+		return false, body, nil
 	}
 
-	return body, nil
+	return true, body, nil
 }
 
 // TestCaseValidate will send a test case definition (JS) to the API
@@ -81,11 +73,10 @@ func (c *Client) TestCaseCreate(organization string, testCaseName string, fileNa
 	//      defining a struct maybe, but where?
 	//      finally: add options here
 	extraParams := map[string]string{
-		"test_case[name]":  testCaseName,
-		"organisation_uid": organization,
+		"test_case[name]": testCaseName,
 	}
 
-	req, err := fileUploadRequest(c.APIEndpoint+"/test_cases", "POST", extraParams, "test_case[javascript_definition]", fileName, "application/javascript", data)
+	req, err := fileUploadRequest(c.APIEndpoint+"/organisations/"+organization+"/test_cases", "POST", extraParams, "test_case[javascript_definition]", fileName, "application/javascript", data)
 	if err != nil {
 		return false, "", err
 	}
@@ -107,7 +98,7 @@ func (c *Client) TestCaseCreate(organization string, testCaseName string, fileNa
 
 // TestCaseUpdate will send a test case definition (JS) to the API
 // to update an existing test case it.
-func (c *Client) TestCaseUpdate(organization string, testCaseUid string, fileName string, data io.Reader) (bool, string, error) {
+func (c *Client) TestCaseUpdate(organization string, testCaseUID string, fileName string, data io.Reader) (bool, string, error) {
 	// TODO how to pass options here?
 	//      defining a struct maybe, but where?
 	//      finally: add options here
@@ -115,7 +106,7 @@ func (c *Client) TestCaseUpdate(organization string, testCaseUid string, fileNam
 		"organisation_uid": organization,
 	}
 
-	req, err := fileUploadRequest(c.APIEndpoint+"/test_cases/"+testCaseUid, "PATCH", extraParams, "test_case[javascript_definition]", fileName, "application/javascript", data)
+	req, err := fileUploadRequest(c.APIEndpoint+"/test_cases/"+testCaseUID, "PATCH", extraParams, "test_case[javascript_definition]", fileName, "application/javascript", data)
 	if err != nil {
 		return false, "", err
 	}
