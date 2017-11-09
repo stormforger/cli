@@ -106,7 +106,7 @@ func (c *Client) TestCaseUpdate(organization string, testCaseUID string, fileNam
 		"organisation_uid": organization,
 	}
 
-	req, err := fileUploadRequest(c.APIEndpoint+"/organisations/"+organization+" test_cases/"+testCaseUID, "PATCH", extraParams, "test_case[javascript_definition]", fileName, "application/javascript", data)
+	req, err := fileUploadRequest(c.APIEndpoint+"/test_cases/"+testCaseUID, "PATCH", extraParams, "test_case[javascript_definition]", fileName, "application/javascript", data)
 	if err != nil {
 		return false, "", err
 	}

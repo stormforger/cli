@@ -38,7 +38,6 @@ var (
 func init() {
 	TestCaseCmd.AddCommand(testCaseUpdateCmd)
 
-	testCaseUpdateCmd.PersistentFlags().StringVarP(&testCaseUpdateOpts.Organisation, "organization", "o", "", "Name of the organization")
 	testCaseUpdateCmd.PersistentFlags().StringVarP(&testCaseUpdateOpts.UID, "uid", "u", "", "UID of the test case")
 }
 

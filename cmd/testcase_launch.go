@@ -19,7 +19,7 @@ var (
 )
 
 func init() {
-	TestRunCmd.AddCommand(testRunLaunchCmd)
+	TestCaseCmd.AddCommand(testRunLaunchCmd)
 }
 
 func testRunLaunch(cmd *cobra.Command, args []string) {
