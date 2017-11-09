@@ -16,19 +16,24 @@ var (
 		Long:  `Create and launch a new test run based on given test case`,
 		Run:   testRunLaunch,
 	}
+
+	testRunLaunchOpts struct {
+		Title string
+		Notes string
+	}
 )
 
 func init() {
 	TestCaseCmd.AddCommand(testRunLaunchCmd)
+
+	testRunLaunchCmd.Flags().StringVarP(&testRunLaunchOpts.Title, "title", "t", "", "Descriptive title of test run")
+	testRunLaunchCmd.Flags().StringVarP(&testRunLaunchOpts.Notes, "notes", "n", "", "Longer description (Markdown supported)")
 }
 
 func testRunLaunch(cmd *cobra.Command, args []string) {
 	client := NewClient()
 
-	title := "title"
-	notes := "notes"
-
-	status, response, err := client.TestRunCreate(args[0], title, notes)
+	status, response, err := client.TestRunCreate(args[0], testRunLaunchOpts.Title, testRunLaunchOpts.Notes)
 	if err != nil {
 		log.Fatal(err)
 	}
