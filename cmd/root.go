@@ -47,7 +47,10 @@ func Execute() {
 	}
 
 	if viper.GetString("jwt") == "" {
-		color.Yellow("\nNo JWT token in config file, environment or via command line flag!\n")
+		color.Yellow(`No JWT token in config file, environment or via command line flag!
+
+Use forge login to obtain a new JWT token.
+`)
 	}
 }
 

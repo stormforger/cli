@@ -39,9 +39,9 @@ func runLogin(cmd *cobra.Command, args []string) {
 	if err != nil {
 		log.Fatal(err)
 	} else {
-		color.Green("Login successful! Here is your JWT access token:\n\n")
-		color.Green("  " + jwt)
-		color.Green("\n")
+		color.White("Login successful! Add the JWT token to a .stormforger.toml file like this:\n\n")
+		color.Green("  echo 'jwt = \"" + jwt + "\"' >> .stormforger.toml")
+		color.Green("\n\n")
 	}
 }
 
