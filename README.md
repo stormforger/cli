@@ -4,16 +4,18 @@
 
 # forge! The StormForger Command Line Client
 
-Please note that this tool is still **HEAVY WORK IN PROGRESS**. If you have any questions, don't hesitate to [contact](https://stormforger.com/support).
+Please note that this tool is still **HEAVY WORK IN PROGRESS**. If you have any questions, don't hesitate to get in [contact](https://stormforger.com/support).
 
 Using `forge` you can:
 
 * use StormForger's HAR converter
-* work with test runs (only fetching logs currently)
-* work with data sources (private beta currently)
+* work with `organisation`s (only list currently)
+* work with `test-run`s (start, abort, reporting, listing and call logs)
+* work with `test-case`s (list, create, update)
 
 You can use `--help` to get usage information on all commands.
 
+For more information on how to usage StormForger in general, visit our [documentation](https://docs.stormforger.com).
 
 ## Installation
 
@@ -47,9 +49,9 @@ For following requests you have multiple options to provide your token:
 jwt = "your-jwt-token"
 ```
 
-2. Environment: `export STORMFORGER_JWT="your-jwt-token"`
+1. Environment: `export STORMFORGER_JWT="your-jwt-token"`
 
-3. Command Line Flag: `--jwt "your-jwt-token"`
+1. Flag: `--jwt "your-jwt-token"`
 
 
 
