@@ -10,8 +10,8 @@ var (
 	// testRunListCmd represents the calllog command
 	testRunListCmd = &cobra.Command{
 		Use:   "list <test-case-ref>",
-		Short: "bla",
-		Long:  `bla`,
+		Short: "List of completed test runs",
+		Long:  `List of completed test runs.`,
 		Run:   testRunList,
 	}
 )
