@@ -11,6 +11,9 @@ brew:
   folder: Formula
   homepage: "https://stormforger.com"
   description: "The StormForger Command Line Client, called 'forge'"
+dockers:
+  - image: stormforger/cli
+    latest: true
 builds:
 - goos:
   - linux
