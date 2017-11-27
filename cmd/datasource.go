@@ -14,9 +14,6 @@ var (
 		Long: `Work with and manage data sources.
 
   Currently only a rough validation is implemented.`,
-		Run: func(cmd *cobra.Command, args []string) {
-			log.Fatal("Cannot be run without subcommand, like validate!")
-		},
 
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
 			if datasourceOpts.Organisation == "" {
