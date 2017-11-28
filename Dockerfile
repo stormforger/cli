@@ -1,7 +1,17 @@
 FROM golang:alpine
 
-COPY forge /bin
+COPY . /go/src/github.com/stormforger/cli
+WORKDIR /go/src/github.com/stormforger/cli
 
-RUN apk --update add ca-certificates
+ENV binary forge
 
-ENTRYPOINT ["/bin/forge"]
+RUN apk --update add ca-certificates make g++ git \
+    && go build \
+      -v -o ${binary} \
+      -ldflags '-s -w -X github.com/stormforger/cli/buildinfo.version={{.Version}} -X github.com/stormforger/cli/buildinfo.commit={{.Commit}} -X github.com/stormforger/cli/buildinfo.date={{.Date}}' \
+      . \
+    && cp ./${binary} /go/bin \
+    && rm -rf .git \
+    && apk del make g++ git
+
+ENTRYPOINT [ "forge" ]

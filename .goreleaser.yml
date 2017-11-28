@@ -15,15 +15,16 @@ dockers:
   - image: stormforger/cli
     latest: true
 builds:
-- goos:
-  - linux
-  - darwin
-  - windows
-  goarch:
-  - amd64
-  main: .
-  ldflags: -linkmode external -extldflags "-static" -s -w -X github.com/stormforger/cli/buildinfo.version={{.Version}} -X github.com/stormforger/cli/buildinfo.commit={{.Commit}} -X github.com/stormforger/cli/buildinfo.date={{.Date}}
-  binary: forge
+  -
+    goos:
+    - linux
+    - darwin
+    - windows
+    goarch:
+    - amd64
+    main: .
+    ldflags: -s -w -X github.com/stormforger/cli/buildinfo.version={{.Version}} -X github.com/stormforger/cli/buildinfo.commit={{.Commit}} -X github.com/stormforger/cli/buildinfo.date={{.Date}}
+    binary: forge
 archive:
   format: zip
   format_overrides:
