@@ -1,7 +1,7 @@
-FROM golang:alpine
+FROM ubuntu:trusty
 
 COPY forge /bin
 
-RUN apk --update add ca-certificates
+RUN apt-get -y update && apt-get -y install ca-certificates
 
-ENTRYPOINT ["/bin/forge"]
+ENTRYPOINT [ "forge" ]
