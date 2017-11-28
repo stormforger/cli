@@ -39,3 +39,4 @@ setup:
 	go get -u gopkg.in/alecthomas/gometalinter.v1
 	go get -u golang.org/x/tools/cmd/goimports
 	go get -u github.com/goreleaser/goreleaser
+	gometalinter.v1 --install
