@@ -10,7 +10,7 @@ RUN apk --update add ca-certificates make g++ git \
       -v -o ${binary} \
       -ldflags '-s -w -X github.com/stormforger/cli/buildinfo.version={{.Version}} -X github.com/stormforger/cli/buildinfo.commit={{.Commit}} -X github.com/stormforger/cli/buildinfo.date={{.Date}}' \
       . \
-    && cp ./${binary} /go/bin \
+    && mv ./${binary} /go/bin \
     && rm -rf .git \
     && apk del make g++ git
 
