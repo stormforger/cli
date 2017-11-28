@@ -1,11 +1,6 @@
 package cmd
 
 import (
-	"fmt"
-	"log"
-	"os"
-	"time"
-
 	"github.com/spf13/cobra"
 	"github.com/stormforger/cli/api"
 )
@@ -48,34 +43,7 @@ func init() {
 }
 
 func testRunWatch(cmd *cobra.Command, args []string) {
-	client := NewClient()
-
-	started := time.Now()
-
-	for true {
-		runningSince := time.Now().Sub(started).Seconds()
-
-		testRun, response, err := client.TestRunWatch(args[0])
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		fmt.Println(response)
-
-		if !testRunOkay(&testRun) {
-			os.Exit(1)
-		}
-
-		if testRunSuccess(&testRun) {
-			os.Exit(0)
-		}
-
-		if testRunWatchOpts.MaxWatchTime > 0 && int(runningSince) > testRunWatchOpts.MaxWatchTime {
-			os.Exit(2)
-		}
-
-		time.Sleep(5 * time.Second)
-	}
+	watchTestRun(args[0], testRunWatchOpts.MaxWatchTime)
 }
 
 func testRunOkay(testRun *api.TestRun) bool {
