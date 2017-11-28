@@ -3,11 +3,6 @@
 # general
 .DS_Store
 
-# build artifacts
-forge
-build/
-dist/
-
 # secrets & configuration
 .stormforger.toml
 .goxc.local.json
