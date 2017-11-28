@@ -4,8 +4,11 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 
+	"github.com/google/jsonapi"
 	"github.com/spf13/cobra"
+	"github.com/stormforger/cli/api"
 )
 
 var (
@@ -18,8 +21,10 @@ var (
 	}
 
 	testRunLaunchOpts struct {
-		Title string
-		Notes string
+		Title        string
+		Notes        string
+		Watch        bool
+		MaxWatchTime int
 	}
 )
 
@@ -28,6 +33,8 @@ func init() {
 
 	testRunLaunchCmd.Flags().StringVarP(&testRunLaunchOpts.Title, "title", "t", "", "Descriptive title of test run")
 	testRunLaunchCmd.Flags().StringVarP(&testRunLaunchOpts.Notes, "notes", "n", "", "Longer description (Markdown supported)")
+	testRunLaunchCmd.Flags().BoolVarP(&testRunLaunchOpts.Watch, "watch", "w", false, "Automatically watch newly launched test run")
+	testRunLaunchCmd.Flags().IntVar(&testRunLaunchOpts.MaxWatchTime, "watch-timeout", 0, "Maximum duration in seconds to watch")
 }
 
 func testRunLaunch(cmd *cobra.Command, args []string) {
@@ -40,6 +47,16 @@ func testRunLaunch(cmd *cobra.Command, args []string) {
 
 	if status {
 		fmt.Println(response)
+
+		if testRunLaunchOpts.Watch {
+			testRun := new(api.TestRun)
+			err = jsonapi.UnmarshalPayload(strings.NewReader(response), testRun)
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			watchTestRun(testRun.ID, testRunLaunchOpts.MaxWatchTime)
+		}
 
 		os.Exit(0)
 	} else {
