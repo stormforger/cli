@@ -1,6 +1,6 @@
 FROM golang:alpine
 
-COPY . /go/src/github.com/stormforger/cli
+COPY ../../. /go/src/github.com/stormforger/cli
 WORKDIR /go/src/github.com/stormforger/cli
 
 ENV binary forge
