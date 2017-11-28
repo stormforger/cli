@@ -22,7 +22,7 @@ builds:
   goarch:
   - amd64
   main: .
-  ldflags: -linkmode external -extldflags "-static" -s -w -X github.com/stormforger/cli/buildinfo.version={{.Version}} -X github.com/stormforger/cli/buildinfo.commit={{.Commit}} -X github.com/stormforger/cli/buildinfo.date={{.Date}}
+  ldflags: -s -w -X github.com/stormforger/cli/buildinfo.version={{.Version}} -X github.com/stormforger/cli/buildinfo.commit={{.Commit}} -X github.com/stormforger/cli/buildinfo.date={{.Date}}
   binary: forge
 archive:
   format: zip
