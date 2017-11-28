@@ -61,20 +61,11 @@ In case you want to use `forge`, you can stop reading now. This section describe
 
 ### Dependencies
 
-Build dependencies:
+Use `make setup` to install required go build dependencies.
 
-```
-go get -u github.com/tools/godep
-go get -u golang.org/x/tools/cmd/goimports
-go get -u github.com/golang/lint/golint
-go get -u github.com/kisielk/errcheck
-```
+We use [`dep`](https://github.com/golang/dep) to vendor dependencies.
 
-We use [`godep`](https://github.com/tools/godep) to vendor dependencies.
-
-To add a new dependency, use `go get` to install it, use it (as in import it) and use
-`godep save` to add the dependency to the `vendor` directory. **Make sure you
-add dependencies in a dedicated commit!**.
+To add a dependency, simply import it and then run `make dep` which will add the dependency to the manifest. **Make sure you add dependencies in a dedicated commit!**.
 
 ### Release
 
