@@ -16,11 +16,10 @@ var (
 		Long:  `Upload a test case definition JavaScript and validate it.`,
 		Run:   runTestCaseValidate,
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
+			testCaseValidateOpts.Organisation = findFirstNonEmpty([]string{testCaseValidateOpts.Organisation, readOrganisationUIDFromFile(), rootOpts.DefaultOrganisation})
+
 			if testCaseValidateOpts.Organisation == "" {
-				testCaseValidateOpts.Organisation = readOrganisationUIDFromFile()
-				if testCaseValidateOpts.Organisation == "" {
-					log.Fatal("Missing organization flag")
-				}
+				log.Fatal("Missing organization")
 			}
 		},
 	}

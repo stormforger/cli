@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"bytes"
+	"fmt"
 	"log"
 
 	"github.com/spf13/cobra"
@@ -12,13 +13,19 @@ var (
 	organisationListCmd = &cobra.Command{
 		Use:     "list",
 		Aliases: []string{},
-		Short:   "Manage organisations",
+		Short:   "List organisations you have access to",
 		Run:     runOrganisationList,
+	}
+
+	organisationListOpts struct {
+		JSON bool
 	}
 )
 
 func init() {
 	organisationCmd.AddCommand(organisationListCmd)
+
+	organisationListCmd.Flags().BoolVarP(&organisationListOpts.JSON, "json", "", false, "Output machine-readable JSON")
 }
 
 func runOrganisationList(cmd *cobra.Command, args []string) {
@@ -29,5 +36,9 @@ func runOrganisationList(cmd *cobra.Command, args []string) {
 		log.Fatal(err)
 	}
 
-	organisation.ShowNames(bytes.NewReader(result))
+	if organisationListOpts.JSON {
+		fmt.Println(string(result))
+	} else {
+		organisation.ShowNames(bytes.NewReader(result))
+	}
 }

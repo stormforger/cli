@@ -12,17 +12,9 @@ var (
 	// testCaseUpdateCmd represents the testCaseValidate command
 	testCaseUpdateCmd = &cobra.Command{
 		Use:   "update",
-		Short: "Update a new test case",
-		Long:  `Update a new test case.`,
+		Short: "Update an existing test case",
 		Run:   runTestCaseUpdate,
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
-			if testCaseUpdateOpts.Organisation == "" {
-				testCaseUpdateOpts.Organisation = readOrganisationUIDFromFile()
-				if testCaseUpdateOpts.Organisation == "" {
-					log.Fatal("Missing organization flag")
-				}
-			}
-
 			if testCaseUpdateOpts.UID == "" {
 				log.Fatal("Missing test case UID flag")
 			}
@@ -30,8 +22,7 @@ var (
 	}
 
 	testCaseUpdateOpts struct {
-		Organisation string
-		UID          string
+		UID string
 	}
 )
 
@@ -50,7 +41,7 @@ func runTestCaseUpdate(cmd *cobra.Command, args []string) {
 
 		client := NewClient()
 
-		success, message, err := client.TestCaseUpdate(testCaseUpdateOpts.Organisation, testCaseUpdateOpts.UID, fileName, testCaseFile)
+		success, message, err := client.TestCaseUpdate(testCaseUpdateOpts.UID, fileName, testCaseFile)
 		if err != nil {
 			log.Fatal(err)
 		}

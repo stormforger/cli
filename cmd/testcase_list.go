@@ -14,21 +14,19 @@ var (
 	// testCaseListCmd represents the testCaseValidate command
 	testCaseListCmd = &cobra.Command{
 		Use:   "list",
-		Short: "List a new test case",
-		Long:  `List a new test case.`,
+		Short: "List test case for a given organization",
 		Run:   runTestCaseList,
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
+			candidates := []string{readOrganisationUIDFromFile(), rootOpts.DefaultOrganisation}
+
 			if len(args) >= 1 {
-				testCaseListOpts.Organisation = args[0]
-			} else {
-				testCaseListOpts.Organisation = ""
+				candidates = append([]string{args[0]}, candidates...)
 			}
 
+			testCaseListOpts.Organisation = findFirstNonEmpty(candidates)
+
 			if testCaseListOpts.Organisation == "" {
-				testCaseListOpts.Organisation = readOrganisationUIDFromFile()
-				if testCaseListOpts.Organisation == "" {
-					log.Fatal("Missing organization flag")
-				}
+				log.Fatal("Missing organization")
 			}
 		},
 	}
@@ -36,11 +34,14 @@ var (
 	testCaseListOpts struct {
 		Organisation string
 		Name         string
+		JSON         bool
 	}
 )
 
 func init() {
 	TestCaseCmd.AddCommand(testCaseListCmd)
+
+	testCaseListCmd.Flags().BoolVarP(&testCaseListOpts.JSON, "json", "", false, "Output machine-readable JSON")
 }
 
 func runTestCaseList(cmd *cobra.Command, args []string) {
@@ -52,6 +53,11 @@ func runTestCaseList(cmd *cobra.Command, args []string) {
 	}
 
 	if status {
+		if testCaseListOpts.JSON {
+			fmt.Println(string(result))
+			return
+		}
+
 		testcase.ShowNames(bytes.NewReader(result))
 	} else {
 		fmt.Fprintln(os.Stderr, "Could not list test cases!")

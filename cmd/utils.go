@@ -86,3 +86,13 @@ func watchTestRun(testRunUID string, maxWatchTime int) {
 		time.Sleep(5 * time.Second)
 	}
 }
+
+func findFirstNonEmpty(candidates []string) string {
+	for _, item := range candidates {
+		if item != "" {
+			return item
+		}
+	}
+
+	return ""
+}
