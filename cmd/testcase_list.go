@@ -14,21 +14,19 @@ var (
 	// testCaseListCmd represents the testCaseValidate command
 	testCaseListCmd = &cobra.Command{
 		Use:   "list",
-		Short: "List a new test case",
-		Long:  `List a new test case.`,
+		Short: "List test case for a given organization",
 		Run:   runTestCaseList,
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
+			candidates := []string{readOrganisationUIDFromFile(), rootOpts.DefaultOrganisation}
+
 			if len(args) >= 1 {
-				testCaseListOpts.Organisation = args[0]
-			} else {
-				testCaseListOpts.Organisation = ""
+				candidates = append([]string{args[0]}, candidates...)
 			}
 
+			testCaseListOpts.Organisation = findFirstNonEmpty(candidates)
+
 			if testCaseListOpts.Organisation == "" {
-				testCaseListOpts.Organisation = readOrganisationUIDFromFile()
-				if testCaseListOpts.Organisation == "" {
-					log.Fatal("Missing organization flag")
-				}
+				log.Fatal("Missing organization")
 			}
 		},
 	}

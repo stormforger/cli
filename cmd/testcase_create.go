@@ -18,11 +18,10 @@ var (
 		Long:  `Create a new test case.`,
 		Run:   runTestCaseCreate,
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
+			testCaseCreateOpts.Organisation = findFirstNonEmpty([]string{testCaseCreateOpts.Organisation, readOrganisationUIDFromFile(), rootOpts.DefaultOrganisation})
+
 			if testCaseCreateOpts.Organisation == "" {
-				testCaseCreateOpts.Organisation = readOrganisationUIDFromFile()
-				if testCaseCreateOpts.Organisation == "" {
-					log.Fatal("Missing organization flag")
-				}
+				log.Fatal("Missing organization")
 			}
 		},
 	}

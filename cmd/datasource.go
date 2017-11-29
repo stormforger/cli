@@ -16,11 +16,10 @@ var (
   Currently only a rough validation is implemented.`,
 
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
+			datasourceOpts.Organisation = findFirstNonEmpty([]string{datasourceOpts.Organisation, readOrganisationUIDFromFile(), rootOpts.DefaultOrganisation})
+
 			if datasourceOpts.Organisation == "" {
-				datasourceOpts.Organisation = readOrganisationUIDFromFile()
-				if datasourceOpts.Organisation == "" {
-					log.Fatal("Missing organization flag")
-				}
+				log.Fatal("Missing organization")
 			}
 		},
 	}
