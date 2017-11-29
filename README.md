@@ -28,6 +28,13 @@ brew tap stormforger/forge
 brew install forge
 ```
 
+You can also use our published Docker image [`stormforger/cli`](https://hub.docker.com/r/stormforger/cli). We will publish the `latest` tag, so you can do:
+
+```
+docker pull stormforger/cli
+docker run stormforger/cli
+```
+
 
 ## Getting Started
 
@@ -69,16 +76,16 @@ To add a dependency, simply import it and then run `make dep` which will add the
 
 ### Release
 
-Releases are done via Travis CI.
+Releases are done via [Travis CI](https://travis-ci.org/stormforger/cli).
 
-When ready, tag a new release and push the new tag
+When ready for a release and pull requests are merged into master, just create and push a new tag:
 
 ```
 git tag vA.B.C
 git push --tag
 ```
 
-Travis will make a build and on success automatically publish a release to [GitHub releases](https://github.com/stormforger/cli/releases).
+Travis will make a build and on success automatically publish a release to [GitHub releases](https://github.com/stormforger/cli/releases), to [Docker hub](https://hub.docker.com/r/stormforger/cli) and also update our [homebrew tab](https://github.com/stormforger/homebrew-forge).
 
 Now go to the [releases page](https://github.com/stormforger/cli/releases) and add release notes.
 
