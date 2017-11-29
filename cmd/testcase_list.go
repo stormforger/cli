@@ -36,11 +36,14 @@ var (
 	testCaseListOpts struct {
 		Organisation string
 		Name         string
+		JSON         bool
 	}
 )
 
 func init() {
 	TestCaseCmd.AddCommand(testCaseListCmd)
+
+	testCaseListCmd.Flags().BoolVarP(&testCaseListOpts.JSON, "json", "", false, "Output machine-readable JSON")
 }
 
 func runTestCaseList(cmd *cobra.Command, args []string) {
@@ -52,6 +55,11 @@ func runTestCaseList(cmd *cobra.Command, args []string) {
 	}
 
 	if status {
+		if testCaseListOpts.JSON {
+			fmt.Println(string(result))
+			return
+		}
+
 		testcase.ShowNames(bytes.NewReader(result))
 	} else {
 		fmt.Fprintln(os.Stderr, "Could not list test cases!")
