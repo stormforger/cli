@@ -20,20 +20,20 @@ type List struct {
 type FileFixture struct {
 	ID             string     `jsonapi:"primary,file_fixture_structureds"`
 	Name           string     `jsonapi:"attr,name"`
-	CurrentVersion *Version   `jsonapi:"relation,current_version"`
-	Versions       []*Version `jsonapi:"relation,versions"`
+	CurrentVersion *Version   `jsonapi:"relation,current_version,omitempty"`
+	Versions       []*Version `jsonapi:"relation,versions,omitempty"`
 	CreatedAt      string     `jsonapi:"attr,created_at"`
 	UpdatedAt      string     `jsonapi:"attr,updated_at"`
 }
 
 // Version respresents a concrete version of a file fixture
 type Version struct {
-	ID               string `jsonapi:"primary,file_fixture_version_structureds"`
-	OriginalHash     string `jsonapi:"attr,hash"`
-	OriginalFileSize int    `jsonapi:"attr,file_size"`
-	FieldNames       string `jsonapi:"attr,field_names"`
-	CreatedAt        string `jsonapi:"attr,created_at"`
-	UpdatedAt        string `jsonapi:"attr,updated_at"`
+	ID         string   `jsonapi:"primary,file_fixture_version_structureds"`
+	Hash       string   `jsonapi:"attr,hash"`
+	FileSize   int      `jsonapi:"attr,file_size"`
+	FieldNames []string `jsonapi:"attr,field_names"`
+	CreatedAt  string   `jsonapi:"attr,created_at"`
+	UpdatedAt  string   `jsonapi:"attr,updated_at"`
 }
 
 // UnmarshalFileFixtures unmarshals a list of FileFixture records
@@ -90,7 +90,7 @@ func ShowName(input io.Reader) {
 	for _, item := range items {
 		fixture, _ := item.(*FileFixture)
 
-		fmt.Printf("* %s (ID: %s, Content-Hash: %s)\n", fixture.Name, fixture.ID, fixture.CurrentVersion.OriginalHash)
+		fmt.Printf("* %s (ID: %s, Content-Hash: %s, Fields: %s)\n", fixture.Name, fixture.ID, fixture.CurrentVersion.Hash, fixture.CurrentVersion.FieldNames)
 	}
 }
 
@@ -106,8 +106,8 @@ func ShowDetails(fileFixture *FileFixture) {
 	fmt.Printf("Created:         %s (%s)\n", convertToLocalTZ(fixtureCreatedAt), humanize.Time(fixtureCreatedAt))
 	fmt.Printf("Updated:         %s (%s)\n", convertToLocalTZ(fixtureUpdatedAt), humanize.Time(fixtureUpdatedAt))
 	fmt.Printf("Current Version: %s\n", fileFixture.CurrentVersion.ID)
-	fmt.Printf("  SHA256 Hash:   %s\n", fileFixture.CurrentVersion.OriginalHash)
-	fmt.Printf("  Size:          %s\n", humanize.Bytes(uint64(fileFixture.CurrentVersion.OriginalFileSize)))
+	fmt.Printf("  SHA256 Hash:   %s\n", fileFixture.CurrentVersion.Hash)
+	fmt.Printf("  Size:          %s\n", humanize.Bytes(uint64(fileFixture.CurrentVersion.FileSize)))
 	fmt.Printf("  Created:       %s (%s)\n", convertToLocalTZ(fixtureCurrentVersionCreatedAt), humanize.Time(fixtureCurrentVersionCreatedAt))
 	fmt.Printf("Version(s):      %v\n", len(fileFixture.Versions))
 	for _, version := range fileFixture.Versions {

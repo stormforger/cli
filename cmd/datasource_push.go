@@ -46,6 +46,12 @@ func ensureDatasourcePushOptionsOptions(cmd *cobra.Command, args []string) {
 	if len(args) > 1 && (pushOpts.Name != "" || pushOpts.FieldNames != "") {
 		log.Fatal("--name and --fields is not supported for multiple uploads")
 	}
+
+	datasourceOpts.Organisation = findFirstNonEmpty([]string{datasourceOpts.Organisation, readOrganisationUIDFromFile(), rootOpts.DefaultOrganisation})
+
+	if datasourceOpts.Organisation == "" {
+		log.Fatal("Missing organization")
+	}
 }
 
 func runDataSourcePush(cmd *cobra.Command, args []string) {
