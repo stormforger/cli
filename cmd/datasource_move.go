@@ -27,6 +27,12 @@ func ensureDatasourceMoveOptions(cmd *cobra.Command, args []string) {
 	if len(args) != 2 {
 		log.Fatal("Expecting exactly two arguments: name of source and destination")
 	}
+
+	datasourceOpts.Organisation = findFirstNonEmpty([]string{datasourceOpts.Organisation, readOrganisationUIDFromFile(), rootOpts.DefaultOrganisation})
+
+	if datasourceOpts.Organisation == "" {
+		log.Fatal("Missing organization")
+	}
 }
 
 func runDataSourceMove(cmd *cobra.Command, args []string) {

@@ -35,6 +35,12 @@ func ensureDatasourceDownloadOptions(cmd *cobra.Command, args []string) {
 	if len(args) != 1 {
 		log.Fatal("Expecting exactly one argument: File name to download")
 	}
+
+	datasourceOpts.Organisation = findFirstNonEmpty([]string{datasourceOpts.Organisation, readOrganisationUIDFromFile(), rootOpts.DefaultOrganisation})
+
+	if datasourceOpts.Organisation == "" {
+		log.Fatal("Missing organization")
+	}
 }
 
 func runDatasourceDownload(cmd *cobra.Command, args []string) {
