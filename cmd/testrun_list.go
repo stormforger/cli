@@ -21,6 +21,10 @@ func init() {
 }
 
 func testRunList(cmd *cobra.Command, args []string) {
+	if len(args) != 1 {
+		log.Fatal("Expecting exactly one argument: Test Case Reference")
+	}
+
 	client := NewClient()
 
 	_, err := client.TestRunList(args[0])
