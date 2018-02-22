@@ -11,9 +11,6 @@ var (
 		Use:     "datasource",
 		Aliases: []string{"ds"},
 		Short:   "Work with and manage data sources",
-		Long: `Work with and manage data sources.
-
-  Currently only a rough validation is implemented.`,
 
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
 			datasourceOpts.Organisation = findFirstNonEmpty([]string{datasourceOpts.Organisation, readOrganisationUIDFromFile(), rootOpts.DefaultOrganisation})
