@@ -14,6 +14,8 @@ import (
 	"net"
 	"net/http"
 	"net/textproto"
+	"net/url"
+	"os"
 	"strings"
 	"time"
 
@@ -58,12 +60,28 @@ func defaultHTTPClient() *http.Client {
 		IdleConnTimeout:    30 * time.Second,
 		DisableCompression: true,
 		DialTLS:            newDialer(fingerprint, false),
+		Proxy:              http.ProxyURL(getHttpProxy()),
 	}
 
 	return &http.Client{
 		Transport: tr,
 		Timeout:   2 * time.Minute,
 	}
+}
+
+func getHttpProxy() *url.URL {
+	httpProxyUrl := os.Getenv("HTTP_PROXY")
+
+	if httpProxyUrl == "" {
+		return nil
+	}
+
+	proxyUrl, err := url.Parse(httpProxyUrl)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return proxyUrl
 }
 
 // Client represents the API client
