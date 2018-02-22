@@ -52,7 +52,7 @@ func (c *Client) GetFileFixture(organization string, fileUID string) ([]byte, er
 
 // ListFileFixture returns a list of the organizations fixtures
 func (c *Client) ListFileFixture(organization string) ([]byte, error) {
-	path := "/file_fixtures/" + organization
+	path := "/file_fixtures/" + organization + "?only=structured"
 
 	req, err := http.NewRequest("GET", c.APIEndpoint+path, nil)
 	if err != nil {
