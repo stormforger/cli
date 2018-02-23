@@ -2,6 +2,7 @@ package buildinfo
 
 import (
 	"fmt"
+	"runtime"
 )
 
 // Build infos are set during build
@@ -23,7 +24,7 @@ type BuildInfos struct {
 
 // String returns the version, build time and commit
 func (buildInfo BuildInfos) String() string {
-	return fmt.Sprintf("%v %v (%v - %v) - https://stormforger.com", "forge", BuildInfo.Version, BuildInfo.Commit, BuildInfo.Time)
+	return fmt.Sprintf("%v %v (%v, %v, %v) - https://stormforger.com", "forge", BuildInfo.Version, BuildInfo.Commit, BuildInfo.Time, runtime.Version())
 }
 
 // ShortString only returns the build version
