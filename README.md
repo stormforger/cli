@@ -12,6 +12,7 @@ Using `forge` you can:
 * work with `organisation`s (only list currently)
 * work with `test-run`s (start, abort, reporting, listing and call logs)
 * work with `test-case`s (list, create, update)
+* work with `data-source`s (list, download, push, rename, show)
 
 You can use `--help` to get usage information on all commands.
 
@@ -60,6 +61,40 @@ jwt = "your-jwt-token"
 
 1. Flag: `--jwt "your-jwt-token"`
 
+
+### Setting Default Organisation
+
+Most of the time you'll only work with one StormForger organisation. You can save yourself some typing by setting a default organisation ([manage organisations](https://app.stormforger.com/organisations)):
+
+```toml
+jwt = "..."
+
+[defaults]
+organisation = "abcdef42"
+```
+
+To get the UID to your organisation, run: `forge organisation list`.
+
+
+### Data Sources
+
+Data sources are scoped per organisation. Working with data sources can be done with the `datasource` (or short `ds`) sub command, e.g. `forge datasource ls`.
+
+You can...
+
+* list available data sources: `forge datasource ls`
+* show details: `forge datasoure show auth/users.csv`
+* download originally uploaded file: `forge datasource get auth/users.csv`
+* rename data source: `forge datasource mv users.csv auth/users.csv`
+* create or update data sources: `forge datasource push …`
+
+`push` takes some more arguments: `forge datasource push <file> [flags]`. It can be used to update or create new data sources (think update and create in one command: upsert). To get more information about available flags, use `--help`.
+
+* `--delimiter`: Column delimiter for the structured file
+* `--fields`: Name of the fields for columns, comma separated (can be edited later)
+* `--name`: Name of the new data source. If not provided it will be inferred from the uploaded file name (optional)
+* `--name-prefix-path`: Path prefix for new data sources (optional)
+* `--raw`: Upload file as is (optional, default: false)
 
 
 ## Build
