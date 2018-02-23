@@ -80,6 +80,8 @@ To get the UID to your organisation, run: `forge organisation list`.
 
 Data sources are scoped per organisation. Working with data sources can be done with the `datasource` (or short `ds`) sub command, e.g. `forge datasource ls`.
 
+If you have not set a default organisation, or want to use another organisation, you can use `--organisation` with all data source sub commands.
+
 You can...
 
 * list available data sources: `forge datasource ls`
