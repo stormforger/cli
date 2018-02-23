@@ -1,12 +1,10 @@
 package cmd
 
 import (
-	"bytes"
 	"fmt"
 	"log"
 
 	"github.com/spf13/cobra"
-	"github.com/stormforger/cli/api/filefixture"
 )
 
 var (
@@ -39,21 +37,7 @@ func runDatasourceDelete(cmd *cobra.Command, args []string) {
 	client := NewClient()
 	fileName := args[0]
 
-	fileFixtureListResponse, err := client.ListFileFixture(datasourceOpts.Organisation)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	fileFixtures, err := filefixture.UnmarshalFileFixtures(bytes.NewReader(fileFixtureListResponse))
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	fileFixture := fileFixtures.FindByName(fileName)
-	// TODO how to make this better?
-	if fileFixture.ID == "" {
-		log.Fatal(fmt.Printf("Filefixture %s not found!", fileName))
-	}
+	fileFixture := findFixtureByName(*client, datasourceOpts.Organisation, fileName)
 
 	result, err := client.DeleteFileFixture(fileFixture.ID, datasourceOpts.Organisation)
 	if err != nil {
