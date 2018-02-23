@@ -1,8 +1,6 @@
 package cmd
 
 import (
-	"bytes"
-	"fmt"
 	"log"
 
 	"github.com/spf13/cobra"
@@ -39,32 +37,7 @@ func runDatasourceShow(cmd *cobra.Command, args []string) {
 	client := NewClient()
 	fileName := args[0]
 
-	fileFixtureListResponse, err := client.ListFileFixture(datasourceOpts.Organisation)
-	if err != nil {
-		log.Fatal(err)
-	}
+	fileFixture := findFixtureByName(*client, datasourceOpts.Organisation, fileName)
 
-	fileFixtures, err := filefixture.UnmarshalFileFixtures(bytes.NewReader(fileFixtureListResponse))
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	fileFixture := fileFixtures.FindByName(fileName)
-	if fileFixture.ID == "" {
-		log.Fatal(fmt.Printf("Filefixture %s not found!\n", fileName))
-	}
-
-	fileFixtureUID := fileFixture.ID
-
-	fileFixtureResponse, err := client.GetFileFixture(datasourceOpts.Organisation, fileFixtureUID)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	fileFixtureFoo, err := filefixture.UnmarshalFileFixture(bytes.NewReader(fileFixtureResponse))
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	filefixture.ShowDetails(fileFixtureFoo)
+	filefixture.ShowDetails(fileFixture)
 }

@@ -11,7 +11,31 @@ import (
 	"path/filepath"
 	"strings"
 	"time"
+
+	"github.com/stormforger/cli/api"
+	"github.com/stormforger/cli/api/filefixture"
 )
+
+// FindFixtureByName fetches a FileFixture from a given
+// organization.
+func findFixtureByName(client api.Client, organization string, name string) *filefixture.FileFixture {
+	fileFixtureListResponse, err := client.ListFileFixture(organization)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fileFixtures, err := filefixture.UnmarshalFileFixtures(bytes.NewReader(fileFixtureListResponse))
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fileFixture := fileFixtures.FindByName(name)
+	if fileFixture.ID == "" {
+		log.Fatalf("Data source %s not found in organization %s!", name, organization)
+	}
+
+	return &fileFixture
+}
 
 func readFromStdinOrReadFirstArgument(args []string, defaultFileName string) (fileName string, reader io.Reader, err error) {
 	fileName = defaultFileName
