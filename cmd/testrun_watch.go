@@ -1,6 +1,8 @@
 package cmd
 
 import (
+	"time"
+
 	"github.com/spf13/cobra"
 	"github.com/stormforger/cli/api"
 )
@@ -21,7 +23,7 @@ and 2 if the given timeout was exceeded.`,
 	}
 
 	testRunWatchOpts struct {
-		MaxWatchTime int
+		MaxWatchTime time.Duration
 	}
 )
 
@@ -39,11 +41,11 @@ var successStates = []string{
 func init() {
 	TestRunCmd.AddCommand(testRunWatchCmd)
 
-	testRunWatchCmd.Flags().IntVar(&testRunWatchOpts.MaxWatchTime, "timeout", 0, "Maximum duration in seconds to watch")
+	testRunWatchCmd.Flags().DurationVar(&testRunWatchOpts.MaxWatchTime, "timeout", 0, "Maximum duration in seconds to watch")
 }
 
 func testRunWatch(cmd *cobra.Command, args []string) {
-	watchTestRun(args[0], testRunWatchOpts.MaxWatchTime)
+	watchTestRun(args[0], testRunWatchOpts.MaxWatchTime.Round(time.Second).Seconds())
 }
 
 func testRunOkay(testRun *api.TestRun) bool {

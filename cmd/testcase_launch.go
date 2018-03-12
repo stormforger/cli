@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/google/jsonapi"
 	"github.com/spf13/cobra"
@@ -24,7 +25,7 @@ var (
 		Title        string
 		Notes        string
 		Watch        bool
-		MaxWatchTime int
+		MaxWatchTime time.Duration
 	}
 )
 
@@ -34,7 +35,7 @@ func init() {
 	testRunLaunchCmd.Flags().StringVarP(&testRunLaunchOpts.Title, "title", "t", "", "Descriptive title of test run")
 	testRunLaunchCmd.Flags().StringVarP(&testRunLaunchOpts.Notes, "notes", "n", "", "Longer description (Markdown supported)")
 	testRunLaunchCmd.Flags().BoolVarP(&testRunLaunchOpts.Watch, "watch", "w", false, "Automatically watch newly launched test run")
-	testRunLaunchCmd.Flags().IntVar(&testRunLaunchOpts.MaxWatchTime, "watch-timeout", 0, "Maximum duration in seconds to watch")
+	testRunLaunchCmd.Flags().DurationVar(&testRunLaunchOpts.MaxWatchTime, "watch-timeout", 0, "Maximum duration in seconds to watch")
 }
 
 func testRunLaunch(cmd *cobra.Command, args []string) {
@@ -55,7 +56,7 @@ func testRunLaunch(cmd *cobra.Command, args []string) {
 				log.Fatal(err)
 			}
 
-			watchTestRun(testRun.ID, testRunLaunchOpts.MaxWatchTime)
+			watchTestRun(testRun.ID, testRunLaunchOpts.MaxWatchTime.Round(time.Second).Seconds())
 		}
 
 		os.Exit(0)
