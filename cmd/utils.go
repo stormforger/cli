@@ -14,6 +14,8 @@ import (
 
 	"github.com/stormforger/cli/api"
 	"github.com/stormforger/cli/api/filefixture"
+	"github.com/stormforger/cli/api/organisation"
+	"github.com/stormforger/cli/api/testcase"
 )
 
 // FindFixtureByName fetches a FileFixture from a given
@@ -35,6 +37,27 @@ func findFixtureByName(client api.Client, organization string, name string) *fil
 	}
 
 	return &fileFixture
+}
+
+// findOrganisationByName fetches a FileFixture from a given
+// organization.
+func findOrganisationByName(client api.Client, name string) *organisation.Organisation {
+	response, err := client.ListOrganisations()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	organisations, err := organisation.Unmarshal(bytes.NewReader(response))
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	organisation := organisations.FindByNameOrUID(name)
+	if organisation.ID == "" {
+		log.Fatalf("Organisation %s not found!", name)
+	}
+
+	return &organisation
 }
 
 func readFromStdinOrReadFirstArgument(args []string, defaultFileName string) (fileName string, reader io.Reader, err error) {
@@ -119,4 +142,39 @@ func findFirstNonEmpty(candidates []string) string {
 	}
 
 	return ""
+}
+
+func lookupTestCase(client api.Client, input string) string {
+	segments := strings.Split(input, "/")
+
+	nameOrUID := input
+
+	if len(segments) == 2 {
+		organisationNameOrUID := segments[0]
+		nameOrUID = segments[1]
+
+		organisation := findOrganisationByName(client, organisationNameOrUID)
+		if organisation.ID == "" {
+			log.Fatalf("Organisation %s not found", organisationNameOrUID)
+		}
+
+		_, result, err := client.ListTestCases(organisation.ID)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		testCases, err := testcase.Unmarshal(bytes.NewReader(result))
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		testCase := testCases.FindByNameOrUID(nameOrUID)
+		if testCase.ID == "" {
+			log.Fatalf("Test case %s not found", nameOrUID)
+		}
+
+		return testCase.ID
+	}
+
+	return nameOrUID
 }
