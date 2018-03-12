@@ -21,17 +21,11 @@ var (
 				log.Fatal("Too many arguments")
 			}
 
-			candidates := []string{
-				readOrganisationUIDFromFile(),
-				rootOpts.DefaultOrganisation,
+			if len(args) < 1 {
+				log.Fatal("Missing organization")
 			}
 
-			if len(args) >= 1 {
-				candidates = append([]string{lookupOrganisationUID(*NewClient(), args[0])}, candidates...)
-			}
-
-			testCaseListOpts.Organisation = findFirstNonEmpty(candidates)
-
+			testCaseListOpts.Organisation = lookupOrganisationUID(*NewClient(), args[0])
 			if testCaseListOpts.Organisation == "" {
 				log.Fatal("Missing organization")
 			}

@@ -42,14 +42,7 @@ Examples
 				log.Fatal("Missing arguments; organization reference and test case file to validate")
 			}
 
-			candidates := []string{
-				lookupOrganisationUID(*NewClient(), args[0]),
-				readOrganisationUIDFromFile(),
-				rootOpts.DefaultOrganisation,
-			}
-
-			testCaseValidateOpts.Organisation = findFirstNonEmpty(candidates)
-
+			testCaseValidateOpts.Organisation = lookupOrganisationUID(*NewClient(), args[0])
 			if testCaseValidateOpts.Organisation == "" {
 				log.Fatal("Missing organization")
 			}
