@@ -13,15 +13,43 @@ import (
 var (
 	// testCaseCreateCmd represents the testCaseValidate command
 	testCaseCreateCmd = &cobra.Command{
-		Use:   "create",
+		Use:   "create <organisation-ref|test-case-ref> <test-case-file>",
 		Short: "Create a new test case",
-		Long:  `Create a new test case.`,
-		Run:   runTestCaseCreate,
-		PersistentPreRun: func(cmd *cobra.Command, args []string) {
-			testCaseCreateOpts.Organisation = findFirstNonEmpty([]string{testCaseCreateOpts.Organisation, readOrganisationUIDFromFile(), rootOpts.DefaultOrganisation})
+		Long: `Create a new test case.
 
+<test-case-ref> can be 'organisation/test-case'. <organisation-ref> is
+either 'organisation name' or the organisation's UID.
+
+Examples
+--------
+* create a new test case named 'checkout' in the 'acme-inc' organisation
+
+  forge test-case create acme-inc/checkout cases/checkout_process.js
+
+* alternatively the test definition can be piped in as well
+
+  cat cases/checkout_process.js | forge test-case create acme-inc/checkout -
+
+`,
+		Run: runTestCaseCreate,
+		PersistentPreRun: func(cmd *cobra.Command, args []string) {
+			if len(args) > 2 {
+				log.Fatal("Too many arguments")
+			}
+
+			if len(args) < 2 {
+				log.Fatal("Missing arguments; test case reference and test case file")
+			}
+
+			segments := strings.Split(args[0], "/")
+
+			testCaseCreateOpts.Organisation = lookupOrganisationUID(*NewClient(), segments[0])
 			if testCaseCreateOpts.Organisation == "" {
 				log.Fatal("Missing organization")
+			}
+
+			if len(segments) == 2 {
+				testCaseCreateOpts.Name = segments[1]
 			}
 		},
 	}
@@ -35,13 +63,14 @@ var (
 func init() {
 	TestCaseCmd.AddCommand(testCaseCreateCmd)
 
-	testCaseCreateCmd.PersistentFlags().StringVarP(&testCaseCreateOpts.Organisation, "organization", "o", "", "Name of the organization")
 	testCaseCreateCmd.PersistentFlags().StringVarP(&testCaseCreateOpts.Name, "name", "n", "", "Name of the new test case")
 }
 
 func runTestCaseCreate(cmd *cobra.Command, args []string) {
+	organizationUID := testCaseCreateOpts.Organisation
+
 	if len(args) > 0 {
-		fileName, testCaseFile, err := readFromStdinOrReadFirstArgument(args, "test_case.js")
+		fileName, testCaseFile, err := readFromStdinOrReadFromArgument(args, "test_case.js", 1)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -60,7 +89,7 @@ func runTestCaseCreate(cmd *cobra.Command, args []string) {
 
 		client := NewClient()
 
-		success, message, errValidation := client.TestCaseCreate(testCaseCreateOpts.Organisation, testCaseName, fileName, testCaseFile)
+		success, message, errValidation := client.TestCaseCreate(organizationUID, testCaseName, fileName, testCaseFile)
 		if errValidation != nil {
 			log.Fatal(errValidation)
 		}
