@@ -61,6 +61,11 @@ jwt = "your-jwt-token"
 
 1. Flag: `--jwt "your-jwt-token"`
 
+You can check your token via `ping` which makes an authenticated ping request:
+
+```
+forge ping
+```
 
 ### Setting Default Organisation
 
