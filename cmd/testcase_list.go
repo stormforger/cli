@@ -13,9 +13,10 @@ import (
 var (
 	// testCaseListCmd represents the testCaseValidate command
 	testCaseListCmd = &cobra.Command{
-		Use:   "list <organization-ref>",
-		Short: "List test case for a given organization",
-		Run:   runTestCaseList,
+		Use:     "list <organization-ref>",
+		Aliases: []string{"ls"},
+		Short:   "List test case for a given organization",
+		Run:     runTestCaseList,
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
 			if len(args) > 1 {
 				log.Fatal("Too many arguments")
