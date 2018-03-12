@@ -16,8 +16,22 @@ var (
 	testRunLaunchCmd = &cobra.Command{
 		Use:   "launch <test-case-ref>",
 		Short: "Create and launch a new test run",
-		Long:  `Create and launch a new test run based on given test case`,
-		Run:   testRunLaunch,
+		Long: `Create and launch a new test run based on given test case
+
+<test-case-ref> can be 'organisation/test-case' or 'test-case-uid'.
+
+Examples
+--------
+* launch by organisation and test case name
+
+  forge test-case launch acme-inc/checkout
+
+* alternatively the test case UID can also be provided
+
+  forge test-case launch xPSX5KXM
+
+`,
+		Run: testRunLaunch,
 	}
 
 	testRunLaunchOpts struct {
@@ -40,7 +54,9 @@ func init() {
 func testRunLaunch(cmd *cobra.Command, args []string) {
 	client := NewClient()
 
-	status, response, err := client.TestRunCreate(args[0], testRunLaunchOpts.Title, testRunLaunchOpts.Notes)
+	testCaseUID := lookupTestCase(*client, args[0])
+
+	status, response, err := client.TestRunCreate(testCaseUID, testRunLaunchOpts.Title, testRunLaunchOpts.Notes)
 	if err != nil {
 		log.Fatal(err)
 	}
