@@ -150,21 +150,26 @@ func findFirstNonEmpty(candidates []string) string {
 	return ""
 }
 
+func lookupOrganisationUID(client api.Client, input string) string {
+	organisation := findOrganisationByName(client, input)
+	if organisation.ID == "" {
+		log.Fatalf("Organisation %s not found", input)
+	}
+
+	return organisation.ID
+}
+
 func lookupTestCase(client api.Client, input string) string {
 	segments := strings.Split(input, "/")
-
 	nameOrUID := input
 
 	if len(segments) == 2 {
 		organisationNameOrUID := segments[0]
 		nameOrUID = segments[1]
 
-		organisation := findOrganisationByName(client, organisationNameOrUID)
-		if organisation.ID == "" {
-			log.Fatalf("Organisation %s not found", organisationNameOrUID)
-		}
+		organisationUID := lookupOrganisationUID(client, organisationNameOrUID)
 
-		_, result, err := client.ListTestCases(organisation.ID)
+		_, result, err := client.ListTestCases(organisationUID)
 		if err != nil {
 			log.Fatal(err)
 		}
