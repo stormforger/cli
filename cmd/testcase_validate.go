@@ -18,7 +18,7 @@ var (
 We do require the organisation in order to validate the test case against
 the available resources and limits of that given organisation.
 
-<organisation-ref> is either the name or the UID of your organisation.
+<organisation-ref> is the name or the UID of your organisation.
 
 Examples
 --------

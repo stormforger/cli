@@ -15,7 +15,7 @@ var (
 		Short: "Update an existing test case",
 		Long: `Update an existing test case
 
-<test-case-ref> can be 'organisation/test-case' or 'test-case-uid'.
+<test-case-ref> can be 'organisation-name/test-case-name' or 'test-case-uid'.
 
 Examples
 --------

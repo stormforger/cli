@@ -13,12 +13,11 @@ import (
 var (
 	// testCaseCreateCmd represents the testCaseValidate command
 	testCaseCreateCmd = &cobra.Command{
-		Use:   "create <organisation-ref|test-case-ref> <test-case-file>",
+		Use:   "create <test-case-ref> <test-case-file>",
 		Short: "Create a new test case",
 		Long: `Create a new test case.
 
-<test-case-ref> can be 'organisation/test-case'. <organisation-ref> is
-either 'organisation name' or the organisation's UID.
+<test-case-ref> is 'organisation-name/test-case-name'.
 
 Examples
 --------
@@ -43,13 +42,18 @@ Examples
 
 			segments := strings.Split(args[0], "/")
 
+			if len(segments) != 2 {
+				log.Fatal("Invalid argument: <test-case-ref> has to be like organisation-name/test-case-name")
+			}
+
 			testCaseCreateOpts.Organisation = lookupOrganisationUID(*NewClient(), segments[0])
 			if testCaseCreateOpts.Organisation == "" {
 				log.Fatal("Missing organization")
 			}
 
-			if len(segments) == 2 {
-				testCaseCreateOpts.Name = segments[1]
+			testCaseCreateOpts.Name = segments[1]
+			if testCaseCreateOpts.Name == "" {
+				log.Fatal("Missing test case name")
 			}
 		},
 	}
