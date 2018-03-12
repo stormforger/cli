@@ -13,14 +13,21 @@ import (
 var (
 	// testCaseListCmd represents the testCaseValidate command
 	testCaseListCmd = &cobra.Command{
-		Use:   "list",
+		Use:   "list <organization-ref>",
 		Short: "List test case for a given organization",
 		Run:   runTestCaseList,
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
-			candidates := []string{readOrganisationUIDFromFile(), rootOpts.DefaultOrganisation}
+			if len(args) > 1 {
+				log.Fatal("Too many arguments")
+			}
+
+			candidates := []string{
+				readOrganisationUIDFromFile(),
+				rootOpts.DefaultOrganisation,
+			}
 
 			if len(args) >= 1 {
-				candidates = append([]string{args[0]}, candidates...)
+				candidates = append([]string{lookupOrganisationUID(*NewClient(), args[0])}, candidates...)
 			}
 
 			testCaseListOpts.Organisation = findFirstNonEmpty(candidates)
@@ -33,7 +40,6 @@ var (
 
 	testCaseListOpts struct {
 		Organisation string
-		Name         string
 		JSON         bool
 	}
 )
