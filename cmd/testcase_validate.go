@@ -11,12 +11,44 @@ import (
 var (
 	// testCaseValidateCmd represents the testCaseValidate command
 	testCaseValidateCmd = &cobra.Command{
-		Use:   "validate",
+		Use:   "validate <organisation-ref> <test-case-file>",
 		Short: "Upload a test case definition JavaScript and validate it",
-		Long:  `Upload a test case definition JavaScript and validate it.`,
-		Run:   runTestCaseValidate,
+		Long: `Upload a test case definition JavaScript and validate it.
+
+We do require the organisation in order to validate the test case against
+the available resources and limits of that given organisation.
+
+<organisation-ref> is either the name or the UID of your organisation.
+
+Examples
+--------
+* validate a test case (with limits of 'acme-inc' organisation)
+
+  forge test-case validate acme-inc cases/checkout_process.js
+
+* alternatively the test definition can be piped in as well
+
+  cat cases/checkout_process.js | forge test-case validate acme-inc -
+
+`,
+
+		Run: runTestCaseValidate,
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
-			testCaseValidateOpts.Organisation = findFirstNonEmpty([]string{testCaseValidateOpts.Organisation, readOrganisationUIDFromFile(), rootOpts.DefaultOrganisation})
+			if len(args) > 2 {
+				log.Fatal("Too many arguments")
+			}
+
+			if len(args) < 2 {
+				log.Fatal("Missing arguments; organization reference and test case file to validate")
+			}
+
+			candidates := []string{
+				lookupOrganisationUID(*NewClient(), args[0]),
+				readOrganisationUIDFromFile(),
+				rootOpts.DefaultOrganisation,
+			}
+
+			testCaseValidateOpts.Organisation = findFirstNonEmpty(candidates)
 
 			if testCaseValidateOpts.Organisation == "" {
 				log.Fatal("Missing organization")
@@ -31,13 +63,11 @@ var (
 
 func init() {
 	TestCaseCmd.AddCommand(testCaseValidateCmd)
-
-	testCaseValidateCmd.PersistentFlags().StringVarP(&testCaseValidateOpts.Organisation, "organization", "o", "", "Name of the organization")
 }
 
 func runTestCaseValidate(cmd *cobra.Command, args []string) {
 	if len(args) > 0 {
-		fileName, testCaseFile, err := readFromStdinOrReadFirstArgument(args, "test_case.js")
+		fileName, testCaseFile, err := readFromStdinOrReadFromArgument(args, "test_case.js", 1)
 		if err != nil {
 			log.Fatal(err)
 		}
