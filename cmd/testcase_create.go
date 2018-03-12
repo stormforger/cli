@@ -37,7 +37,7 @@ Examples
 			}
 
 			if len(args) < 2 {
-				log.Fatal("Missing arguments; test case reference and test case file")
+				log.Fatal("Missing arguments; test case reference and test case file (or - to read from stdin)")
 			}
 
 			segments := strings.Split(args[0], "/")
@@ -73,40 +73,36 @@ func init() {
 func runTestCaseCreate(cmd *cobra.Command, args []string) {
 	organizationUID := testCaseCreateOpts.Organisation
 
-	if len(args) > 0 {
-		fileName, testCaseFile, err := readFromStdinOrReadFromArgument(args, "test_case.js", 1)
-		if err != nil {
-			log.Fatal(err)
-		}
+	fileName, testCaseFile, err := readFromStdinOrReadFromArgument(args, "test_case.js", 1)
+	if err != nil {
+		log.Fatal(err)
+	}
 
-		var testCaseName string
-		if testCaseCreateOpts.Name != "" {
-			testCaseName = testCaseCreateOpts.Name
-		} else if args[0] != "-" {
-			basename := filepath.Base(args[0])
-			testCaseName = strings.TrimSuffix(basename, filepath.Ext(basename))
-		} else {
-			log.Fatal("Name of test case missing")
-			fmt.Println()
-			os.Exit(1)
-		}
-
-		client := NewClient()
-
-		success, message, errValidation := client.TestCaseCreate(organizationUID, testCaseName, fileName, testCaseFile)
-		if errValidation != nil {
-			log.Fatal(errValidation)
-		}
-
-		if success {
-			os.Exit(0)
-		}
-
-		printPrettyJSON(message)
-
+	var testCaseName string
+	if testCaseCreateOpts.Name != "" {
+		testCaseName = testCaseCreateOpts.Name
+	} else if args[0] != "-" {
+		basename := filepath.Base(args[0])
+		testCaseName = strings.TrimSuffix(basename, filepath.Ext(basename))
+	} else {
+		log.Fatal("Name of test case missing")
 		fmt.Println()
 		os.Exit(1)
-	} else {
-		log.Fatal("Missing argument; test case file or - to read from stdin")
 	}
+
+	client := NewClient()
+
+	success, message, errValidation := client.TestCaseCreate(organizationUID, testCaseName, fileName, testCaseFile)
+	if errValidation != nil {
+		log.Fatal(errValidation)
+	}
+
+	if success {
+		os.Exit(0)
+	}
+
+	printPrettyJSON(message)
+
+	fmt.Println()
+	os.Exit(1)
 }
