@@ -60,20 +60,26 @@ func findOrganisationByName(client api.Client, name string) *organisation.Organi
 	return &organisation
 }
 
-func readFromStdinOrReadFirstArgument(args []string, defaultFileName string) (fileName string, reader io.Reader, err error) {
+func readFromStdinOrReadFromArgument(args []string, defaultFileName string, argPos int) (fileName string, reader io.Reader, err error) {
 	fileName = defaultFileName
 
-	if args[0] == "-" {
+	argument := args[argPos]
+
+	if argument == "-" {
 		reader = os.Stdin
 	} else {
-		fileName = filepath.Base(args[0])
-		reader, err = os.OpenFile(args[0], os.O_RDONLY, 0755)
+		fileName = filepath.Base(argument)
+		reader, err = os.OpenFile(argument, os.O_RDONLY, 0755)
 		if err != nil {
 			return "", nil, err
 		}
 	}
 
 	return fileName, reader, err
+}
+
+func readFromStdinOrReadFirstArgument(args []string, defaultFileName string) (fileName string, reader io.Reader, err error) {
+	return readFromStdinOrReadFromArgument(args, defaultFileName, 0)
 }
 
 func printPrettyJSON(message string) {
