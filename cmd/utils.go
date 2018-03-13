@@ -14,6 +14,8 @@ import (
 
 	"github.com/stormforger/cli/api"
 	"github.com/stormforger/cli/api/filefixture"
+	"github.com/stormforger/cli/api/organisation"
+	"github.com/stormforger/cli/api/testcase"
 )
 
 // FindFixtureByName fetches a FileFixture from a given
@@ -37,20 +39,47 @@ func findFixtureByName(client api.Client, organization string, name string) *fil
 	return &fileFixture
 }
 
-func readFromStdinOrReadFirstArgument(args []string, defaultFileName string) (fileName string, reader io.Reader, err error) {
+// findOrganisationByName fetches a FileFixture from a given
+// organization.
+func findOrganisationByName(client api.Client, name string) *organisation.Organisation {
+	response, err := client.ListOrganisations()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	organisations, err := organisation.Unmarshal(bytes.NewReader(response))
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	organisation := organisations.FindByNameOrUID(name)
+	if organisation.ID == "" {
+		log.Fatalf("Organisation %s not found!", name)
+	}
+
+	return &organisation
+}
+
+func readFromStdinOrReadFromArgument(args []string, defaultFileName string, argPos int) (fileName string, reader io.Reader, err error) {
 	fileName = defaultFileName
 
-	if args[0] == "-" {
+	argument := args[argPos]
+
+	if argument == "-" {
 		reader = os.Stdin
 	} else {
-		fileName = filepath.Base(args[0])
-		reader, err = os.OpenFile(args[0], os.O_RDONLY, 0755)
+		fileName = filepath.Base(argument)
+		reader, err = os.OpenFile(argument, os.O_RDONLY, 0755)
 		if err != nil {
 			return "", nil, err
 		}
 	}
 
 	return fileName, reader, err
+}
+
+func readFromStdinOrReadFirstArgument(args []string, defaultFileName string) (fileName string, reader io.Reader, err error) {
+	return readFromStdinOrReadFromArgument(args, defaultFileName, 0)
 }
 
 func printPrettyJSON(message string) {
@@ -119,4 +148,44 @@ func findFirstNonEmpty(candidates []string) string {
 	}
 
 	return ""
+}
+
+func lookupOrganisationUID(client api.Client, input string) string {
+	organisation := findOrganisationByName(client, input)
+	if organisation.ID == "" {
+		log.Fatalf("Organisation %s not found", input)
+	}
+
+	return organisation.ID
+}
+
+func lookupTestCase(client api.Client, input string) string {
+	segments := strings.Split(input, "/")
+	nameOrUID := input
+
+	if len(segments) == 2 {
+		organisationNameOrUID := segments[0]
+		nameOrUID = segments[1]
+
+		organisationUID := lookupOrganisationUID(client, organisationNameOrUID)
+
+		_, result, err := client.ListTestCases(organisationUID)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		testCases, err := testcase.Unmarshal(bytes.NewReader(result))
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		testCase := testCases.FindByNameOrUID(nameOrUID)
+		if testCase.ID == "" {
+			log.Fatalf("Test case %s not found", nameOrUID)
+		}
+
+		return testCase.ID
+	}
+
+	return nameOrUID
 }

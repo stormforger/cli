@@ -13,15 +13,47 @@ import (
 var (
 	// testCaseCreateCmd represents the testCaseValidate command
 	testCaseCreateCmd = &cobra.Command{
-		Use:   "create",
+		Use:   "create <test-case-ref> <test-case-file>",
 		Short: "Create a new test case",
-		Long:  `Create a new test case.`,
-		Run:   runTestCaseCreate,
-		PersistentPreRun: func(cmd *cobra.Command, args []string) {
-			testCaseCreateOpts.Organisation = findFirstNonEmpty([]string{testCaseCreateOpts.Organisation, readOrganisationUIDFromFile(), rootOpts.DefaultOrganisation})
+		Long: `Create a new test case.
 
+<test-case-ref> is 'organisation-name/test-case-name'.
+
+Examples
+--------
+* create a new test case named 'checkout' in the 'acme-inc' organisation
+
+  forge test-case create acme-inc/checkout cases/checkout_process.js
+
+* alternatively the test definition can be piped in as well
+
+  cat cases/checkout_process.js | forge test-case create acme-inc/checkout -
+
+`,
+		Run: runTestCaseCreate,
+		PersistentPreRun: func(cmd *cobra.Command, args []string) {
+			if len(args) > 2 {
+				log.Fatal("Too many arguments")
+			}
+
+			if len(args) < 2 {
+				log.Fatal("Missing arguments; test case reference and test case file (or - to read from stdin)")
+			}
+
+			segments := strings.Split(args[0], "/")
+
+			if len(segments) != 2 {
+				log.Fatal("Invalid argument: <test-case-ref> has to be like organisation-name/test-case-name")
+			}
+
+			testCaseCreateOpts.Organisation = lookupOrganisationUID(*NewClient(), segments[0])
 			if testCaseCreateOpts.Organisation == "" {
 				log.Fatal("Missing organization")
+			}
+
+			testCaseCreateOpts.Name = segments[1]
+			if testCaseCreateOpts.Name == "" {
+				log.Fatal("Missing test case name")
 			}
 		},
 	}
@@ -35,45 +67,42 @@ var (
 func init() {
 	TestCaseCmd.AddCommand(testCaseCreateCmd)
 
-	testCaseCreateCmd.PersistentFlags().StringVarP(&testCaseCreateOpts.Organisation, "organization", "o", "", "Name of the organization")
 	testCaseCreateCmd.PersistentFlags().StringVarP(&testCaseCreateOpts.Name, "name", "n", "", "Name of the new test case")
 }
 
 func runTestCaseCreate(cmd *cobra.Command, args []string) {
-	if len(args) > 0 {
-		fileName, testCaseFile, err := readFromStdinOrReadFirstArgument(args, "test_case.js")
-		if err != nil {
-			log.Fatal(err)
-		}
+	organizationUID := testCaseCreateOpts.Organisation
 
-		var testCaseName string
-		if testCaseCreateOpts.Name != "" {
-			testCaseName = testCaseCreateOpts.Name
-		} else if args[0] != "-" {
-			basename := filepath.Base(args[0])
-			testCaseName = strings.TrimSuffix(basename, filepath.Ext(basename))
-		} else {
-			log.Fatal("Name of test case missing")
-			fmt.Println()
-			os.Exit(1)
-		}
+	fileName, testCaseFile, err := readFromStdinOrReadFromArgument(args, "test_case.js", 1)
+	if err != nil {
+		log.Fatal(err)
+	}
 
-		client := NewClient()
-
-		success, message, errValidation := client.TestCaseCreate(testCaseCreateOpts.Organisation, testCaseName, fileName, testCaseFile)
-		if errValidation != nil {
-			log.Fatal(errValidation)
-		}
-
-		if success {
-			os.Exit(0)
-		}
-
-		printPrettyJSON(message)
-
+	var testCaseName string
+	if testCaseCreateOpts.Name != "" {
+		testCaseName = testCaseCreateOpts.Name
+	} else if args[0] != "-" {
+		basename := filepath.Base(args[0])
+		testCaseName = strings.TrimSuffix(basename, filepath.Ext(basename))
+	} else {
+		log.Fatal("Name of test case missing")
 		fmt.Println()
 		os.Exit(1)
-	} else {
-		log.Fatal("Missing argument; test case file or - to read from stdin")
 	}
+
+	client := NewClient()
+
+	success, message, errValidation := client.TestCaseCreate(organizationUID, testCaseName, fileName, testCaseFile)
+	if errValidation != nil {
+		log.Fatal(errValidation)
+	}
+
+	if success {
+		os.Exit(0)
+	}
+
+	printPrettyJSON(message)
+
+	fmt.Println()
+	os.Exit(1)
 }

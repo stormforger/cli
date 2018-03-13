@@ -81,6 +81,41 @@ organisation = "abcdef42"
 To get the UID to your organisation, run: `forge organisation list`.
 
 
+## Usage
+
+Help is available to all commands with `--help`.
+
+
+### Test Cases
+
+Test cases are scoped by organisation. You always have to provide at least the organisation (`acme-inc`) or a test case in form of `organisation-name/test-case-name`.
+
+You can...
+* list existing test cases in your `acme-inc` organisation: `forge test-case list acme-inc`
+* validate a test definition without saving it: `forge test-case validate acme-inc cases/simple.js`
+* create a new test case named `checkout` inside `acme-inc`: `forge test-case create acme-inc/checkout cases/simple.js`
+* update an existing test case named `checkout` inside `acme-inc`: `forge test-case update acme-inc/checkout cases/simple.js`
+
+Commands that take a file, also accept `-` to take input from stdin. Example:
+
+```
+sed 's/${target}/testapp.loadtest.party/g' tests/templated.js | forge tc update acme-inc/checkout -
+```
+
+
+### Test Runs
+
+Test runs are executions of test cases.
+
+You can...
+* launch `acme-inc/checkout`: `forge test-case launch acme-inc/checkout`
+* watch
+* list
+* show
+
+…
+
+
 ### Data Sources
 
 Data sources are scoped per organisation. Working with data sources can be done with the `datasource` (or short `ds`) sub command, e.g. `forge datasource ls`.

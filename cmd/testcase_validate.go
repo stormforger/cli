@@ -11,13 +11,38 @@ import (
 var (
 	// testCaseValidateCmd represents the testCaseValidate command
 	testCaseValidateCmd = &cobra.Command{
-		Use:   "validate",
+		Use:   "validate <organisation-ref> <test-case-file>",
 		Short: "Upload a test case definition JavaScript and validate it",
-		Long:  `Upload a test case definition JavaScript and validate it.`,
-		Run:   runTestCaseValidate,
-		PersistentPreRun: func(cmd *cobra.Command, args []string) {
-			testCaseValidateOpts.Organisation = findFirstNonEmpty([]string{testCaseValidateOpts.Organisation, readOrganisationUIDFromFile(), rootOpts.DefaultOrganisation})
+		Long: `Upload a test case definition JavaScript and validate it.
 
+We do require the organisation in order to validate the test case against
+the available resources and limits of that given organisation.
+
+<organisation-ref> is the name or the UID of your organisation.
+
+Examples
+--------
+* validate a test case (with limits of 'acme-inc' organisation)
+
+  forge test-case validate acme-inc cases/checkout_process.js
+
+* alternatively the test definition can be piped in as well
+
+  cat cases/checkout_process.js | forge test-case validate acme-inc -
+
+`,
+
+		Run: runTestCaseValidate,
+		PersistentPreRun: func(cmd *cobra.Command, args []string) {
+			if len(args) > 2 {
+				log.Fatal("Too many arguments")
+			}
+
+			if len(args) < 2 {
+				log.Fatal("Missing arguments; organization reference and test case file to validate (or - to read from stdin)")
+			}
+
+			testCaseValidateOpts.Organisation = lookupOrganisationUID(*NewClient(), args[0])
 			if testCaseValidateOpts.Organisation == "" {
 				log.Fatal("Missing organization")
 			}
@@ -31,34 +56,28 @@ var (
 
 func init() {
 	TestCaseCmd.AddCommand(testCaseValidateCmd)
-
-	testCaseValidateCmd.PersistentFlags().StringVarP(&testCaseValidateOpts.Organisation, "organization", "o", "", "Name of the organization")
 }
 
 func runTestCaseValidate(cmd *cobra.Command, args []string) {
-	if len(args) > 0 {
-		fileName, testCaseFile, err := readFromStdinOrReadFirstArgument(args, "test_case.js")
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		client := NewClient()
-
-		success, message, errValidation := client.TestCaseValidate(testCaseValidateOpts.Organisation, fileName, testCaseFile)
-		if errValidation != nil {
-			log.Fatal(errValidation)
-		}
-
-		if success {
-			fmt.Println("test case ok")
-			os.Exit(0)
-		}
-
-		printPrettyJSON(message)
-
-		fmt.Println()
-		os.Exit(1)
-	} else {
-		log.Fatal("Missing argument; test case file or - to read from stdin")
+	fileName, testCaseFile, err := readFromStdinOrReadFromArgument(args, "test_case.js", 1)
+	if err != nil {
+		log.Fatal(err)
 	}
+
+	client := NewClient()
+
+	success, message, errValidation := client.TestCaseValidate(testCaseValidateOpts.Organisation, fileName, testCaseFile)
+	if errValidation != nil {
+		log.Fatal(errValidation)
+	}
+
+	if success {
+		fmt.Println("test case ok")
+		os.Exit(0)
+	}
+
+	printPrettyJSON(message)
+
+	fmt.Println()
+	os.Exit(1)
 }
