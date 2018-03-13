@@ -96,7 +96,11 @@ You can...
 * create a new test case named `checkout` inside `acme-inc`: `forge test-case create acme-inc/checkout cases/simple.js`
 * update an existing test case named `checkout` inside `acme-inc`: `forge test-case update acme-inc/checkout cases/simple.js`
 
-Commands that take a file, also accept `-` to take input from stdin.
+Commands that take a file, also accept `-` to take input from stdin. Example:
+
+```
+sed 's/${target}/testapp.loadtest.party/g' tests/templated.js | forge tc update acme-inc/checkout -
+```
 
 
 ### Test Runs
