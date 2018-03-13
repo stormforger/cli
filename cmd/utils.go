@@ -109,7 +109,7 @@ func readOrganisationUIDFromFile() string {
 	return strings.TrimSpace(string(content))
 }
 
-func watchTestRun(testRunUID string, maxWatchTime int) {
+func watchTestRun(testRunUID string, maxWatchTime float64) {
 	client := NewClient()
 
 	started := time.Now()
@@ -132,7 +132,7 @@ func watchTestRun(testRunUID string, maxWatchTime int) {
 			os.Exit(0)
 		}
 
-		if maxWatchTime > 0 && int(runningSince) > maxWatchTime {
+		if int(maxWatchTime) > 0 && int(runningSince) > int(maxWatchTime) {
 			os.Exit(2)
 		}
 
