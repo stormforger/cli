@@ -3,11 +3,16 @@ package cmd
 import (
 	"bufio"
 	"fmt"
+	"io"
+	"io/ioutil"
 	"log"
 	"os"
+	"path/filepath"
 
 	"github.com/fatih/color"
 	"github.com/howeyc/gopass"
+	"github.com/mitchellh/go-homedir"
+	"github.com/pelletier/go-toml"
 	"github.com/spf13/cobra"
 )
 
@@ -16,11 +21,9 @@ var (
 	loginPassword = ""
 
 	loginCmd = &cobra.Command{
-		Use:   "login <email>",
+		Use:   "login [email]",
 		Short: "Login to StormForger",
 		Long: `Login to StormForger in order to acquire a JWT access token.
-
-	You can provide the login via argument or --email flag.
 
 	It is discouraged to provide the password via the --password flag. By
 	default you are asked to provide the password interactively.`,
@@ -39,30 +42,61 @@ func runLogin(cmd *cobra.Command, args []string) {
 	if err != nil {
 		log.Fatal(err)
 	} else {
-		color.White("Login successful! Add the JWT token to a .stormforger.toml file like this:\n\n")
-		color.Green("  echo 'jwt = \"" + jwt + "\"' >> .stormforger.toml")
-		color.Green("\n\n")
-	}
-}
 
-func ensureEmail(args []string) {
-	if loginEmail != "" {
-		return
-	}
-
-	if len(args) == 1 {
-		loginEmail = args[0]
-	}
-
-	if len(args) == 0 {
-		fmt.Printf("No email for login provided, what is your email? ")
-		stdInReader := bufio.NewReader(os.Stdin)
-		line, _, err := stdInReader.ReadLine()
+		home, err := homedir.Dir()
 		if err != nil {
 			log.Fatal(err)
 		}
 
+		stormforgerConfig := filepath.Join(home, ConfigFilename+".toml")
+
+		if _, err := os.Stat(stormforgerConfig); os.IsNotExist(err) {
+			var bar = struct {
+				JWT string `toml:"jwt"`
+			}{JWT: jwt}
+
+			content, err := toml.Marshal(bar)
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			err = ioutil.WriteFile(stormforgerConfig, content, 0644)
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			setupConfig()
+		} else {
+			color.White("\nLogin successful!\n\n")
+			color.Red("Found %s. File will not be overriden!\n\n", stormforgerConfig)
+			color.White("Add the JWT token to a .stormforger.toml file like this:\n\n")
+			color.Green("  echo 'jwt = \"" + jwt + "\"' >> ~/.stormforger.toml")
+			color.Green("\n\n")
+		}
+	}
+}
+
+func ensureEmail(args []string) {
+	if len(args) == 1 {
+		loginEmail = args[0]
+		fmt.Printf("Email: %s\n", loginEmail)
+	}
+
+	if len(args) == 0 {
+		fmt.Printf("No email for login provided\nEmail: ")
+		stdInReader := bufio.NewReader(os.Stdin)
+		line, _, err := stdInReader.ReadLine()
+		if err != nil && err != io.EOF {
+			log.Fatal(err)
+		}
+
 		loginEmail = string(line)
+
+		if loginEmail == "" {
+			fmt.Println()
+			log.Fatal("No email provided")
+		}
+
 	}
 }
 
@@ -82,6 +116,5 @@ func ensurePassword() {
 func init() {
 	RootCmd.AddCommand(loginCmd)
 
-	loginCmd.Flags().StringVarP(&loginEmail, "email", "e", "", "Email for Login")
 	loginCmd.Flags().StringVarP(&loginPassword, "password", "p", "", "Log in with this password")
 }
