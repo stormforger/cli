@@ -17,6 +17,7 @@ import (
 )
 
 var (
+	noSave        = false
 	loginEmail    = ""
 	loginPassword = ""
 
@@ -50,7 +51,7 @@ func runLogin(cmd *cobra.Command, args []string) {
 
 		stormforgerConfig := filepath.Join(home, ConfigFilename+".toml")
 
-		if _, err := os.Stat(stormforgerConfig); os.IsNotExist(err) {
+		if _, err := os.Stat(stormforgerConfig); !noSave && os.IsNotExist(err) {
 			var bar = struct {
 				JWT string `toml:"jwt"`
 			}{JWT: jwt}
@@ -117,4 +118,5 @@ func init() {
 	RootCmd.AddCommand(loginCmd)
 
 	loginCmd.Flags().StringVarP(&loginPassword, "password", "p", "", "Log in with this password")
+	loginCmd.Flags().BoolVarP(&noSave, "no-save", "", false, "Don't save acquired JWT")
 }
