@@ -47,21 +47,14 @@ When done, you can login via
 forge login your-email@example.com
 ```
 
-You will be asked for your credentials. On successful authentication, you will be presented with a JWT.
+You will be asked for your credentials. On successful authentication your token will be written to `~/.stormforger.toml` (use `--no-save` to print the token).
 
-For following requests you have multiple options to provide your token:
-
-1. TOML configuration: `.stormforger.toml` or `$HOME/.stormforger.toml`:
-
-```
-jwt = "your-jwt-token"
-```
+Beside via `.stormforger.toml`, you can provide your JWT via
 
 1. Environment: `export STORMFORGER_JWT="your-jwt-token"`
-
 1. Flag: `--jwt "your-jwt-token"`
 
-You can check your token via `ping` which makes an authenticated ping request:
+When you are done, you can check your token via `ping` which makes an authenticated ping request:
 
 ```
 forge ping
