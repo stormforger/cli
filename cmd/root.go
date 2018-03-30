@@ -15,7 +15,12 @@ import (
 var (
 	// RootCmd represents the cobra root command
 	RootCmd = &cobra.Command{
-		Use:   "forge",
+		Use: "forge",
+		PersistentPreRun: func(cmd *cobra.Command, args []string) {
+			if !stringInSlice(rootOpts.OutputFormat, []string{"human", "plain", "json"}) {
+				log.Fatalf("Unknown output format '%s'", rootOpts.OutputFormat)
+			}
+		},
 		Short: "Command line client to StormForger (https://stormforger.com)",
 		Long: `The command line client "forge" to StormForger offers a interface
 to the StormForger API and several convenience methods
