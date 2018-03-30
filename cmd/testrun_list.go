@@ -51,7 +51,7 @@ func testRunList(cmd *cobra.Command, args []string) {
 	}
 
 	if !status {
-		fmt.Fprintln(os.Stderr, "Could not list test cases!")
+		fmt.Fprintln(os.Stderr, "Could not list test runs!")
 		fmt.Fprintln(os.Stderr, string(result))
 
 		os.Exit(1)
