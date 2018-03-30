@@ -28,6 +28,7 @@ Happy Load Testing :)`,
 		APIEndpoint         string
 		JWT                 string
 		DefaultOrganisation string
+		OutputFormat        string
 	}
 )
 
@@ -109,4 +110,5 @@ func init() {
 	RootCmd.PersistentFlags().StringVar(&rootOpts.APIEndpoint, "endpoint", "https://api.stormforger.com", "API Endpoint")
 	RootCmd.PersistentFlags().StringVar(&rootOpts.JWT, "jwt", "", "JWT access token")
 	RootCmd.PersistentFlags().StringVar(&rootOpts.DefaultOrganisation, "default-organisation", "", "Default organisation UID to use")
+	RootCmd.PersistentFlags().StringVar(&rootOpts.OutputFormat, "output", "human", "Output format: human,plain,json")
 }

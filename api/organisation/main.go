@@ -3,7 +3,6 @@ package organisation
 import (
 	"fmt"
 	"io"
-	"log"
 	"reflect"
 
 	"github.com/google/jsonapi"
@@ -30,30 +29,15 @@ func Unmarshal(input io.Reader) (List, error) {
 	result := List{}
 
 	for _, item := range items {
-		fixture, ok := item.(*Organisation)
+		organisation, ok := item.(*Organisation)
 		if !ok {
 			return List{}, fmt.Errorf("Type assertion failed")
 		}
 
-		result.Organisations = append(result.Organisations, fixture)
+		result.Organisations = append(result.Organisations, organisation)
 	}
 
 	return result, nil
-}
-
-// ShowNames displays the name and uid of organisations
-func ShowNames(input io.Reader) {
-	items, err := jsonapi.UnmarshalManyPayload(input, reflect.TypeOf(new(Organisation)))
-
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	for _, item := range items {
-		organisation, _ := item.(*Organisation)
-
-		fmt.Printf("* %s (ID: %s)\n", organisation.Name, organisation.ID)
-	}
 }
 
 // FindByNameOrUID look up a Organisation by name in List
