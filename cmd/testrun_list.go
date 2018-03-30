@@ -29,8 +29,8 @@ var (
 
 			segments := strings.Split(args[0], "/")
 
-			if len(segments) != 2 {
-				log.Fatal("Invalid argument: <test-case-ref> has to be like organisation-name/test-case-name")
+			if len(segments) > 2 {
+				log.Fatal("Invalid argument: <test-case-ref> has to be like organisation-name/test-case-name or test-case-uid")
 			}
 		},
 	}
