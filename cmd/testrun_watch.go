@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/spf13/cobra"
-	"github.com/stormforger/cli/api"
+	"github.com/stormforger/cli/api/testrun"
 )
 
 var (
@@ -48,11 +48,11 @@ func testRunWatch(cmd *cobra.Command, args []string) {
 	watchTestRun(args[0], testRunWatchOpts.MaxWatchTime.Round(time.Second).Seconds())
 }
 
-func testRunOkay(testRun *api.TestRun) bool {
+func testRunOkay(testRun *testrun.TestRun) bool {
 	return stringInSlice(testRun.State, successStates)
 }
 
-func testRunSuccess(testRun *api.TestRun) bool {
+func testRunSuccess(testRun *testrun.TestRun) bool {
 	successStates := []string{
 		"done",
 	}

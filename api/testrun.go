@@ -11,6 +11,7 @@ import (
 	"strings"
 
 	"github.com/google/jsonapi"
+	"github.com/stormforger/cli/api/testrun"
 )
 
 // TestRunResources describes infos on a test run
@@ -19,23 +20,6 @@ type TestRunResources struct {
 	Organisation string
 	TestCase     string
 	SequenceID   string
-}
-
-// TestRunList is a list of TestRuns, used for index action
-type TestRunList struct {
-	TestRuns []*TestRun
-}
-
-// TestRun represents a single TestRun
-type TestRun struct {
-	ID           string `jsonapi:"primary,test_runs"`
-	Title        string `jsonapi:"attr,title,omitempty"`
-	Notes        string `jsonapi:"attr,notes,omitempty"`
-	State        string `jsonapi:"attr,state,omitempty"`
-	StartedBy    string `jsonapi:"attr,started_by,omitempty"`
-	StartedAt    string `jsonapi:"attr,started_at,omitempty"`
-	EndedAt      string `jsonapi:"attr,ended_at,omitempty"`
-	EstimatedEnd string `jsonapi:"attr,estimated_end,omitempty"`
 }
 
 // TestRunList will list all test runs for a given test case
@@ -92,29 +76,29 @@ func (c *Client) FetchTestRun(uid string) (bool, []byte, error) {
 
 // TestRunWatch will show some basic information on a given
 // test run
-func (c *Client) TestRunWatch(uid string) (TestRun, string, error) {
+func (c *Client) TestRunWatch(uid string) (testrun.TestRun, string, error) {
 	path := "/test_runs/" + uid + "/watch"
 
 	req, err := http.NewRequest("GET", c.APIEndpoint+path, nil)
 	if err != nil {
-		return TestRun{}, "", err
+		return testrun.TestRun{}, "", err
 	}
 
 	response, err := c.doRequestRaw(req)
 	if err != nil {
-		return TestRun{}, "", err
+		return testrun.TestRun{}, "", err
 	}
 
 	body, err := ioutil.ReadAll(response.Body)
 	if err != nil {
-		return TestRun{}, "", err
+		return testrun.TestRun{}, "", err
 	}
 
 	if response.StatusCode >= 400 {
 		log.Fatal(string(body))
 	}
 
-	testRun := new(TestRun)
+	testRun := new(testrun.TestRun)
 	err = jsonapi.UnmarshalPayload(bytes.NewReader(body), testRun)
 	if err != nil {
 		log.Fatal(err)
@@ -170,7 +154,7 @@ func (c *Client) TestRunCallLog(pathID string, preview bool) (io.ReadCloser, err
 // to update an existing test case it.
 func (c *Client) TestRunCreate(testCaseUID string, title string, notes string) (bool, string, error) {
 	payload := bytes.NewBuffer(nil)
-	newTestRun := &TestRun{
+	newTestRun := &testrun.TestRun{
 		Title: title,
 		Notes: notes,
 	}
