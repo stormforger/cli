@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"log"
+	"fmt"
 
 	"github.com/spf13/cobra"
 )
@@ -29,8 +29,15 @@ func init() {
 func testRunShow(cmd *cobra.Command, args []string) {
 	client := NewClient()
 
-	_, err := client.TestRunShow(args[0])
-	if err != nil {
-		log.Fatal(err)
+	testRun := lookupTestRun(*client, args[0])
+
+	fmt.Printf("%s (%s, %s)\n", testRun.Scope, testRun.State, testRun.ID)
+	if testRun.Title != "" {
+		fmt.Printf("Title   %s\n", testRun.Title)
+	}
+	fmt.Printf("Started %s\n", testRun.StartedAt)
+	fmt.Printf("Ended   %s\n", testRun.EndedAt)
+	if testRun.Notes != "" {
+		fmt.Printf("%s\n", testRun.Notes)
 	}
 }

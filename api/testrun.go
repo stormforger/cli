@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"compress/gzip"
 	"errors"
-	"fmt"
 	"io"
 	"io/ioutil"
 	"log"
@@ -65,24 +64,30 @@ func (c *Client) TestRunList(testCaseUID string) (bool, []byte, error) {
 	return true, body, nil
 }
 
-// TestRunShow will show some basic information on a given
-// test run
-func (c *Client) TestRunShow(uid string) (TestRun, error) {
+// FetchTestRun will load a test run
+func (c *Client) FetchTestRun(uid string) (bool, []byte, error) {
 	path := "/test_runs/" + uid
 
 	req, err := http.NewRequest("GET", c.APIEndpoint+path, nil)
 	if err != nil {
-		return TestRun{}, err
+		return false, nil, err
 	}
 
-	body, err := c.doRequest(req)
+	response, err := c.doRequestRaw(req)
 	if err != nil {
-		return TestRun{}, err
+		return false, nil, err
 	}
 
-	fmt.Println(string(body))
+	body, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		return false, nil, err
+	}
 
-	return TestRun{}, nil
+	if response.StatusCode != 200 {
+		return false, body, nil
+	}
+
+	return true, body, nil
 }
 
 // TestRunWatch will show some basic information on a given
