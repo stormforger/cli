@@ -44,7 +44,7 @@ func init() {
 
 	calllogCmd.Flags().StringVar(&logOpts.Type, "type", "request", "type of logs")
 	calllogCmd.Flags().BoolVarP(&logOpts.Full, "full", "f", false, "download full logs")
-	calllogCmd.Flags().StringVar(&logOpts.OutputFile, "output", "-", "save logs to file or '-' for stdout")
+	calllogCmd.Flags().StringVar(&logOpts.OutputFile, "file", "-", "save logs to file or '-' for stdout")
 }
 
 func ensureTestRunLogsOptions(cmd *cobra.Command, args []string) {

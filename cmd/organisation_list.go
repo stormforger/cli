@@ -16,16 +16,10 @@ var (
 		Short:   "List organisations you have access to",
 		Run:     runOrganisationList,
 	}
-
-	organisationListOpts struct {
-		JSON bool
-	}
 )
 
 func init() {
 	organisationCmd.AddCommand(organisationListCmd)
-
-	organisationListCmd.Flags().BoolVarP(&organisationListOpts.JSON, "json", "", false, "Output machine-readable JSON")
 }
 
 func runOrganisationList(cmd *cobra.Command, args []string) {
@@ -36,9 +30,21 @@ func runOrganisationList(cmd *cobra.Command, args []string) {
 		log.Fatal(err)
 	}
 
-	if organisationListOpts.JSON {
+	if rootOpts.OutputFormat == "json" {
 		fmt.Println(string(result))
-	} else {
-		organisation.ShowNames(bytes.NewReader(result))
+		return
+	}
+
+	items, err := organisation.Unmarshal(bytes.NewReader(result))
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for _, item := range items.Organisations {
+		if rootOpts.OutputFormat == "human" {
+			fmt.Printf("%s (ID: %s)\n", item.Name, item.ID)
+		} else {
+			fmt.Printf("%s\n", item.Name)
+		}
 	}
 }

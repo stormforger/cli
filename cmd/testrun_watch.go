@@ -59,12 +59,3 @@ func testRunSuccess(testRun *api.TestRun) bool {
 
 	return stringInSlice(testRun.State, successStates)
 }
-
-func stringInSlice(a string, list []string) bool {
-	for _, b := range list {
-		if b == a {
-			return true
-		}
-	}
-	return false
-}

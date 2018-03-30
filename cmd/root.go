@@ -15,7 +15,12 @@ import (
 var (
 	// RootCmd represents the cobra root command
 	RootCmd = &cobra.Command{
-		Use:   "forge",
+		Use: "forge",
+		PersistentPreRun: func(cmd *cobra.Command, args []string) {
+			if !stringInSlice(rootOpts.OutputFormat, []string{"human", "plain", "json"}) {
+				log.Fatalf("Unknown output format '%s'", rootOpts.OutputFormat)
+			}
+		},
 		Short: "Command line client to StormForger (https://stormforger.com)",
 		Long: `The command line client "forge" to StormForger offers a interface
 to the StormForger API and several convenience methods
@@ -28,6 +33,7 @@ Happy Load Testing :)`,
 		APIEndpoint         string
 		JWT                 string
 		DefaultOrganisation string
+		OutputFormat        string
 	}
 )
 
@@ -109,4 +115,5 @@ func init() {
 	RootCmd.PersistentFlags().StringVar(&rootOpts.APIEndpoint, "endpoint", "https://api.stormforger.com", "API Endpoint")
 	RootCmd.PersistentFlags().StringVar(&rootOpts.JWT, "jwt", "", "JWT access token")
 	RootCmd.PersistentFlags().StringVar(&rootOpts.DefaultOrganisation, "default-organisation", "", "Default organisation UID to use")
+	RootCmd.PersistentFlags().StringVar(&rootOpts.OutputFormat, "output", "human", "Output format: human,plain,json")
 }
