@@ -16,6 +16,7 @@ import (
 	"github.com/stormforger/cli/api/filefixture"
 	"github.com/stormforger/cli/api/organisation"
 	"github.com/stormforger/cli/api/testcase"
+	"github.com/stormforger/cli/api/testrun"
 )
 
 func stringInSlice(a string, list []string) bool {
@@ -197,4 +198,55 @@ func lookupTestCase(client api.Client, input string) string {
 	}
 
 	return nameOrUID
+}
+
+func lookupTestRunByUID(client api.Client, uid string) *testrun.TestRun {
+	status, response, err := client.FetchTestRun(uid)
+	if err != nil {
+		log.Fatal(err)
+	}
+	if !status {
+		log.Fatalf("Could not load test run %s", uid)
+	}
+
+	item, err := testrun.UnmarshalSingle(bytes.NewReader(response))
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return &item
+}
+
+func lookupTestRun(client api.Client, input string) *testrun.TestRun {
+	testRunParts := api.ExtractTestRunResources(input)
+
+	if testRunParts.UID != "" {
+		return lookupTestRunByUID(client, testRunParts.UID)
+	}
+
+	testCaseUID := lookupTestCase(client, testRunParts.Organisation+"/"+testRunParts.TestCase)
+
+	status, result, err := client.TestRunList(testCaseUID)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	if !status {
+		log.Fatal("Could not list test runs!")
+	}
+
+	items, err := testrun.Unmarshal(bytes.NewReader(result))
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for _, item := range items.TestRuns {
+		if item.Scope == input {
+			return lookupTestRunByUID(client, item.ID)
+		}
+	}
+
+	log.Fatalf("Test Run %s not found", input)
+
+	return &testrun.TestRun{}
 }
