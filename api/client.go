@@ -60,7 +60,7 @@ func defaultHTTPClient() *http.Client {
 		IdleConnTimeout:    30 * time.Second,
 		DisableCompression: true,
 		DialTLS:            newDialer(fingerprint, false),
-		Proxy:              http.ProxyURL(getHttpProxy()),
+		Proxy:              http.ProxyURL(getHTTPProxy()),
 	}
 
 	return &http.Client{
@@ -69,19 +69,19 @@ func defaultHTTPClient() *http.Client {
 	}
 }
 
-func getHttpProxy() *url.URL {
-	httpProxyUrl := os.Getenv("HTTP_PROXY")
+func getHTTPProxy() *url.URL {
+	httpProxyURL := os.Getenv("HTTP_PROXY")
 
-	if httpProxyUrl == "" {
+	if httpProxyURL == "" {
 		return nil
 	}
 
-	proxyUrl, err := url.Parse(httpProxyUrl)
+	proxyURL, err := url.Parse(httpProxyURL)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	return proxyUrl
+	return proxyURL
 }
 
 // Client represents the API client
