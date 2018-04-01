@@ -10,26 +10,7 @@ import (
 func (c *Client) ListTestCases(organization string) (bool, []byte, error) {
 	path := "/organisations/" + organization + "/test_cases"
 
-	req, err := http.NewRequest("GET", c.APIEndpoint+path, nil)
-	if err != nil {
-		return false, nil, err
-	}
-
-	response, err := c.doRequestRaw(req)
-	if err != nil {
-		return false, nil, err
-	}
-
-	body, err := ioutil.ReadAll(response.Body)
-	if err != nil {
-		return false, nil, err
-	}
-
-	if response.StatusCode != 200 {
-		return false, body, nil
-	}
-
-	return true, body, nil
+	return c.fetch(path)
 }
 
 // TestCaseValidate will send a test case definition (JS) to the API
@@ -122,4 +103,35 @@ func (c *Client) TestCaseUpdate(testCaseUID string, fileName string, data io.Rea
 	defer response.Body.Close()
 
 	return false, string(body), nil
+}
+
+// DownloadTestCaseDefinition returns the JS definition
+// of a given test case
+func (c *Client) DownloadTestCaseDefinition(uid string) (bool, []byte, error) {
+	path := "/test_cases/" + uid + "/download"
+
+	return c.fetch(path)
+}
+
+func (c *Client) fetch(path string) (bool, []byte, error) {
+	req, err := http.NewRequest("GET", c.APIEndpoint+path, nil)
+	if err != nil {
+		return false, nil, err
+	}
+
+	response, err := c.doRequestRaw(req)
+	if err != nil {
+		return false, nil, err
+	}
+
+	body, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		return false, nil, err
+	}
+
+	if response.StatusCode != 200 {
+		return false, body, nil
+	}
+
+	return true, body, nil
 }
