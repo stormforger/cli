@@ -54,17 +54,9 @@ func (c *Client) GetFileFixture(organization string, fileUID string) ([]byte, er
 func (c *Client) ListFileFixture(organization string) ([]byte, error) {
 	path := "/file_fixtures/" + organization + "?only=structured"
 
-	req, err := http.NewRequest("GET", c.APIEndpoint+path, nil)
-	if err != nil {
-		return nil, err
-	}
+	_, response, err := c.fetch(path)
 
-	body, err := c.doRequest(req)
-	if err != nil {
-		return nil, err
-	}
-
-	return body, nil
+	return response, err
 }
 
 // PushFileFixture uploads (insert or update) a file fixture
@@ -114,15 +106,7 @@ func (c *Client) DeleteFileFixture(fileFixtureUID string, organization string) (
 func (c *Client) DownloadFileFixture(organization string, fileFixtureUID string, version string) ([]byte, error) {
 	path := "/file_fixtures/" + organization + "/" + fileFixtureUID + "/download/" + version
 
-	req, err := http.NewRequest("GET", c.APIEndpoint+path, nil)
-	if err != nil {
-		return nil, err
-	}
+	_, response, err := c.fetch(path)
 
-	body, err := c.doRequest(req)
-	if err != nil {
-		return nil, err
-	}
-
-	return body, nil
+	return response, err
 }

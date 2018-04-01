@@ -3,7 +3,6 @@ package api
 import (
 	"io"
 	"io/ioutil"
-	"net/http"
 )
 
 // ListTestCases returns a list of test cases
@@ -111,27 +110,4 @@ func (c *Client) DownloadTestCaseDefinition(uid string) (bool, []byte, error) {
 	path := "/test_cases/" + uid + "/download"
 
 	return c.fetch(path)
-}
-
-func (c *Client) fetch(path string) (bool, []byte, error) {
-	req, err := http.NewRequest("GET", c.APIEndpoint+path, nil)
-	if err != nil {
-		return false, nil, err
-	}
-
-	response, err := c.doRequestRaw(req)
-	if err != nil {
-		return false, nil, err
-	}
-
-	body, err := ioutil.ReadAll(response.Body)
-	if err != nil {
-		return false, nil, err
-	}
-
-	if response.StatusCode != 200 {
-		return false, body, nil
-	}
-
-	return true, body, nil
 }
