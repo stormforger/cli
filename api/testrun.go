@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"compress/gzip"
 	"errors"
-	"fmt"
 	"io"
 	"io/ioutil"
 	"log"
@@ -39,42 +38,22 @@ type TestRun struct {
 }
 
 // TestRunList will list all test runs for a given test case
-func (c *Client) TestRunList(testCaseUID string) (TestRun, error) {
+func (c *Client) TestRunList(testCaseUID string) (bool, []byte, error) {
 	path := "/test_cases/" + testCaseUID + "/test_runs"
 
-	req, err := http.NewRequest("GET", c.APIEndpoint+path, nil)
-	if err != nil {
-		return TestRun{}, err
-	}
+	status, response, err := c.fetch(path)
 
-	body, err := c.doRequest(req)
-	if err != nil {
-		return TestRun{}, err
-	}
-
-	fmt.Println(string(body))
-
-	return TestRun{}, nil
+	return status, response, err
 }
 
 // TestRunShow will show some basic information on a given
 // test run
-func (c *Client) TestRunShow(uid string) (TestRun, error) {
+func (c *Client) TestRunShow(uid string) (bool, []byte, error) {
 	path := "/test_runs/" + uid
 
-	req, err := http.NewRequest("GET", c.APIEndpoint+path, nil)
-	if err != nil {
-		return TestRun{}, err
-	}
+	status, response, err := c.fetch(path)
 
-	body, err := c.doRequest(req)
-	if err != nil {
-		return TestRun{}, err
-	}
-
-	fmt.Println(string(body))
-
-	return TestRun{}, nil
+	return status, response, err
 }
 
 // TestRunWatch will show some basic information on a given

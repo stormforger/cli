@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/spf13/cobra"
@@ -27,8 +28,14 @@ func testRunList(cmd *cobra.Command, args []string) {
 
 	client := NewClient()
 
-	_, err := client.TestRunList(args[0])
+	status, response, err := client.TestRunList(args[0])
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	if !status {
+		log.Fatalf("Could not fetch test run list\n%s", response)
+	}
+
+	fmt.Println(string(response))
 }
