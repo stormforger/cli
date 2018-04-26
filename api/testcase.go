@@ -101,7 +101,7 @@ func (c *Client) TestCaseUpdate(testCaseUID string, fileName string, data io.Rea
 
 	defer response.Body.Close()
 
-	return false, string(body), nil
+	return true, string(body), nil
 }
 
 // DownloadTestCaseDefinition returns the JS definition
