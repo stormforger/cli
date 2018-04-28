@@ -60,7 +60,9 @@ func ensureTestRunLogsOptions(cmd *cobra.Command, args []string) {
 func runTestRunLogsOptions(cmd *cobra.Command, args []string) {
 	client := NewClient()
 
-	reader, err := client.TestRunCallLog(args[0], !logOpts.Full)
+	testRunUID := getTestRunUID(*client, args[0])
+
+	reader, err := client.TestRunCallLog(testRunUID, !logOpts.Full)
 	if err != nil {
 		log.Fatal(err)
 	}

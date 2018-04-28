@@ -1,6 +1,8 @@
 package cmd
 
 import (
+	"bytes"
+	"log"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -45,7 +47,17 @@ func init() {
 }
 
 func testRunWatch(cmd *cobra.Command, args []string) {
-	watchTestRun(args[0], testRunWatchOpts.MaxWatchTime.Round(time.Second).Seconds())
+	client := NewClient()
+
+	testRunUID := getTestRunUID(*client, args[0])
+
+	result := fetchTestRun(*client, testRunUID)
+	testRun, err := testrun.UnmarshalSingle(bytes.NewReader(result))
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	watchTestRun(testRun.ID, testRunWatchOpts.MaxWatchTime.Round(time.Second).Seconds())
 }
 
 func testRunOkay(testRun *testrun.TestRun) bool {

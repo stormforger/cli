@@ -98,15 +98,14 @@ sed 's/${target}/testapp.loadtest.party/g' tests/templated.js | forge tc update 
 
 ### Test Runs
 
-Test runs are executions of test cases.
+Test runs are executions of test cases. The subcommand is `test-run` or `tr`.
 
 You can...
 * launch `acme-inc/checkout`: `forge test-case launch acme-inc/checkout`
-* watch
-* list
-* show
-
-…
+* watch a running test run: `forge test-run watch acme-inc/checkout/42`
+* list all test runs of a test case: `forge test-run list acme-inc/checkout`
+* show details: `forge test-run show acme-inc/checkout/42`
+* view logs: `forge test-run logs acme-inc/checkout/42`
 
 
 ### Data Sources

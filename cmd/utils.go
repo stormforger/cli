@@ -16,6 +16,7 @@ import (
 	"github.com/stormforger/cli/api/filefixture"
 	"github.com/stormforger/cli/api/organisation"
 	"github.com/stormforger/cli/api/testcase"
+	"github.com/stormforger/cli/api/testrun"
 )
 
 func stringInSlice(a string, list []string) bool {
@@ -197,6 +198,24 @@ func lookupTestCase(client api.Client, input string) string {
 	}
 
 	return nameOrUID
+}
+
+func getTestRunUID(client api.Client, input string) string {
+	testRunParts := api.ExtractTestRunResources(input)
+
+	if testRunParts.UID != "" {
+		return testRunParts.UID
+	} else if testRunParts.Organisation == "" || testRunParts.TestCase == "" {
+		log.Fatal("Invalid test run reference provided! Consult with --help to learn more.")
+	}
+
+	result := fetchTestRun(client, input)
+	testRun, err := testrun.UnmarshalSingle(bytes.NewReader(result))
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return testRun.ID
 }
 
 func fetchTestRun(client api.Client, input string) []byte {

@@ -25,7 +25,9 @@ func init() {
 func testRunAbort(cmd *cobra.Command, args []string) {
 	client := NewClient()
 
-	status, response, err := client.TestRunAbort(args[0])
+	testRunUID := getTestRunUID(*client, args[0])
+
+	status, response, err := client.TestRunAbort(testRunUID)
 	if err != nil {
 		log.Fatal(err)
 	}
