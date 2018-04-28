@@ -1,10 +1,12 @@
 package cmd
 
 import (
+	"bytes"
 	"fmt"
 	"log"
 
 	"github.com/spf13/cobra"
+	"github.com/stormforger/cli/api/testrun"
 )
 
 var (
@@ -30,14 +32,25 @@ func init() {
 func testRunShow(cmd *cobra.Command, args []string) {
 	client := NewClient()
 
-	status, response, err := client.TestRunShow(args[0])
+	result := fetchTestRun(*client, args[0])
+
+	if rootOpts.OutputFormat == "json" {
+		fmt.Println(string(result))
+		return
+	}
+
+	testRun, err := testrun.UnmarshalSingle(bytes.NewReader(result))
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	if !status {
-		log.Fatalf("Could not fetch test run list\n%s", response)
+	fmt.Printf("%s (%s, %s)\n", testRun.Scope, testRun.State, testRun.ID)
+	if testRun.Title != "" {
+		fmt.Printf("Title   %s\n", testRun.Title)
 	}
-
-	fmt.Println(string(response))
+	fmt.Printf("Started %s\n", testRun.StartedAt)
+	fmt.Printf("Ended   %s\n", testRun.EndedAt)
+	if testRun.Notes != "" {
+		fmt.Printf("%s\n", testRun.Notes)
+	}
 }

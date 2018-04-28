@@ -1,10 +1,12 @@
 package cmd
 
 import (
+	"bytes"
+	"log"
 	"time"
 
 	"github.com/spf13/cobra"
-	"github.com/stormforger/cli/api"
+	"github.com/stormforger/cli/api/testrun"
 )
 
 var (
@@ -45,14 +47,24 @@ func init() {
 }
 
 func testRunWatch(cmd *cobra.Command, args []string) {
-	watchTestRun(args[0], testRunWatchOpts.MaxWatchTime.Round(time.Second).Seconds())
+	client := NewClient()
+
+	testRunUID := getTestRunUID(*client, args[0])
+
+	result := fetchTestRun(*client, testRunUID)
+	testRun, err := testrun.UnmarshalSingle(bytes.NewReader(result))
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	watchTestRun(testRun.ID, testRunWatchOpts.MaxWatchTime.Round(time.Second).Seconds())
 }
 
-func testRunOkay(testRun *api.TestRun) bool {
+func testRunOkay(testRun *testrun.TestRun) bool {
 	return stringInSlice(testRun.State, successStates)
 }
 
-func testRunSuccess(testRun *api.TestRun) bool {
+func testRunSuccess(testRun *testrun.TestRun) bool {
 	successStates := []string{
 		"done",
 	}

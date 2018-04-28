@@ -9,7 +9,7 @@ import (
 
 	"github.com/google/jsonapi"
 	"github.com/spf13/cobra"
-	"github.com/stormforger/cli/api"
+	"github.com/stormforger/cli/api/testrun"
 )
 
 var (
@@ -75,7 +75,7 @@ func testRunLaunch(cmd *cobra.Command, args []string) {
 		fmt.Println(response)
 
 		if testRunLaunchOpts.Watch {
-			testRun := new(api.TestRun)
+			testRun := new(testrun.TestRun)
 			err = jsonapi.UnmarshalPayload(strings.NewReader(response), testRun)
 			if err != nil {
 				log.Fatal(err)
