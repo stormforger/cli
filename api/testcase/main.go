@@ -30,12 +30,12 @@ func Unmarshal(input io.Reader) (List, error) {
 	result := List{}
 
 	for _, item := range items {
-		testcas, ok := item.(*TestCase)
+		testcase, ok := item.(*TestCase)
 		if !ok {
 			return List{}, fmt.Errorf("Type assertion failed")
 		}
 
-		result.TestCases = append(result.TestCases, testcas)
+		result.TestCases = append(result.TestCases, testcase)
 	}
 
 	return result, nil
