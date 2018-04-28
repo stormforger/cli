@@ -73,7 +73,7 @@ func (c *Client) TestCaseCreate(organization string, testCaseName string, fileNa
 
 	defer response.Body.Close()
 
-	return false, string(body), nil
+	return true, string(body), nil
 }
 
 // TestCaseUpdate will send a test case definition (JS) to the API
@@ -101,7 +101,7 @@ func (c *Client) TestCaseUpdate(testCaseUID string, fileName string, data io.Rea
 
 	defer response.Body.Close()
 
-	return false, string(body), nil
+	return true, string(body), nil
 }
 
 // DownloadTestCaseDefinition returns the JS definition
