@@ -222,6 +222,8 @@ func fetchTestRun(client api.Client, input string) *testrun.TestRun {
 
 	if testRunParts.UID != "" {
 		return lookupTestRunByUID(client, testRunParts.UID)
+	} else if testRunParts.Organisation == "" || testRunParts.TestCase == "" {
+		log.Fatal("Invalid test run reference provided! Consult with --help to learn more.")
 	}
 
 	status, response, err := client.LookupAndFetchResource("test_run", input)
