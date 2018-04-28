@@ -26,52 +26,19 @@ type TestRunResources struct {
 func (c *Client) TestRunList(testCaseUID string) (bool, []byte, error) {
 	path := "/test_cases/" + testCaseUID + "/test_runs"
 
-	req, err := http.NewRequest("GET", c.APIEndpoint+path, nil)
-	if err != nil {
-		return false, nil, err
-	}
+	status, response, err := c.fetch(path)
 
-	response, err := c.doRequestRaw(req)
-	if err != nil {
-		return false, nil, err
-	}
-
-	body, err := ioutil.ReadAll(response.Body)
-	if err != nil {
-		return false, nil, err
-	}
-
-	if response.StatusCode != 200 {
-		return false, body, nil
-	}
-
-	return true, body, nil
+	return status, response, err
 }
 
-// FetchTestRun will load a test run
+// FetchTestRun will show some basic information on a given
+// test run
 func (c *Client) FetchTestRun(uid string) (bool, []byte, error) {
 	path := "/test_runs/" + uid
 
-	req, err := http.NewRequest("GET", c.APIEndpoint+path, nil)
-	if err != nil {
-		return false, nil, err
-	}
+	status, response, err := c.fetch(path)
 
-	response, err := c.doRequestRaw(req)
-	if err != nil {
-		return false, nil, err
-	}
-
-	body, err := ioutil.ReadAll(response.Body)
-	if err != nil {
-		return false, nil, err
-	}
-
-	if response.StatusCode != 200 {
-		return false, body, nil
-	}
-
-	return true, body, nil
+	return status, response, err
 }
 
 // TestRunWatch will show some basic information on a given
