@@ -29,7 +29,7 @@ func init() {
 func testRunShow(cmd *cobra.Command, args []string) {
 	client := NewClient()
 
-	testRun := lookupTestRun(*client, args[0])
+	testRun := fetchTestRun(*client, args[0])
 
 	fmt.Printf("%s (%s, %s)\n", testRun.Scope, testRun.State, testRun.ID)
 	if testRun.Title != "" {

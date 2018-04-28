@@ -217,36 +217,25 @@ func lookupTestRunByUID(client api.Client, uid string) *testrun.TestRun {
 	return &item
 }
 
-func lookupTestRun(client api.Client, input string) *testrun.TestRun {
+func fetchTestRun(client api.Client, input string) *testrun.TestRun {
 	testRunParts := api.ExtractTestRunResources(input)
 
 	if testRunParts.UID != "" {
 		return lookupTestRunByUID(client, testRunParts.UID)
 	}
 
-	testCaseUID := lookupTestCase(client, testRunParts.Organisation+"/"+testRunParts.TestCase)
-
-	status, result, err := client.TestRunList(testCaseUID)
+	status, response, err := client.LookupAndFetchResource("test_run", input)
 	if err != nil {
 		log.Fatal(err)
 	}
-
 	if !status {
-		log.Fatal("Could not list test runs!")
+		log.Fatalf("Test Run %s not found", input)
 	}
 
-	items, err := testrun.Unmarshal(bytes.NewReader(result))
+	testRun, err := testrun.UnmarshalSingle(bytes.NewReader(response))
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	for _, item := range items.TestRuns {
-		if item.Scope == input {
-			return lookupTestRunByUID(client, item.ID)
-		}
-	}
-
-	log.Fatalf("Test Run %s not found", input)
-
-	return &testrun.TestRun{}
+	return &testRun
 }

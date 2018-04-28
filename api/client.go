@@ -210,6 +210,16 @@ func (c *Client) doRequest(request *http.Request) ([]byte, error) {
 	return body, nil
 }
 
+// LookupAndFetchResource tries to download a given resource from the API
+func (c *Client) LookupAndFetchResource(resourceType string, input string) (bool, []byte, error) {
+	return c.FetchResource("/lookup?type=" + resourceType + "&q=" + input)
+}
+
+// FetchResource tries to download a given resource from the API
+func (c *Client) FetchResource(path string) (bool, []byte, error) {
+	return c.fetch(path)
+}
+
 func (c *Client) fetch(path string) (bool, []byte, error) {
 	req, err := http.NewRequest("GET", c.APIEndpoint+path, nil)
 	if err != nil {
