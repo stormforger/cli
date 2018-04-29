@@ -31,7 +31,7 @@ errcheck:
 	script/gorun errcheck
 
 dep:
-	dep ensure && dep prune
+	dep ensure
 
 setup:
 	go get -u github.com/golang/dep/cmd/dep
