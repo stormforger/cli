@@ -26,13 +26,15 @@
 
 [[constraint]]
   name = "github.com/dustin/go-humanize"
+  branch = "master"
 
 [[constraint]]
   name = "github.com/fatih/color"
-  version = "1.4.0"
+  version = "1.6.0"
 
 [[constraint]]
   name = "github.com/google/jsonapi"
+  branch = "master"
 
 [[constraint]]
   branch = "master"
@@ -40,9 +42,11 @@
 
 [[constraint]]
   name = "github.com/spf13/cobra"
+  branch = "master"
 
 [[constraint]]
   name = "github.com/spf13/viper"
+  branch = "master"
 
 [[constraint]]
   branch = "master"
