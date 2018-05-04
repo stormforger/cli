@@ -60,11 +60,11 @@ func runTestCaseUpdate(cmd *cobra.Command, args []string) {
 		log.Fatal(err)
 	}
 
+	printPrettyJSON(message)
+
 	if success {
 		os.Exit(0)
 	}
-
-	printPrettyJSON(message)
 
 	fmt.Println()
 	os.Exit(1)
