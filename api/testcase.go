@@ -73,6 +73,10 @@ func (c *Client) TestCaseCreate(organization string, testCaseName string, fileNa
 
 	defer response.Body.Close()
 
+	if response.StatusCode != 200 {
+		return false, string(body), nil
+	}
+
 	return true, string(body), nil
 }
 
@@ -100,6 +104,10 @@ func (c *Client) TestCaseUpdate(testCaseUID string, fileName string, data io.Rea
 	}
 
 	defer response.Body.Close()
+
+	if response.StatusCode != 200 {
+		return false, string(body), nil
+	}
 
 	return true, string(body), nil
 }
