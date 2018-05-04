@@ -16,6 +16,11 @@ var (
 		Short: "Show test run details",
 		Long:  `Show test run details.`,
 		Run:   testRunShow,
+		PersistentPreRun: func(cmd *cobra.Command, args []string) {
+			if len(args) != 1 {
+				log.Fatal("Expect exactly one argument: test run reference!")
+			}
+		},
 	}
 
 	testRunShowOpts struct {

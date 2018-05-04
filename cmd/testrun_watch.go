@@ -22,6 +22,11 @@ a final state (like "done" or "aborted").
 It will exit with 0 on success; 1 on test run errors (like "aborted")
 and 2 if the given timeout was exceeded.`,
 		Run: testRunWatch,
+		PersistentPreRun: func(cmd *cobra.Command, args []string) {
+			if len(args) != 1 {
+				log.Fatal("Expect exactly one argument: test run reference!")
+			}
+		},
 	}
 
 	testRunWatchOpts struct {
