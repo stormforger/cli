@@ -82,6 +82,9 @@ func testRunLaunch(cmd *cobra.Command, args []string) {
 			}
 
 			watchTestRun(testRun.ID, testRunLaunchOpts.MaxWatchTime.Round(time.Second).Seconds())
+
+			result := fetchTestRun(*client, testRun.ID)
+			fmt.Println(string(result))
 		}
 
 		os.Exit(0)

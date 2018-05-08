@@ -139,7 +139,7 @@ func watchTestRun(testRunUID string, maxWatchTime float64) {
 		}
 
 		if testRunSuccess(&testRun) {
-			os.Exit(0)
+			return
 		}
 
 		if int(maxWatchTime) > 0 && int(runningSince) > int(maxWatchTime) {
