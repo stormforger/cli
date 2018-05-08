@@ -13,7 +13,9 @@ brew:
   description: "The StormForger Command Line Client, called 'forge'"
 dockers:
   - image: stormforger/cli
-    latest: true
+    tag_templates:
+      - '{{ .Tag }}'
+      - latest
 builds:
 - goos:
   - linux
