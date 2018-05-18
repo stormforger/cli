@@ -15,15 +15,16 @@ var (
 		Short: "Fetch the the test runs dump file (request/response log)",
 		Long: `Will fetch the the test runs dump file (request/response log).
 
-The call log contains: FIXME
-	* time (epoch in seconds)
-	* HTTP verb
-	* HTTP host
-	* request path
-	* HTTP Status Code
-	* response size (in Bytes)
-	* duration (in ms)
-	* request tag`,
+The dump file contains:
+	* Request
+	  * Method
+	  * Path with query params
+	  * Host
+	  * Header
+	* Response
+	  * HTTP status code
+	  * Header
+	  * Body`,
 		Run:              runTestRunDumpOptions,
 		PersistentPreRun: ensureTestRunDumpOptions,
 	}
