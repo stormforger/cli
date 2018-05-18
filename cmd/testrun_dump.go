@@ -9,22 +9,17 @@ import (
 )
 
 var (
-	// dumpCmd represents the dump command
 	dumpCmd = &cobra.Command{
 		Use:   "dump <test-run-ref>",
-		Short: "Fetch the the test runs dump file (request/response log)",
-		Long: `Will fetch the the test runs dump file (request/response log).
+		Short: "Fetch traffic dump (if available)",
+		Long: `Will fetch the test run's traffic dump file.
 
-The dump file contains:
-	* Request
-	  * Method
-	  * Path with query params
-	  * Host
-	  * Header
-	* Response
-	  * HTTP status code
-	  * Header
-	  * Body`,
+If enabled for the given test run, the traffic dump will
+contain a "close to the wire" dump of all requests and responses.
+
+The main purpose is for debugging as the traffic dump is
+in no way analyzed or processed.
+`,
 		Run:              runTestRunDumpOptions,
 		PersistentPreRun: ensureTestRunDumpOptions,
 	}
@@ -38,7 +33,7 @@ The dump file contains:
 func init() {
 	TestRunCmd.AddCommand(dumpCmd)
 
-	dumpCmd.Flags().StringVar(&dumpOpts.OutputFile, "file", "-", "save logs to file or '-' for stdout")
+	dumpCmd.Flags().StringVar(&dumpOpts.OutputFile, "file", "-", "save traffic dump to file or '-' for stdout")
 }
 
 func ensureTestRunDumpOptions(cmd *cobra.Command, args []string) {
