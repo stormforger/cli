@@ -117,6 +117,43 @@ func (c *Client) TestRunCallLog(pathID string, preview bool) (io.ReadCloser, err
 	return reader, nil
 }
 
+func (c *Client) TestRunDump(pathID string) (io.ReadCloser, error) {
+	testRun := ExtractTestRunResources(pathID)
+
+	path := "/test_runs/" + testRun.UID + "/dump"
+
+	req, err := http.NewRequest("GET", c.APIEndpoint+path, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Set("Accept-Encoding", "gzip")
+
+	response, err := c.doRequestRaw(req)
+	if err != nil {
+		return nil, err
+	}
+
+	if response.StatusCode != 200 {
+		return nil, errors.New("could not load full dump")
+	}
+
+	var reader io.ReadCloser
+	switch response.Header.Get("Content-Encoding") {
+	case "gzip":
+		reader, err = gzip.NewReader(response.Body)
+		if err != nil {
+			return nil, err
+		}
+
+		defer reader.Close()
+	default:
+		reader = response.Body
+	}
+
+	return reader, nil
+}
+
 // TestRunCreate will send a test case definition (JS) to the API
 // to update an existing test case it.
 func (c *Client) TestRunCreate(testCaseUID string, title string, notes string) (bool, string, error) {

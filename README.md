@@ -106,6 +106,7 @@ You can...
 * list all test runs of a test case: `forge test-run list acme-inc/checkout`
 * show details: `forge test-run show acme-inc/checkout/42`
 * view logs: `forge test-run logs acme-inc/checkout/42`
+* view full traffic dump: `forge test-run dump acme-inc/checkout/42`
 
 
 ### Data Sources

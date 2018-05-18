@@ -13,8 +13,8 @@ var (
 	// calllogCmd represents the calllog command
 	calllogCmd = &cobra.Command{
 		Use:   "logs <test-run-ref>",
-		Short: "Fetch the the test runs call log (request log)",
-		Long: `Will fetch the the test runs call log (request log).
+		Short: "Fetch call log (request log)",
+		Long: `Will fetch the test run's call log (request log).
 
 By default, you will get the first 10k lines. Using --full you
 will download the entire request log.
