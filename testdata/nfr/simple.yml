@@ -1,0 +1,25 @@
+version: "0.1"
+
+requirements:
+- test.completed: true
+- test.cluster.utilization:
+    metric:
+      main: cpu
+      sub: total_avg
+    test: ["<=", 60]
+- test.duration: [">", 600]
+
+# require overall p99 latency to be below 9 sec
+- http.latency:
+    enabled: false
+    metric: p99_0
+    test: ["<=", 9000]
+
+# require p99 latency of ec-purchase-card-discount tags with HTTP 504 status
+# to be below 5 select
+- http.latency:
+    metric: p99_0
+    select:
+      status: ["=", 504]
+      tag: ec-purchase-card-discount
+    test: ["<", 5000]

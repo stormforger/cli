@@ -25,6 +25,23 @@ type TestRun struct {
 	EndedAt   string `jsonapi:"attr,ended_at,omitempty"`
 }
 
+// NfrResultList is a list of NFR results
+type NfrResultList struct {
+	NfrResults []*NfrResult
+}
+
+// NfrResult describes a NFR check result
+type NfrResult struct {
+	ID          string `jsonapi:"primary,nfr_results"`
+	Success     bool   `jsonapi:"attr,success"`
+	Subject     string `jsonapi:"attr,subject"`
+	Expectation string `jsonapi:"attr,expectation"`
+	Type        string `jsonapi:"attr,nfr_type"`
+	Disabled    bool   `jsonapi:"attr,disabled"`
+	Filter      string `jsonapi:"attr,filter"`
+	Metric      string `jsonapi:"attr,metric"`
+}
+
 // Unmarshal unmarshals a list of TestRun records
 func Unmarshal(input io.Reader) (List, error) {
 	items, err := jsonapi.UnmarshalManyPayload(input, reflect.TypeOf(new(TestRun)))
@@ -55,4 +72,25 @@ func UnmarshalSingle(input io.Reader) (TestRun, error) {
 	}
 
 	return *item, nil
+}
+
+// UnmarshalNfrResults unmarshals a list of NFR result records
+func UnmarshalNfrResults(input io.Reader) (NfrResultList, error) {
+	items, err := jsonapi.UnmarshalManyPayload(input, reflect.TypeOf(new(NfrResult)))
+	if err != nil {
+		return NfrResultList{}, err
+	}
+
+	result := NfrResultList{}
+
+	for _, item := range items {
+		typedItem, ok := item.(*NfrResult)
+		if !ok {
+			return NfrResultList{}, fmt.Errorf("Type assertion failed")
+		}
+
+		result.NfrResults = append(result.NfrResults, typedItem)
+	}
+
+	return result, nil
 }
