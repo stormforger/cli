@@ -45,7 +45,7 @@ func testRunNfrRun(cmd *cobra.Command, args []string) {
 	}
 
 	if !status {
-		log.Fatalf("Could not fetch test run list\n%s", result)
+		log.Fatalf("Could not perform test run NFR checks...\n%s", result)
 	}
 
 	items, err := testrun.UnmarshalNfrResults(bytes.NewReader(result))
