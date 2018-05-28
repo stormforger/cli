@@ -95,3 +95,21 @@ func UnmarshalNfrResults(input io.Reader) (NfrResultList, error) {
 
 	return result, nil
 }
+
+// SubjectWithUnit formats the expectation inclusing the subject's unit
+func (nfr *NfrResult) SubjectWithUnit() string {
+	if nfr.SubjectUnit != "" {
+		return nfr.Subject + " " + nfr.SubjectUnit
+	}
+
+	return nfr.Subject
+}
+
+// ExpectationWithUnit formats the expectation inclusing the subject's unit
+func (nfr *NfrResult) ExpectationWithUnit() string {
+	if nfr.SubjectUnit != "" {
+		return nfr.Expectation + " " + nfr.SubjectUnit
+	}
+
+	return nfr.Expectation
+}

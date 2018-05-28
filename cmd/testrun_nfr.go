@@ -65,11 +65,11 @@ func testRunNfrRun(cmd *cobra.Command, args []string) {
 			actualSubject := ""
 			if item.Success {
 				checkStatus = green("\u2713")
-				actualSubject = fmt.Sprintf("was %s", item.Subject)
+				actualSubject = fmt.Sprintf("was %s", item.SubjectWithUnit())
 			} else {
 				anyFails = true
 				checkStatus = red("\u2717")
-				actualSubject = fmt.Sprintf("but actually was %s", item.Subject)
+				actualSubject = fmt.Sprintf("but actually was %s", item.SubjectWithUnit())
 			}
 
 			filter := ""
@@ -81,8 +81,8 @@ func testRunNfrRun(cmd *cobra.Command, args []string) {
 				"%s %s expected to be %s; %s (%s)%s\n",
 				checkStatus,
 				item.Metric,
-				item.Expectation+" "+item.SubjectUnit,
-				actualSubject+" "+item.SubjectUnit,
+				item.ExpectationWithUnit(),
+				actualSubject,
 				item.Type,
 				filter,
 			)
@@ -92,7 +92,7 @@ func testRunNfrRun(cmd *cobra.Command, args []string) {
 				white("?"),
 				redBg("DISABLED"),
 				item.Metric,
-				item.Expectation+" "+item.SubjectUnit,
+				item.ExpectationWithUnit(),
 				item.Type,
 			)
 		}
