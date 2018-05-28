@@ -81,13 +81,20 @@ func testRunNfrRun(cmd *cobra.Command, args []string) {
 				"%s %s expected to be %s; %s (%s)%s\n",
 				checkStatus,
 				item.Metric,
-				item.Expectation,
-				actualSubject,
+				item.Expectation+" "+item.SubjectUnit,
+				actualSubject+" "+item.SubjectUnit,
 				item.Type,
 				filter,
 			)
 		} else {
-			fmt.Printf("%s %s (%s) %s\n", white("?"), red("TODO item.Expectation"), item.Type, redBg("DISABLED"))
+			fmt.Printf(
+				"%s %s expected to be %s (%s) %s\n",
+				white("?"),
+				item.Metric,
+				item.Expectation+" "+item.SubjectUnit,
+				item.Type,
+				redBg("DISABLED"),
+			)
 		}
 	}
 

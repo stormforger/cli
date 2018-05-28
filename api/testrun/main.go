@@ -35,6 +35,7 @@ type NfrResult struct {
 	ID          string `jsonapi:"primary,nfr_results"`
 	Success     bool   `jsonapi:"attr,success"`
 	Subject     string `jsonapi:"attr,subject"`
+	SubjectUnit string `jsonapi:"attr,subject_unit"`
 	Expectation string `jsonapi:"attr,expectation"`
 	Type        string `jsonapi:"attr,nfr_type"`
 	Disabled    bool   `jsonapi:"attr,disabled"`
