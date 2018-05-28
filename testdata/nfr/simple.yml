@@ -20,7 +20,7 @@ requirements:
 - http.latency:
     select:
       type: percentile
-      value: 99
+      value: 95
     where:
       status: ["<", 500]
       tag: ec-purchase-card-discount
