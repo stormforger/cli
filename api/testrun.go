@@ -214,22 +214,22 @@ func (c *Client) TestRunNfrCheck(uid string, fileName string, data io.Reader) (b
 
 	req, err := fileUploadRequest(c.APIEndpoint+path, "POST", extraParams, "nfr_file", fileName, "application/x-yaml", data)
 
-	resp, err := c.doRequestRaw(req)
+	response, err := c.doRequestRaw(req)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := ioutil.ReadAll(response.Body)
 	if err != nil {
 		return false, nil, err
 	}
 
-	err = resp.Body.Close()
+	err = response.Body.Close()
 	if err != nil {
 		return false, nil, err
 	}
 
-	return true, body, nil
+	return response.StatusCode < 400, body, nil
 }
 
 // ExtractTestRunResources will try to extract information to the
