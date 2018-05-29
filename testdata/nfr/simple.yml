@@ -3,7 +3,7 @@ version: "0.1"
 requirements:
 - test.completed: true
 - test.cluster.utilization.cpu:
-    select: total_avg
+    select: average
     test: ["<=", 60]
 - test.duration: [">", 600]
 
