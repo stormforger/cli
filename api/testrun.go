@@ -117,6 +117,8 @@ func (c *Client) TestRunCallLog(pathID string, preview bool) (io.ReadCloser, err
 	return reader, nil
 }
 
+// TestRunDump will fetch a traffic dump for a
+// given test run if it is available.
 func (c *Client) TestRunDump(pathID string) (io.ReadCloser, error) {
 	testRun := ExtractTestRunResources(pathID)
 
@@ -201,6 +203,33 @@ func (c *Client) TestRunAbort(testRunUID string) (bool, string, error) {
 	defer response.Body.Close()
 
 	return response.StatusCode < 400, string(body), nil
+}
+
+// TestRunNfrCheck will upload requirements definition
+// and checks if the given test run matches them.
+func (c *Client) TestRunNfrCheck(uid string, fileName string, data io.Reader) (bool, []byte, error) {
+	extraParams := map[string]string{}
+
+	path := "/test_runs/" + uid + "/check_nfr"
+
+	req, err := fileUploadRequest(c.APIEndpoint+path, "POST", extraParams, "nfr_file", fileName, "application/x-yaml", data)
+
+	response, err := c.doRequestRaw(req)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	body, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		return false, nil, err
+	}
+
+	err = response.Body.Close()
+	if err != nil {
+		return false, nil, err
+	}
+
+	return response.StatusCode < 400, body, nil
 }
 
 // ExtractTestRunResources will try to extract information to the
