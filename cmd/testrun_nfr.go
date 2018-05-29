@@ -73,8 +73,8 @@ func testRunNfrRun(cmd *cobra.Command, args []string) {
 			}
 
 			filter := ""
-			if item.Filter != "null" {
-				filter = " (" + item.Filter + ")"
+			if item.Filter != "null" && item.Filter != "" {
+				filter = " (where: " + item.Filter + ")"
 			}
 
 			fmt.Printf(
