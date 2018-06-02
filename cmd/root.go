@@ -30,10 +30,9 @@ Happy Load Testing :)`,
 	}
 
 	rootOpts struct {
-		APIEndpoint         string
-		JWT                 string
-		DefaultOrganisation string
-		OutputFormat        string
+		APIEndpoint  string
+		JWT          string
+		OutputFormat string
 	}
 )
 
@@ -102,18 +101,10 @@ func setupConfig() {
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	err = viper.BindPFlag("defaults.organisation", RootCmd.PersistentFlags().Lookup("default-organisation"))
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	rootOpts.DefaultOrganisation = viper.GetString("defaults.organisation")
 }
 
 func init() {
 	RootCmd.PersistentFlags().StringVar(&rootOpts.APIEndpoint, "endpoint", "https://api.stormforger.com", "API Endpoint")
 	RootCmd.PersistentFlags().StringVar(&rootOpts.JWT, "jwt", "", "JWT access token")
-	RootCmd.PersistentFlags().StringVar(&rootOpts.DefaultOrganisation, "default-organisation", "", "Default organisation UID to use")
 	RootCmd.PersistentFlags().StringVar(&rootOpts.OutputFormat, "output", "human", "Output format: human,plain,json")
 }
