@@ -36,8 +36,8 @@ type Version struct {
 	UpdatedAt  string   `jsonapi:"attr,updated_at"`
 }
 
-// UnmarshalFileFixtures unmarshals a list of FileFixture records
-func UnmarshalFileFixtures(input io.Reader) (List, error) {
+// Unmarshal unmarshals a list of FileFixture records
+func Unmarshal(input io.Reader) (List, error) {
 	items, err := jsonapi.UnmarshalManyPayload(input, reflect.TypeOf(new(FileFixture)))
 	if err != nil {
 		return List{}, err
