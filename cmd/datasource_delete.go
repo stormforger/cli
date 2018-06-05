@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"fmt"
 	"log"
 
 	"github.com/spf13/cobra"
@@ -9,11 +8,24 @@ import (
 
 var (
 	datasourceDeleteCmd = &cobra.Command{
-		Use:              "rm <file-name>",
-		Aliases:          []string{"delete", "remove"},
-		Short:            "Delete a fixture",
-		Run:              runDatasourceDelete,
-		PersistentPreRun: ensureDatasourceDeleteOptions,
+		Use:     "rm <organization-ref> <name>",
+		Aliases: []string{"delete", "remove"},
+		Short:   "Delete a fixture",
+		Run:     runDatasourceDelete,
+		PersistentPreRun: func(cmd *cobra.Command, args []string) {
+			if len(args) > 2 {
+				log.Fatal("Too many arguments")
+			}
+
+			if len(args) < 1 {
+				log.Fatal("Missing organization")
+			}
+
+			datasourceOpts.Organisation = lookupOrganisationUID(*NewClient(), args[0])
+			if datasourceOpts.Organisation == "" {
+				log.Fatal("Missing organization")
+			}
+		},
 	}
 )
 
@@ -21,28 +33,18 @@ func init() {
 	datasourceCmd.AddCommand(datasourceDeleteCmd)
 }
 
-func ensureDatasourceDeleteOptions(cmd *cobra.Command, args []string) {
-	if len(args) != 1 {
-		log.Fatal("Expecting exactly one argument: File name to delete")
-	}
-
-	datasourceOpts.Organisation = findFirstNonEmpty([]string{datasourceOpts.Organisation, readOrganisationUIDFromFile(), rootOpts.DefaultOrganisation})
-
-	if datasourceOpts.Organisation == "" {
-		log.Fatal("Missing organization")
-	}
-}
-
 func runDatasourceDelete(cmd *cobra.Command, args []string) {
 	client := NewClient()
-	fileName := args[0]
+	fileName := args[1]
 
 	fileFixture := findFixtureByName(*client, datasourceOpts.Organisation, fileName)
 
-	result, err := client.DeleteFileFixture(fileFixture.ID, datasourceOpts.Organisation)
+	success, result, err := client.DeleteFileFixture(fileFixture.ID, datasourceOpts.Organisation)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	fmt.Println(result)
+	if !success {
+		log.Println(result)
+	}
 }

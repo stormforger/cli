@@ -11,11 +11,24 @@ import (
 
 var (
 	datasourceDownloadCmd = &cobra.Command{
-		Use:              "get <file-name>",
-		Aliases:          []string{"download"},
-		Short:            "Download file fixture",
-		Run:              runDatasourceDownload,
-		PersistentPreRun: ensureDatasourceDownloadOptions,
+		Use:     "get <organization-ref> <name>",
+		Aliases: []string{"download"},
+		Short:   "Download file fixture",
+		Run:     runDatasourceDownload,
+		PersistentPreRun: func(cmd *cobra.Command, args []string) {
+			if len(args) > 2 {
+				log.Fatal("Too many arguments")
+			}
+
+			if len(args) < 1 {
+				log.Fatal("Missing organization")
+			}
+
+			datasourceOpts.Organisation = lookupOrganisationUID(*NewClient(), args[0])
+			if datasourceOpts.Organisation == "" {
+				log.Fatal("Missing organization")
+			}
+		},
 	}
 
 	downloadOpts struct {
@@ -29,27 +42,19 @@ func init() {
 	datasourceDownloadCmd.Flags().StringVarP(&downloadOpts.Version, "version", "v", "current", "Version to download")
 }
 
-func ensureDatasourceDownloadOptions(cmd *cobra.Command, args []string) {
-	if len(args) != 1 {
-		log.Fatal("Expecting exactly one argument: File name to download")
-	}
-
-	datasourceOpts.Organisation = findFirstNonEmpty([]string{datasourceOpts.Organisation, readOrganisationUIDFromFile(), rootOpts.DefaultOrganisation})
-
-	if datasourceOpts.Organisation == "" {
-		log.Fatal("Missing organization")
-	}
-}
-
 func runDatasourceDownload(cmd *cobra.Command, args []string) {
 	client := NewClient()
-	fileName := args[0]
+	fileName := args[1]
 
 	fileFixture := findFixtureByName(*client, datasourceOpts.Organisation, fileName)
 
-	result, err := client.DownloadFileFixture(datasourceOpts.Organisation, fileFixture.ID, downloadOpts.Version)
+	success, result, err := client.DownloadFileFixture(datasourceOpts.Organisation, fileFixture.ID, downloadOpts.Version)
 	if err != nil {
 		log.Fatal(err)
+	}
+
+	if !success {
+		log.Fatalln("Could not download %s: %s", fileName, result)
 	}
 
 	_, err = io.Copy(os.Stdout, bytes.NewReader(result))

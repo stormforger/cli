@@ -12,10 +12,23 @@ import (
 
 var (
 	datasourcePushCmd = &cobra.Command{
-		Use:              "push <file>",
-		Short:            "Upload a file",
-		Run:              runDataSourcePush,
-		PersistentPreRun: ensureDatasourcePushOptionsOptions,
+		Use:   "push <organization-ref> <file>",
+		Short: "Upload a file",
+		Run:   runDataSourcePush,
+		PersistentPreRun: func(cmd *cobra.Command, args []string) {
+			if len(args) < 2 {
+				log.Fatal("Expecting one or more arguments: File(s) to upload")
+			}
+
+			if len(args) > 2 && (pushOpts.Name != "" || pushOpts.FieldNames != "") {
+				log.Fatal("--name and --fields is not supported for multiple uploads")
+			}
+
+			datasourceOpts.Organisation = lookupOrganisationUID(*NewClient(), args[0])
+			if datasourceOpts.Organisation == "" {
+				log.Fatal("Missing organization")
+			}
+		},
 	}
 
 	pushOpts struct {
@@ -38,31 +51,15 @@ func init() {
 	datasourcePushCmd.Flags().StringVarP(&pushOpts.FieldNames, "fields", "f", "", "Name for the fields/columns, comma separated")
 }
 
-func ensureDatasourcePushOptionsOptions(cmd *cobra.Command, args []string) {
-	if len(args) < 1 {
-		log.Fatal("Expecting one or more arguments: File(s) to upload")
-	}
-
-	if len(args) > 1 && (pushOpts.Name != "" || pushOpts.FieldNames != "") {
-		log.Fatal("--name and --fields is not supported for multiple uploads")
-	}
-
-	datasourceOpts.Organisation = findFirstNonEmpty([]string{datasourceOpts.Organisation, readOrganisationUIDFromFile(), rootOpts.DefaultOrganisation})
-
-	if datasourceOpts.Organisation == "" {
-		log.Fatal("Missing organization")
-	}
-}
-
 func runDataSourcePush(cmd *cobra.Command, args []string) {
 	var fixtureNameFor func(string) string
-	if len(args) == 1 {
+	if len(args) == 2 {
 		fixtureNameFor = func(fileName string) string {
 			if pushOpts.Name != "" {
 				return pushOpts.Name
 			}
 
-			return path.Base(args[0])
+			return path.Base(args[1])
 		}
 	} else {
 		fixtureNameFor = func(fileName string) string {
@@ -80,7 +77,7 @@ func runDataSourcePush(cmd *cobra.Command, args []string) {
 	client := NewClient()
 
 	var params *api.FileFixtureParams
-	for _, fileName := range args {
+	for _, fileName := range args[1:] {
 		fieldNames := pushOpts.FieldNames
 
 		params = &api.FileFixtureParams{
@@ -95,9 +92,16 @@ func runDataSourcePush(cmd *cobra.Command, args []string) {
 			log.Fatal(err)
 		}
 
-		result, err := client.PushFileFixture(fileName, data, datasourceOpts.Organisation, params)
+		success, result, err := client.PushFileFixture(fileName, data, datasourceOpts.Organisation, params)
 		if err != nil {
 			log.Fatal(err)
+		}
+
+		if !success {
+			fmt.Fprintln(os.Stderr, "Could not upload files as new data source!")
+			fmt.Fprintln(os.Stderr, string(result))
+
+			os.Exit(1)
 		}
 
 		fmt.Println(result)
