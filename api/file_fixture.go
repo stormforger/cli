@@ -83,7 +83,7 @@ func (c *Client) PushFileFixture(fileName string, data io.Reader, organization s
 
 	defer response.Body.Close()
 
-	if response.StatusCode != 200 {
+	if response.StatusCode >= 300 {
 		return false, string(body), nil
 	}
 
@@ -109,7 +109,7 @@ func (c *Client) DeleteFileFixture(fileFixtureUID string, organization string) (
 
 	defer response.Body.Close()
 
-	if response.StatusCode != 200 {
+	if response.StatusCode >= 300 {
 		return false, string(body), nil
 	}
 
