@@ -104,6 +104,10 @@ func runDataSourcePush(cmd *cobra.Command, args []string) {
 			os.Exit(1)
 		}
 
-		fmt.Println(result)
+		if rootOpts.OutputFormat == "json" {
+			fmt.Println(string(result))
+		} else {
+			fmt.Printf("Uploaded %v successfully!\n", params.Name)
+		}
 	}
 }
