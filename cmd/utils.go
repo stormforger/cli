@@ -31,12 +31,19 @@ func stringInSlice(a string, list []string) bool {
 // FindFixtureByName fetches a FileFixture from a given
 // organization.
 func findFixtureByName(client api.Client, organization string, name string) *filefixture.FileFixture {
-	fileFixtureListResponse, err := client.ListFileFixture(organization)
+	success, result, err := client.ListFileFixture(organization)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	fileFixtures, err := filefixture.UnmarshalFileFixtures(bytes.NewReader(fileFixtureListResponse))
+	if !success {
+		fmt.Fprintln(os.Stderr, "Could not lookup data source!")
+		fmt.Fprintln(os.Stderr, string(result))
+
+		os.Exit(1)
+	}
+
+	fileFixtures, err := filefixture.Unmarshal(bytes.NewReader(result))
 	if err != nil {
 		log.Fatal(err)
 	}
