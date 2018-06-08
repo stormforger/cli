@@ -194,22 +194,6 @@ func (c *Client) doRequestRaw(request *http.Request) (*http.Response, error) {
 	return response, nil
 }
 
-func (c *Client) doRequest(request *http.Request) ([]byte, error) {
-	response, err := c.doRequestRaw(request)
-
-	if err != nil {
-		return nil, err
-	}
-
-	body, err := ioutil.ReadAll(response.Body)
-	if err != nil {
-		return nil, err
-	}
-	defer response.Body.Close()
-
-	return body, nil
-}
-
 // LookupAndFetchResource tries to download a given resource from the API
 func (c *Client) LookupAndFetchResource(resourceType string, input string) (bool, []byte, error) {
 	return c.FetchResource("/lookup?type=" + resourceType + "&q=" + input)

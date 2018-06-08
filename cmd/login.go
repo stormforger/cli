@@ -69,7 +69,7 @@ func runLogin(cmd *cobra.Command, args []string) {
 			setupConfig()
 		} else {
 			color.White("\nLogin successful!\n\n")
-			color.Red("Found %s. File will not be overriden!\n\n", stormforgerConfig)
+			color.Red("Found %s. File will not be overridden!\n\n", stormforgerConfig)
 			color.White("Add the JWT token to a .stormforger.toml file like this:\n\n")
 			color.Green("  echo 'jwt = \"" + jwt + "\"' >> ~/.stormforger.toml")
 			color.Green("\n\n")

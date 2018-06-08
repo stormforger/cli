@@ -2,6 +2,7 @@ package api
 
 import (
 	"io"
+	"io/ioutil"
 	"net/http"
 )
 
@@ -14,33 +15,44 @@ type FileFixtureParams struct {
 }
 
 // MoveFileFixture renames a filefixtures
-func (c *Client) MoveFileFixture(organization string, fileFixtureUID string, newName string) (string, error) {
+func (c *Client) MoveFileFixture(organization string, fileFixtureUID string, newName string) (bool, string, error) {
 	params := map[string]string{"file_fixture[name]": newName}
 
 	req, err := newPatchRequest(c.APIEndpoint+"/file_fixtures/"+organization+"/"+fileFixtureUID, params)
 	if err != nil {
-		return "", err
+		return false, "", err
 	}
 
-	body, err := c.doRequest(req)
+	response, err := c.doRequestRaw(req)
 	if err != nil {
-		return "", err
+		return false, "", err
 	}
 
-	return string(body), nil
+	body, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		return false, "", err
+	}
+
+	defer response.Body.Close()
+
+	if response.StatusCode != 200 {
+		return false, string(body), nil
+	}
+
+	return true, string(body), nil
 }
 
 // ListFileFixture returns a list of the organizations fixtures
-func (c *Client) ListFileFixture(organization string) ([]byte, error) {
+func (c *Client) ListFileFixture(organization string) (bool, []byte, error) {
 	path := "/file_fixtures/" + organization + "?only=structured"
 
-	_, response, err := c.fetch(path)
+	success, response, err := c.fetch(path)
 
-	return response, err
+	return success, response, err
 }
 
 // PushFileFixture uploads (insert or update) a file fixture
-func (c *Client) PushFileFixture(fileName string, data io.Reader, organization string, params *FileFixtureParams) (string, error) {
+func (c *Client) PushFileFixture(fileName string, data io.Reader, organization string, params *FileFixtureParams) (bool, string, error) {
 	extraParams := map[string]string{
 		"file_fixture[name]": params.Name,
 		"file_fixture[type]": params.Type,
@@ -56,37 +68,59 @@ func (c *Client) PushFileFixture(fileName string, data io.Reader, organization s
 
 	req, err := fileUploadRequest(c.APIEndpoint+"/file_fixtures/"+organization, "POST", extraParams, "file_fixture[file_fixture_version][original]", fileName, "application/octet-stream", data)
 	if err != nil {
-		return "", err
+		return false, "", err
 	}
 
-	body, err := c.doRequest(req)
+	response, err := c.doRequestRaw(req)
 	if err != nil {
-		return "", err
+		return false, "", err
 	}
 
-	return string(body), nil
+	body, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		return false, "", err
+	}
+
+	defer response.Body.Close()
+
+	if response.StatusCode >= 300 {
+		return false, string(body), nil
+	}
+
+	return true, string(body), nil
 }
 
 // DeleteFileFixture deletes a file fixture
-func (c *Client) DeleteFileFixture(fileFixtureUID string, organization string) (string, error) {
+func (c *Client) DeleteFileFixture(fileFixtureUID string, organization string) (bool, string, error) {
 	req, err := http.NewRequest("DELETE", c.APIEndpoint+"/file_fixtures/"+organization+"/"+fileFixtureUID, nil)
 	if err != nil {
-		return "", err
+		return false, "", err
 	}
 
-	body, err := c.doRequest(req)
+	response, err := c.doRequestRaw(req)
 	if err != nil {
-		return "", err
+		return false, "", err
 	}
 
-	return string(body), nil
+	body, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		return false, "", err
+	}
+
+	defer response.Body.Close()
+
+	if response.StatusCode >= 300 {
+		return false, string(body), nil
+	}
+
+	return true, string(body), nil
 }
 
 // DownloadFileFixture retrieves the originally uploaded file
-func (c *Client) DownloadFileFixture(organization string, fileFixtureUID string, version string) ([]byte, error) {
+func (c *Client) DownloadFileFixture(organization string, fileFixtureUID string, version string) (bool, []byte, error) {
 	path := "/file_fixtures/" + organization + "/" + fileFixtureUID + "/download/" + version
 
-	_, response, err := c.fetch(path)
+	success, response, err := c.fetch(path)
 
-	return response, err
+	return success, response, err
 }

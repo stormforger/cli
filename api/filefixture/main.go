@@ -31,13 +31,14 @@ type Version struct {
 	ID         string   `jsonapi:"primary,file_fixture_version_structureds"`
 	Hash       string   `jsonapi:"attr,hash"`
 	FileSize   int      `jsonapi:"attr,file_size"`
+	ItemCount  int      `jsonapi:"attr,item_count"`
 	FieldNames []string `jsonapi:"attr,field_names"`
 	CreatedAt  string   `jsonapi:"attr,created_at"`
 	UpdatedAt  string   `jsonapi:"attr,updated_at"`
 }
 
-// UnmarshalFileFixtures unmarshals a list of FileFixture records
-func UnmarshalFileFixtures(input io.Reader) (List, error) {
+// Unmarshal unmarshals a list of FileFixture records
+func Unmarshal(input io.Reader) (List, error) {
 	items, err := jsonapi.UnmarshalManyPayload(input, reflect.TypeOf(new(FileFixture)))
 	if err != nil {
 		return List{}, err
@@ -108,6 +109,7 @@ func ShowDetails(fileFixture *FileFixture) {
 	fmt.Printf("Current Version: %s\n", fileFixture.CurrentVersion.ID)
 	fmt.Printf("  SHA256 Hash:   %s\n", fileFixture.CurrentVersion.Hash)
 	fmt.Printf("  Size:          %s\n", humanize.Bytes(uint64(fileFixture.CurrentVersion.FileSize)))
+	fmt.Printf("  Line Count:    %v\n", fileFixture.CurrentVersion.ItemCount)
 	fmt.Printf("  Created:       %s (%s)\n", convertToLocalTZ(fixtureCurrentVersionCreatedAt), humanize.Time(fixtureCurrentVersionCreatedAt))
 	fmt.Printf("Version(s):      %v\n", len(fileFixture.Versions))
 	for _, version := range fileFixture.Versions {
