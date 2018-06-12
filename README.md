@@ -88,29 +88,29 @@ sed 's/${target}/testapp.loadtest.party/g' tests/templated.js | forge tc update 
 Test runs are executions of test cases. The subcommand is `test-run` or `tr`.
 
 You can...
+
 * launch `acme-inc/checkout`: `forge test-case launch acme-inc/checkout`
 * watch a running test run: `forge test-run watch acme-inc/checkout/42`
 * list all test runs of a test case: `forge test-run list acme-inc/checkout`
 * show details: `forge test-run show acme-inc/checkout/42`
 * view logs: `forge test-run logs acme-inc/checkout/42`
 * view full traffic dump: `forge test-run dump acme-inc/checkout/42`
+* check your requirements: `forge test-run nfr acme-inc/checkout/42 requirements/basic.yml`
 
 
 ### Data Sources
 
-Data sources are scoped per organisation. Working with data sources can be done with the `datasource` (or short `ds`) sub command, e.g. `forge datasource ls`.
-
-If you have not set a default organisation, or want to use another organisation, you can use `--organisation` with all data source sub commands.
+Data sources are scoped per organisation. Working with data sources can be done with the `datasource` (or short `ds`) sub command, e.g. `forge datasource ls acme-inc`.
 
 You can...
 
-* list available data sources: `forge datasource ls`
-* show details: `forge datasoure show auth/users.csv`
-* download originally uploaded file: `forge datasource get auth/users.csv`
-* rename data source: `forge datasource mv users.csv auth/users.csv`
-* create or update data sources: `forge datasource push …`
+* list available data sources: `forge datasource ls acme-inc`
+* show details: `forge datasoure show acme-inc auth/users.csv`
+* download originally uploaded file: `forge datasource get acme-inc auth/users.csv`
+* rename data source: `forge datasource mv acme-inc users.csv auth/users.csv`
+* create or update data sources: `forge datasource push acme-inc …`
 
-`push` takes some more arguments: `forge datasource push <file> [flags]`. It can be used to update or create new data sources (think update and create in one command: upsert). To get more information about available flags, use `--help`.
+`push` takes some more arguments: `forge datasource push acme-inc <list of files> [flags]`. It can be used to update or create new data sources (think update and create in one command: upsert). To get more information about available flags, use `--help`.
 
 * `--delimiter`: Column delimiter for the structured file
 * `--fields`: Name of the fields for columns, comma separated (can be edited later)
