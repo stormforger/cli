@@ -121,7 +121,12 @@ You can...
 
 ## Build
 
-In case you want to use `forge`, you can stop reading now. This section describes how to build `forge` from source.
+<hr>
+<hr>
+You can **STOP READING** now unless you want to know how to build `forge` and make releases!
+<hr>
+<hr>
+
 
 ### Dependencies
 
