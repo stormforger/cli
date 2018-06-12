@@ -54,7 +54,7 @@ func runDatasourceDownload(cmd *cobra.Command, args []string) {
 	}
 
 	if !success {
-		log.Fatalln("Could not download %s: %s", fileName, result)
+		log.Fatalf("Could not download %s: %s\n", fileName, result)
 	}
 
 	_, err = io.Copy(os.Stdout, bytes.NewReader(result))
