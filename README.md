@@ -60,19 +60,6 @@ When you are done, you can check your token via `ping` which makes an authentica
 forge ping
 ```
 
-### Setting Default Organisation
-
-Most of the time you'll only work with one StormForger organisation. You can save yourself some typing by setting a default organisation ([manage organisations](https://app.stormforger.com/organisations)):
-
-```toml
-jwt = "..."
-
-[defaults]
-organisation = "abcdef42"
-```
-
-To get the UID to your organisation, run: `forge organisation list`.
-
 
 ## Usage
 
