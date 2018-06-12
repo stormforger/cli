@@ -47,7 +47,7 @@ When done, you can login via
 forge login your-email@example.com
 ```
 
-You will be asked for your credentials. On successful authentication your token will be written to `~/.stormforger.toml` (use `--no-save` to print the token).
+You will be asked for your credentials. On successful authentication your token will be written to `~/.stormforger.toml` (use `--no-save` to print the token instead).
 
 Beside via `.stormforger.toml`, you can provide your JWT via
 
