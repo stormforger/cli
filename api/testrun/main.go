@@ -23,6 +23,10 @@ type TestRun struct {
 	StartedBy string `jsonapi:"attr,started_by,omitempty"`
 	StartedAt string `jsonapi:"attr,started_at,omitempty"`
 	EndedAt   string `jsonapi:"attr,ended_at,omitempty"`
+
+	// attributes for in progress
+	EstimatedEnd string `jsonapi:"attr,estimated_end,omitempty"`
+	Progress     int    `jsonapi:"attr,progress,omitempty"`
 }
 
 // NfrResultList is a list of NFR results
