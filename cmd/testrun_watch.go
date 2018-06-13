@@ -56,10 +56,13 @@ func testRunWatch(cmd *cobra.Command, args []string) {
 
 	testRunUID := getTestRunUID(*client, args[0])
 
-	watchTestRun(testRunUID, testRunWatchOpts.MaxWatchTime.Round(time.Second).Seconds())
+	watchTestRun(testRunUID, testRunWatchOpts.MaxWatchTime.Round(time.Second).Seconds(), rootOpts.OutputFormat)
 
 	result := fetchTestRun(*client, testRunUID)
-	fmt.Println(string(result))
+
+	if rootOpts.OutputFormat == "json" {
+		fmt.Println(string(result))
+	}
 }
 
 func testRunOkay(testRun *testrun.TestRun) bool {

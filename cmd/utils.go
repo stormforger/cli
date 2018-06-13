@@ -12,6 +12,7 @@ import (
 	"strings"
 	"time"
 
+	humanize "github.com/dustin/go-humanize"
 	"github.com/stormforger/cli/api"
 	"github.com/stormforger/cli/api/filefixture"
 	"github.com/stormforger/cli/api/organisation"
@@ -126,10 +127,10 @@ func readOrganisationUIDFromFile() string {
 	return strings.TrimSpace(string(content))
 }
 
-func watchTestRun(testRunUID string, maxWatchTime float64) {
+func watchTestRun(testRunUID string, maxWatchTime float64, outputFormat string) {
 	client := NewClient()
-
 	started := time.Now()
+	first := true
 
 	for true {
 		runningSince := time.Now().Sub(started).Seconds()
@@ -139,7 +140,45 @@ func watchTestRun(testRunUID string, maxWatchTime float64) {
 			log.Fatal(err)
 		}
 
-		fmt.Println(response)
+		if first {
+			first = false
+
+			if testRunSuccess(&testRun) {
+				if outputFormat != "json" {
+					fmt.Printf("Test Run %s is finished.\n", testRun.ID)
+				}
+
+				return
+			}
+
+			if outputFormat == "json" {
+				fmt.Println(response)
+			} else {
+				formattedStartedAt := "not yet"
+				formattedEstimatedEnd := "n/a"
+
+				if testRun.StartedAt != "" {
+					formattedStartedAt = humanize.Time(parseTime(testRun.StartedAt))
+				}
+				if testRun.EstimatedEnd != "" {
+					formattedEstimatedEnd = humanize.Time(parseTime(testRun.EstimatedEnd))
+				}
+
+				fmt.Printf("Test Run: %s started %s (est. end %s)\n", testRun.ID, formattedStartedAt, formattedEstimatedEnd)
+			}
+		}
+
+		if outputFormat == "json" {
+			fmt.Println(response)
+		} else {
+			switch testRun.State {
+			case "running":
+				fmt.Printf("[%s] Progress: %d%%\n", testRun.State, testRun.Progress)
+			default:
+				fmt.Printf("[%s]\n", testRun.State)
+			}
+
+		}
 
 		if !testRunOkay(&testRun) {
 			os.Exit(1)
@@ -251,4 +290,22 @@ func fetchTestRun(client api.Client, input string) []byte {
 	}
 
 	return response
+}
+
+func parseTime(subject string) time.Time {
+	parsedTime, err := time.Parse(time.RFC3339Nano, subject)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return parsedTime
+}
+
+func convertToLocalTZ(timeToConvert time.Time) time.Time {
+	loc, err := time.LoadLocation("Local")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return timeToConvert.In(loc)
 }
