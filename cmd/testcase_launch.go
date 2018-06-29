@@ -59,7 +59,7 @@ func init() {
 
 	testRunLaunchCmd.Flags().StringVarP(&testRunLaunchOpts.Title, "title", "t", "", "Descriptive title of test run")
 	testRunLaunchCmd.Flags().StringVarP(&testRunLaunchOpts.Notes, "notes", "n", "", "Longer description (Markdown supported)")
-	testRunLaunchCmd.Flags().StringVarP(&testRunLaunchOpts.CheckNFR, "nfr-check-file", "", "", "Check test result against NFR definition")
+	testRunLaunchCmd.Flags().StringVarP(&testRunLaunchOpts.CheckNFR, "nfr-check-file", "", "", "Check test result against NFR definition (implies --watch)")
 	testRunLaunchCmd.Flags().BoolVarP(&testRunLaunchOpts.Watch, "watch", "w", false, "Automatically watch newly launched test run")
 	testRunLaunchCmd.Flags().DurationVar(&testRunLaunchOpts.MaxWatchTime, "watch-timeout", 0, "Maximum duration in seconds to watch")
 }
