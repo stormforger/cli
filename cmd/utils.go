@@ -133,6 +133,7 @@ func watchTestRun(testRunUID string, maxWatchTime float64, outputFormat string) 
 	started := time.Now()
 	first := true
 	testStarted := false
+	testEnded := false
 
 	for true {
 		runningSince := time.Now().Sub(started).Seconds()
@@ -192,8 +193,9 @@ func watchTestRun(testRunUID string, maxWatchTime float64, outputFormat string) 
 				}
 				fmt.Printf("[%s] Progress: %d%%\n", testRun.State, testRun.Progress)
 			default:
-				if testStarted {
+				if testStarted && !testEnded {
 					fmt.Printf("[status] Test run ended...\n")
+					testEnded = true
 				}
 
 				fmt.Printf("[%s]\n", testRun.State)
