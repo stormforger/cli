@@ -13,6 +13,7 @@ import (
 	"time"
 
 	humanize "github.com/dustin/go-humanize"
+	"github.com/fatih/color"
 	"github.com/stormforger/cli/api"
 	"github.com/stormforger/cli/api/filefixture"
 	"github.com/stormforger/cli/api/organisation"
@@ -131,6 +132,7 @@ func watchTestRun(testRunUID string, maxWatchTime float64, outputFormat string) 
 	client := NewClient()
 	started := time.Now()
 	first := true
+	testStarted := false
 
 	for true {
 		runningSince := time.Now().Sub(started).Seconds()
@@ -164,7 +166,7 @@ func watchTestRun(testRunUID string, maxWatchTime float64, outputFormat string) 
 					formattedEstimatedEnd = humanize.Time(parseTime(testRun.EstimatedEnd))
 				}
 
-				fmt.Printf("Test Run: %s started %s (est. end %s)\n", testRun.ID, formattedStartedAt, formattedEstimatedEnd)
+				fmt.Printf("[status] Test Run: %s started %s (est. end %s)\n", testRun.ID, formattedStartedAt, formattedEstimatedEnd)
 			}
 		}
 
@@ -173,8 +175,27 @@ func watchTestRun(testRunUID string, maxWatchTime float64, outputFormat string) 
 		} else {
 			switch testRun.State {
 			case "running":
+				if !testStarted {
+					formattedStartedAt := "not yet"
+					formattedEstimatedEnd := "n/a"
+
+					if testRun.StartedAt != "" {
+						formattedStartedAt = humanize.Time(parseTime(testRun.StartedAt))
+					}
+					if testRun.EstimatedEnd != "" {
+						formattedEstimatedEnd = humanize.Time(parseTime(testRun.EstimatedEnd))
+					}
+
+					fmt.Printf("[status] Test Run: %s started %s (est. end %s)\n", testRun.ID, formattedStartedAt, formattedEstimatedEnd)
+
+					testStarted = true
+				}
 				fmt.Printf("[%s] Progress: %d%%\n", testRun.State, testRun.Progress)
 			default:
+				if testStarted {
+					fmt.Printf("[status] Test run ended...\n")
+				}
+
 				fmt.Printf("[%s]\n", testRun.State)
 			}
 
@@ -308,4 +329,86 @@ func convertToLocalTZ(timeToConvert time.Time) time.Time {
 	}
 
 	return timeToConvert.In(loc)
+}
+
+func runNfrCheck(client api.Client, testRunUID string, fileName string, nfrData io.Reader) {
+	status, result, err := client.TestRunNfrCheck(testRunUID, fileName, nfrData)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	if rootOpts.OutputFormat == "json" {
+		fmt.Println(string(result))
+		return
+	}
+
+	if !status {
+		log.Fatalf("Could not perform test run NFR checks...\n%s", result)
+	}
+
+	items, err := testrun.UnmarshalNfrResults(bytes.NewReader(result))
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	anyFails := displayNfrResult(items)
+
+	if anyFails {
+		os.Exit(1)
+	}
+}
+
+func displayNfrResult(items testrun.NfrResultList) bool {
+	green := color.New(color.FgGreen).SprintFunc()
+	red := color.New(color.FgRed).SprintFunc()
+	redBg := color.New(color.BgRed).Add(color.FgWhite).SprintFunc()
+	white := color.New(color.FgWhite).SprintFunc()
+
+	checkStatus := ""
+	anyFails := false
+	for _, item := range items.NfrResults {
+		if !item.Disabled {
+			actualSubject := ""
+			if item.Success {
+				checkStatus = green("\u2713")
+				actualSubject = fmt.Sprintf("was %s", item.SubjectWithUnit())
+			} else {
+				anyFails = true
+				checkStatus = red("\u2717")
+				actualSubject = fmt.Sprintf("but actually was %s", item.SubjectWithUnit())
+			}
+
+			filter := ""
+			if item.Filter != "null" && item.Filter != "" {
+				filter = " (where: " + item.Filter + ")"
+			}
+
+			fmt.Printf(
+				"%s %s expected to be %s; %s (%s)%s\n",
+				checkStatus,
+				item.Metric,
+				item.ExpectationWithUnit(),
+				actualSubject,
+				item.Type,
+				filter,
+			)
+		} else {
+			fmt.Printf(
+				"%s %s %s expected to be %s (%s)\n",
+				white("?"),
+				redBg("DISABLED"),
+				item.Metric,
+				item.ExpectationWithUnit(),
+				item.Type,
+			)
+		}
+	}
+
+	if !anyFails {
+		fmt.Printf(green("\nAll checks passed!\n"))
+	} else {
+		fmt.Printf(red("\nYou have failing checks!\n"))
+	}
+
+	return anyFails
 }

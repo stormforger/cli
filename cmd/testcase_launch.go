@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -49,6 +50,7 @@ Examples
 		Notes        string
 		Watch        bool
 		MaxWatchTime time.Duration
+		CheckNFR     string
 	}
 )
 
@@ -57,6 +59,7 @@ func init() {
 
 	testRunLaunchCmd.Flags().StringVarP(&testRunLaunchOpts.Title, "title", "t", "", "Descriptive title of test run")
 	testRunLaunchCmd.Flags().StringVarP(&testRunLaunchOpts.Notes, "notes", "n", "", "Longer description (Markdown supported)")
+	testRunLaunchCmd.Flags().StringVarP(&testRunLaunchOpts.CheckNFR, "nfr-check-file", "", "", "Check test result against NFR definition")
 	testRunLaunchCmd.Flags().BoolVarP(&testRunLaunchOpts.Watch, "watch", "w", false, "Automatically watch newly launched test run")
 	testRunLaunchCmd.Flags().DurationVar(&testRunLaunchOpts.MaxWatchTime, "watch-timeout", 0, "Maximum duration in seconds to watch")
 }
@@ -72,9 +75,7 @@ func testRunLaunch(cmd *cobra.Command, args []string) {
 	}
 
 	if status {
-		fmt.Println(response)
-
-		if testRunLaunchOpts.Watch {
+		if testRunLaunchOpts.Watch || testRunLaunchOpts.CheckNFR != "" {
 			testRun := new(testrun.TestRun)
 			err = jsonapi.UnmarshalPayload(strings.NewReader(response), testRun)
 			if err != nil {
@@ -83,8 +84,22 @@ func testRunLaunch(cmd *cobra.Command, args []string) {
 
 			watchTestRun(testRun.ID, testRunLaunchOpts.MaxWatchTime.Round(time.Second).Seconds(), rootOpts.OutputFormat)
 
-			result := fetchTestRun(*client, testRun.ID)
-			fmt.Println(string(result))
+			if testRunLaunchOpts.CheckNFR != "" {
+				fmt.Println("Test finished, running non-functional checks...")
+
+				fileName := filepath.Base(testRunLaunchOpts.CheckNFR)
+				nfrData, err := os.OpenFile(testRunLaunchOpts.CheckNFR, os.O_RDONLY, 0755)
+				if err != nil {
+					log.Fatal(err)
+				}
+
+				runNfrCheck(*client, testRun.ID, fileName, nfrData)
+			} else {
+				result := fetchTestRun(*client, testRun.ID)
+				fmt.Println(string(result))
+			}
+		} else {
+			fmt.Println(response)
 		}
 
 		os.Exit(0)
