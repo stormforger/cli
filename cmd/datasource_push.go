@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"path"
+	"unicode/utf8"
 
 	"github.com/spf13/cobra"
 	"github.com/stormforger/cli/api"
@@ -30,6 +31,10 @@ var (
 
 			if pushOpts.Name != "" && pushOpts.FirstRowHeaders {
 				log.Fatal("--name and --auto-field-names are mutual exclusive")
+			}
+
+			if pushOpts.Delimiter != "" && utf8.RuneCountInString(pushOpts.Delimiter) > 1 {
+				log.Fatal("Delimiter can only be one character!")
 			}
 
 			datasourceOpts.Organisation = lookupOrganisationUID(*NewClient(), args[0])
