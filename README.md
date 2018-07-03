@@ -117,6 +117,7 @@ You can...
 * `--name`: Name of the new data source. If not provided it will be inferred from the uploaded file name (optional)
 * `--name-prefix-path`: Path prefix for new data sources (optional)
 * `--raw`: Upload file as is (optional, default: false)
+* `--auto-field-names`: Interpret first row as headers and use them as field names
 
 
 ## Build
