@@ -43,6 +43,10 @@ Examples
 			if len(args) > 1 {
 				log.Fatal("Too many arguments")
 			}
+
+			if testRunLaunchOpts.DumpTraffic && testRunLaunchOpts.CheckNFR != "" {
+				log.Fatal("--dump-traffic and --nfr-check-file are mutual exclusive")
+			}
 		},
 	}
 
