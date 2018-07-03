@@ -20,6 +20,10 @@ var (
 				log.Fatal("Expecting one or more arguments: File(s) to upload")
 			}
 
+			if pushOpts.Raw && (pushOpts.FieldNames != "" || pushOpts.Delimiter != "" || pushOpts.FirstRowHeaders) {
+				log.Fatal("Raw file fixtures do not support --fields, --delimiter and --auto-field-names")
+			}
+
 			if len(args) > 2 && (pushOpts.Name != "" || pushOpts.FieldNames != "") {
 				log.Fatal("--name and --fields is not supported for multiple uploads")
 			}
