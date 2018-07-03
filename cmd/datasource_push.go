@@ -24,6 +24,10 @@ var (
 				log.Fatal("--name and --fields is not supported for multiple uploads")
 			}
 
+			if pushOpts.Name != "" && pushOpts.FirstRowHeaders {
+				log.Fatal("--name and --auto-field-names are mutual exclusive")
+			}
+
 			datasourceOpts.Organisation = lookupOrganisationUID(*NewClient(), args[0])
 			if datasourceOpts.Organisation == "" {
 				log.Fatal("Missing organization")
@@ -32,11 +36,12 @@ var (
 	}
 
 	pushOpts struct {
-		Raw            bool
-		Delimiter      string
-		FieldNames     string
-		Name           string
-		NamePrefixPath string
+		Raw             bool
+		Delimiter       string
+		FieldNames      string
+		Name            string
+		NamePrefixPath  string
+		FirstRowHeaders bool
 	}
 )
 
@@ -44,6 +49,7 @@ func init() {
 	datasourceCmd.AddCommand(datasourcePushCmd)
 
 	datasourcePushCmd.Flags().BoolVarP(&pushOpts.Raw, "raw", "r", false, "Upload file as raw fixture")
+	datasourcePushCmd.Flags().BoolVarP(&pushOpts.FirstRowHeaders, "auto-field-names", "", false, "Interpret first row as headers")
 
 	datasourcePushCmd.Flags().StringVarP(&pushOpts.Delimiter, "delimiter", "d", "", "Column Delimiter")
 	datasourcePushCmd.Flags().StringVarP(&pushOpts.Name, "name", "n", "", "Name for the file fixture")
@@ -81,10 +87,11 @@ func runDataSourcePush(cmd *cobra.Command, args []string) {
 		fieldNames := pushOpts.FieldNames
 
 		params = &api.FileFixtureParams{
-			Name:       pushOpts.NamePrefixPath + fixtureNameFor(fileName),
-			Type:       fixtureType,
-			FieldNames: fieldNames,
-			Delimiter:  pushOpts.Delimiter,
+			Name:            pushOpts.NamePrefixPath + fixtureNameFor(fileName),
+			Type:            fixtureType,
+			FieldNames:      fieldNames,
+			Delimiter:       pushOpts.Delimiter,
+			FirstRowHeaders: pushOpts.FirstRowHeaders,
 		}
 
 		data, err := os.OpenFile(fileName, os.O_RDONLY, 0755)

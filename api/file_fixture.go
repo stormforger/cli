@@ -8,10 +8,11 @@ import (
 
 // FileFixtureParams represents params BLA TODO
 type FileFixtureParams struct {
-	Name       string
-	Type       string
-	FieldNames string
-	Delimiter  string
+	Name            string
+	Type            string
+	FieldNames      string
+	Delimiter       string
+	FirstRowHeaders bool
 }
 
 // MoveFileFixture renames a filefixtures
@@ -56,6 +57,10 @@ func (c *Client) PushFileFixture(fileName string, data io.Reader, organization s
 	extraParams := map[string]string{
 		"file_fixture[name]": params.Name,
 		"file_fixture[type]": params.Type,
+	}
+
+	if params.FirstRowHeaders {
+		extraParams["file_fixture[file_fixture_version][first_row_headers]"] = "1"
 	}
 
 	if params.Delimiter != "" {
