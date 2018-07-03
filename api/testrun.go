@@ -3,6 +3,7 @@ package api
 import (
 	"bytes"
 	"compress/gzip"
+	"encoding/json"
 	"errors"
 	"io"
 	"io/ioutil"
@@ -13,6 +14,15 @@ import (
 	"github.com/google/jsonapi"
 	"github.com/stormforger/cli/api/testrun"
 )
+
+// TestRunLaunchOptions represents a single TestRunLaunchOptions
+type TestRunLaunchOptions struct {
+	Title       string
+	Notes       string
+	DisableGzip bool
+	SkipWait    bool
+	DumpTraffic bool
+}
 
 // TestRunResources describes infos on a test run
 type TestRunResources struct {
@@ -158,15 +168,50 @@ func (c *Client) TestRunDump(pathID string) (io.ReadCloser, error) {
 
 // TestRunCreate will send a test case definition (JS) to the API
 // to update an existing test case it.
-func (c *Client) TestRunCreate(testCaseUID string, title string, notes string) (bool, string, error) {
-	payload := bytes.NewBuffer(nil)
-	newTestRun := &testrun.TestRun{
-		Title: title,
-		Notes: notes,
+func (c *Client) TestRunCreate(testCaseUID string, options TestRunLaunchOptions) (bool, string, error) {
+	type testConfigAttr struct {
+		DisableGzip bool `json:"disable_gzip,omitempty"`
+		SkipWait    bool `json:"skip_wait,omitempty"`
+		DumpTraffic bool `json:"dump_traffic_full,omitempty"`
 	}
-	jsonapi.MarshalOnePayloadEmbedded(payload, newTestRun)
 
-	req, err := http.NewRequest("POST", c.APIEndpoint+"/test_cases/"+testCaseUID+"/test_runs", payload)
+	type testAttr struct {
+		Title string `json:"title,omitempty"`
+		Notes string `json:"notes,omitempty"`
+	}
+
+	type payload struct {
+		Attributes testAttr        `json:"attributes"`
+		TestConfig *testConfigAttr `json:"test_configuration_attributes,omitempty"`
+	}
+
+	type payloadContainer struct {
+		Data payload `json:"data"`
+	}
+
+	var testConfig *testConfigAttr
+	if options.DisableGzip || options.SkipWait || options.DumpTraffic {
+		testConfig = &testConfigAttr{
+			DisableGzip: options.DisableGzip,
+			SkipWait:    options.SkipWait,
+			DumpTraffic: options.DumpTraffic,
+		}
+	}
+
+	jsonPayload, err := json.Marshal(&payloadContainer{
+		Data: payload{
+			Attributes: testAttr{
+				Title: options.Title,
+				Notes: options.Notes,
+			},
+			TestConfig: testConfig,
+		},
+	})
+	if err != nil {
+		return false, "", err
+	}
+
+	req, err := http.NewRequest("POST", c.APIEndpoint+"/test_cases/"+testCaseUID+"/test_runs", bytes.NewReader(jsonPayload))
 
 	req.Header.Set("Content-Type", "application/json")
 

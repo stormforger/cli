@@ -10,6 +10,7 @@ import (
 
 	"github.com/google/jsonapi"
 	"github.com/spf13/cobra"
+	"github.com/stormforger/cli/api"
 	"github.com/stormforger/cli/api/testrun"
 )
 
@@ -51,6 +52,9 @@ Examples
 		Watch        bool
 		MaxWatchTime time.Duration
 		CheckNFR     string
+		DisableGzip  bool
+		SkipWait     bool
+		DumpTraffic  bool
 	}
 )
 
@@ -59,9 +63,16 @@ func init() {
 
 	testRunLaunchCmd.Flags().StringVarP(&testRunLaunchOpts.Title, "title", "t", "", "Descriptive title of test run")
 	testRunLaunchCmd.Flags().StringVarP(&testRunLaunchOpts.Notes, "notes", "n", "", "Longer description (Markdown supported)")
-	testRunLaunchCmd.Flags().StringVarP(&testRunLaunchOpts.CheckNFR, "nfr-check-file", "", "", "Check test result against NFR definition (implies --watch)")
+
 	testRunLaunchCmd.Flags().BoolVarP(&testRunLaunchOpts.Watch, "watch", "w", false, "Automatically watch newly launched test run")
 	testRunLaunchCmd.Flags().DurationVar(&testRunLaunchOpts.MaxWatchTime, "watch-timeout", 0, "Maximum duration in seconds to watch")
+
+	testRunLaunchCmd.Flags().StringVarP(&testRunLaunchOpts.CheckNFR, "nfr-check-file", "", "", "Check test result against NFR definition (implies --watch)")
+
+	// options for debugging
+	testRunLaunchCmd.Flags().BoolVarP(&testRunLaunchOpts.DisableGzip, "disable-gzip", "", false, "Globally disable gzip")
+	testRunLaunchCmd.Flags().BoolVarP(&testRunLaunchOpts.SkipWait, "skip-wait", "", false, "Ignore defined waits")
+	testRunLaunchCmd.Flags().BoolVarP(&testRunLaunchOpts.DumpTraffic, "dump-traffic", "", false, "Create traffic dump")
 }
 
 func testRunLaunch(cmd *cobra.Command, args []string) {
@@ -69,7 +80,15 @@ func testRunLaunch(cmd *cobra.Command, args []string) {
 
 	testCaseUID := lookupTestCase(*client, args[0])
 
-	status, response, err := client.TestRunCreate(testCaseUID, testRunLaunchOpts.Title, testRunLaunchOpts.Notes)
+	launchOptions := api.TestRunLaunchOptions{
+		Title:       testRunLaunchOpts.Title,
+		Notes:       testRunLaunchOpts.Notes,
+		DisableGzip: testRunLaunchOpts.DisableGzip,
+		SkipWait:    testRunLaunchOpts.SkipWait,
+		DumpTraffic: testRunLaunchOpts.DumpTraffic,
+	}
+
+	status, response, err := client.TestRunCreate(testCaseUID, launchOptions)
 	if err != nil {
 		log.Fatal(err)
 	}
