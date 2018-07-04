@@ -1,7 +1,9 @@
 package cmd
 
 import (
+	"bytes"
 	"fmt"
+	"io"
 	"log"
 	"os"
 	"path/filepath"
@@ -60,6 +62,7 @@ Examples
 		SkipWait              bool
 		DumpTraffic           bool
 		SessionValidationMode bool
+		Validate              bool
 	}
 )
 
@@ -79,6 +82,7 @@ func init() {
 	testRunLaunchCmd.Flags().BoolVarP(&testRunLaunchOpts.SkipWait, "skip-wait", "", false, "Ignore defined waits")
 	testRunLaunchCmd.Flags().BoolVarP(&testRunLaunchOpts.DumpTraffic, "dump-traffic", "", false, "Create traffic dump")
 	testRunLaunchCmd.Flags().BoolVarP(&testRunLaunchOpts.SessionValidationMode, "session-validation-mode", "", false, "Enable session validation mode")
+	testRunLaunchCmd.Flags().BoolVarP(&testRunLaunchOpts.Validate, "validate", "", false, "Perform validation run")
 }
 
 func testRunLaunch(cmd *cobra.Command, args []string) {
@@ -95,13 +99,17 @@ func testRunLaunch(cmd *cobra.Command, args []string) {
 		SessionValidationMode: testRunLaunchOpts.SessionValidationMode,
 	}
 
+	if testRunLaunchOpts.Validate {
+		launchOptions.SessionValidationMode = true
+	}
+
 	status, response, err := client.TestRunCreate(testCaseUID, launchOptions)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	if status {
-		if testRunLaunchOpts.Watch || testRunLaunchOpts.CheckNFR != "" {
+		if testRunLaunchOpts.Watch || testRunLaunchOpts.CheckNFR != "" || testRunLaunchOpts.Validate {
 			testRun := new(testrun.TestRun)
 			err = jsonapi.UnmarshalPayload(strings.NewReader(response), testRun)
 			if err != nil {
@@ -110,13 +118,27 @@ func testRunLaunch(cmd *cobra.Command, args []string) {
 
 			watchTestRun(testRun.ID, testRunLaunchOpts.MaxWatchTime.Round(time.Second).Seconds(), rootOpts.OutputFormat)
 
-			if testRunLaunchOpts.CheckNFR != "" {
+			if testRunLaunchOpts.CheckNFR != "" || testRunLaunchOpts.Validate {
 				fmt.Println("Test finished, running non-functional checks...")
 
-				fileName := filepath.Base(testRunLaunchOpts.CheckNFR)
-				nfrData, err := os.OpenFile(testRunLaunchOpts.CheckNFR, os.O_RDONLY, 0755)
-				if err != nil {
-					log.Fatal(err)
+				fileName := ""
+				var nfrData io.Reader
+				if testRunLaunchOpts.CheckNFR != "" {
+					fileName = filepath.Base(testRunLaunchOpts.CheckNFR)
+					nfrData, err = os.OpenFile(testRunLaunchOpts.CheckNFR, os.O_RDONLY, 0755)
+					if err != nil {
+						log.Fatal(err)
+					}
+				} else {
+					fileName = "validation.yml"
+					nfrData = bytes.NewBufferString(`version: "0.1"
+requirements:
+- test.completed: true
+- checks:
+    select: success_rate
+    test: ["=", 1]
+- http.error_ratio:
+    test: ["=", 0]`)
 				}
 
 				runNfrCheck(*client, testRun.ID, fileName, nfrData)
