@@ -36,15 +36,16 @@ type NfrResultList struct {
 
 // NfrResult describes a NFR check result
 type NfrResult struct {
-	ID          string `jsonapi:"primary,nfr_results"`
-	Success     bool   `jsonapi:"attr,success"`
-	Subject     string `jsonapi:"attr,subject"`
-	SubjectUnit string `jsonapi:"attr,subject_unit"`
-	Expectation string `jsonapi:"attr,expectation"`
-	Type        string `jsonapi:"attr,nfr_type"`
-	Disabled    bool   `jsonapi:"attr,disabled"`
-	Filter      string `jsonapi:"attr,filter"`
-	Metric      string `jsonapi:"attr,metric"`
+	ID               string `jsonapi:"primary,nfr_results"`
+	Success          bool   `jsonapi:"attr,success"`
+	Subject          string `jsonapi:"attr,subject"`
+	SubjectAvailable bool   `jsonapi:"attr,subject_available"`
+	SubjectUnit      string `jsonapi:"attr,subject_unit"`
+	Expectation      string `jsonapi:"attr,expectation"`
+	Type             string `jsonapi:"attr,nfr_type"`
+	Disabled         bool   `jsonapi:"attr,disabled"`
+	Filter           string `jsonapi:"attr,filter"`
+	Metric           string `jsonapi:"attr,metric"`
 }
 
 // Unmarshal unmarshals a list of TestRun records

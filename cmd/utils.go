@@ -365,19 +365,26 @@ func displayNfrResult(items testrun.NfrResultList) bool {
 	red := color.New(color.FgRed).SprintFunc()
 	redBg := color.New(color.BgRed).Add(color.FgWhite).SprintFunc()
 	white := color.New(color.FgWhite).SprintFunc()
+	whiteBold := color.New(color.FgWhite, color.Bold).SprintFunc()
 
 	checkStatus := ""
 	anyFails := false
 	for _, item := range items.NfrResults {
 		if !item.Disabled {
 			actualSubject := ""
-			if item.Success {
-				checkStatus = green("\u2713")
-				actualSubject = fmt.Sprintf("was %s", item.SubjectWithUnit())
+
+			if item.SubjectAvailable {
+				if item.Success {
+					checkStatus = green("\u2713")
+					actualSubject = fmt.Sprintf("was %s", item.SubjectWithUnit())
+				} else {
+					anyFails = true
+					checkStatus = red("\u2717")
+					actualSubject = fmt.Sprintf("but actually was %s", item.SubjectWithUnit())
+				}
 			} else {
-				anyFails = true
-				checkStatus = red("\u2717")
-				actualSubject = fmt.Sprintf("but actually was %s", item.SubjectWithUnit())
+				checkStatus = whiteBold("?")
+				actualSubject = fmt.Sprintf("was %s", whiteBold("not available"))
 			}
 
 			filter := ""
