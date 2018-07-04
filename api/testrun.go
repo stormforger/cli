@@ -17,11 +17,12 @@ import (
 
 // TestRunLaunchOptions represents a single TestRunLaunchOptions
 type TestRunLaunchOptions struct {
-	Title       string
-	Notes       string
-	DisableGzip bool
-	SkipWait    bool
-	DumpTraffic bool
+	Title                 string
+	Notes                 string
+	DisableGzip           bool
+	SkipWait              bool
+	DumpTraffic           bool
+	SessionValidationMode bool
 }
 
 // TestRunResources describes infos on a test run
@@ -170,9 +171,10 @@ func (c *Client) TestRunDump(pathID string) (io.ReadCloser, error) {
 // to update an existing test case it.
 func (c *Client) TestRunCreate(testCaseUID string, options TestRunLaunchOptions) (bool, string, error) {
 	type testConfigAttr struct {
-		DisableGzip bool `json:"disable_gzip,omitempty"`
-		SkipWait    bool `json:"skip_wait,omitempty"`
-		DumpTraffic bool `json:"dump_traffic_full,omitempty"`
+		DisableGzip           bool `json:"disable_gzip,omitempty"`
+		SkipWait              bool `json:"skip_wait,omitempty"`
+		DumpTraffic           bool `json:"dump_traffic_full,omitempty"`
+		SessionValidationMode bool `json:"session_validation_mode,omitempty"`
 	}
 
 	type testAttr struct {
@@ -190,11 +192,12 @@ func (c *Client) TestRunCreate(testCaseUID string, options TestRunLaunchOptions)
 	}
 
 	var testConfig *testConfigAttr
-	if options.DisableGzip || options.SkipWait || options.DumpTraffic {
+	if options.DisableGzip || options.SkipWait || options.DumpTraffic || options.SessionValidationMode {
 		testConfig = &testConfigAttr{
-			DisableGzip: options.DisableGzip,
-			SkipWait:    options.SkipWait,
-			DumpTraffic: options.DumpTraffic,
+			DisableGzip:           options.DisableGzip,
+			SkipWait:              options.SkipWait,
+			DumpTraffic:           options.DumpTraffic,
+			SessionValidationMode: options.SessionValidationMode,
 		}
 	}
 

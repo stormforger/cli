@@ -51,14 +51,15 @@ Examples
 	}
 
 	testRunLaunchOpts struct {
-		Title        string
-		Notes        string
-		Watch        bool
-		MaxWatchTime time.Duration
-		CheckNFR     string
-		DisableGzip  bool
-		SkipWait     bool
-		DumpTraffic  bool
+		Title                 string
+		Notes                 string
+		Watch                 bool
+		MaxWatchTime          time.Duration
+		CheckNFR              string
+		DisableGzip           bool
+		SkipWait              bool
+		DumpTraffic           bool
+		SessionValidationMode bool
 	}
 )
 
@@ -77,6 +78,7 @@ func init() {
 	testRunLaunchCmd.Flags().BoolVarP(&testRunLaunchOpts.DisableGzip, "disable-gzip", "", false, "Globally disable gzip")
 	testRunLaunchCmd.Flags().BoolVarP(&testRunLaunchOpts.SkipWait, "skip-wait", "", false, "Ignore defined waits")
 	testRunLaunchCmd.Flags().BoolVarP(&testRunLaunchOpts.DumpTraffic, "dump-traffic", "", false, "Create traffic dump")
+	testRunLaunchCmd.Flags().BoolVarP(&testRunLaunchOpts.SessionValidationMode, "session-validation-mode", "", false, "Enable session validation mode")
 }
 
 func testRunLaunch(cmd *cobra.Command, args []string) {
@@ -85,11 +87,12 @@ func testRunLaunch(cmd *cobra.Command, args []string) {
 	testCaseUID := lookupTestCase(*client, args[0])
 
 	launchOptions := api.TestRunLaunchOptions{
-		Title:       testRunLaunchOpts.Title,
-		Notes:       testRunLaunchOpts.Notes,
-		DisableGzip: testRunLaunchOpts.DisableGzip,
-		SkipWait:    testRunLaunchOpts.SkipWait,
-		DumpTraffic: testRunLaunchOpts.DumpTraffic,
+		Title:                 testRunLaunchOpts.Title,
+		Notes:                 testRunLaunchOpts.Notes,
+		DisableGzip:           testRunLaunchOpts.DisableGzip,
+		SkipWait:              testRunLaunchOpts.SkipWait,
+		DumpTraffic:           testRunLaunchOpts.DumpTraffic,
+		SessionValidationMode: testRunLaunchOpts.SessionValidationMode,
 	}
 
 	status, response, err := client.TestRunCreate(testCaseUID, launchOptions)
