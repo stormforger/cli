@@ -135,7 +135,12 @@ Use `make setup` to install required go build dependencies.
 
 We use [`dep`](https://github.com/golang/dep) to vendor dependencies.
 
-To add a dependency, simply import it and then run `make dep` which will add the dependency to the manifest. **Make sure you add dependencies in a dedicated commit!**.
+To add a dependency, simply import it and then run `dep ensure` which will add the dependency to the manifest.
+
+To update all dependencies, run `dep ensure -update`.
+
+In any case: **Make sure you add dependencies in a dedicated commit!**.
+
 
 ### Release
 

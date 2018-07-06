@@ -2,7 +2,7 @@ BINARY=forge
 
 GOFILES_NOVENDOR = $(shell find . -type f -name '*.go' -not -path "./vendor/*")
 
-.PHONY: all test build release local_release fmt vet dep setup
+.PHONY: all test build release local_release fmt vet setup
 
 all: build
 
@@ -29,9 +29,6 @@ vet:
 
 errcheck:
 	script/gorun errcheck
-
-dep:
-	dep ensure
 
 setup:
 	go get -u github.com/golang/dep/cmd/dep
