@@ -25,8 +25,7 @@ Download the latest release from [GitHub releases](https://github.com/stormforge
 In case you are on macOS and using [Homebrew](https://brew.sh/) you can:
 
 ```
-brew tap stormforger/forge
-brew install forge
+brew install stormforger/forge/forge
 ```
 
 You can also use our published Docker image [`stormforger/cli`](https://hub.docker.com/r/stormforger/cli). We will publish the `latest` tag, so you can do:
