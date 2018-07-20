@@ -118,7 +118,7 @@ func runDataSourcePush(cmd *cobra.Command, args []string) {
 		}
 
 		if !success {
-			fmt.Fprintln(os.Stderr, "Could not upload files as new data source!")
+			fmt.Fprintln(os.Stderr, "Could not create or update files as data sources!")
 			fmt.Fprintln(os.Stderr, string(result))
 
 			os.Exit(1)
