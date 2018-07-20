@@ -29,8 +29,8 @@ var (
 				log.Fatal("--name and --fields is not supported for multiple uploads")
 			}
 
-			if pushOpts.Name != "" && pushOpts.FirstRowHeaders {
-				log.Fatal("--name and --auto-field-names are mutual exclusive")
+			if pushOpts.FieldNames != "" && pushOpts.FirstRowHeaders {
+				log.Fatal("--fields and --auto-field-names are mutual exclusive")
 			}
 
 			if pushOpts.Delimiter != "" && utf8.RuneCountInString(pushOpts.Delimiter) > 1 {
@@ -118,7 +118,7 @@ func runDataSourcePush(cmd *cobra.Command, args []string) {
 		}
 
 		if !success {
-			fmt.Fprintln(os.Stderr, "Could not upload files as new data source!")
+			fmt.Fprintln(os.Stderr, "Could not create or update files as data sources!")
 			fmt.Fprintln(os.Stderr, string(result))
 
 			os.Exit(1)
