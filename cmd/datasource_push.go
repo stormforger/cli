@@ -132,19 +132,22 @@ func runDataSourcePush(cmd *cobra.Command, args []string) {
 		if rootOpts.OutputFormat == "json" {
 			fmt.Println(string(result))
 		} else {
+			if fixtureType == "structured" {
+				fixture, err := filefixture.UnmarshalFileFixture(bytes.NewReader(result))
+				if err != nil {
+					log.Fatal(err)
+				}
 
-			fixture, err := filefixture.UnmarshalFileFixture(bytes.NewReader(result))
-			if err != nil {
-				log.Fatal(err)
+				fmt.Printf(
+					"%s successfully uploaded! Name: %s, Items: %d, Columns: %s\n",
+					params.Name,
+					fixture.Name,
+					fixture.CurrentVersion.ItemCount,
+					strings.Join(fixture.CurrentVersion.FieldNames, ", "),
+				)
+			} else {
+				fmt.Printf("%s uploaded!\n", params.Name)
 			}
-
-			fmt.Printf(
-				"%v successfully uploaded! Name: %s, Items: %d, Columns: %s\n",
-				params.Name,
-				fixture.Name,
-				fixture.CurrentVersion.ItemCount,
-				strings.Join(fixture.CurrentVersion.FieldNames, ", "),
-			)
 		}
 	}
 
