@@ -248,7 +248,7 @@ func lookupTestCase(client api.Client, input string) string {
 
 		organisationUID := lookupOrganisationUID(client, organisationNameOrUID)
 
-		_, result, err := client.ListTestCases(organisationUID)
+		_, result, err := client.ListTestCases(organisationUID, "all")
 		if err != nil {
 			log.Fatal(err)
 		}

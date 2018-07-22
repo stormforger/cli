@@ -34,10 +34,16 @@ var (
 			}
 		},
 	}
+
+	testRunListOpts struct {
+		Archived bool
+	}
 )
 
 func init() {
 	TestRunCmd.AddCommand(testRunListCmd)
+
+	testRunListCmd.Flags().BoolVarP(&testRunListOpts.Archived, "archived", "", false, "List archived test runs")
 }
 
 func testRunList(cmd *cobra.Command, args []string) {
@@ -45,7 +51,12 @@ func testRunList(cmd *cobra.Command, args []string) {
 
 	testCaseUID := lookupTestCase(*client, args[0])
 
-	status, result, err := client.TestRunList(testCaseUID)
+	filter := ""
+	if testRunListOpts.Archived {
+		filter = "archived"
+	}
+
+	status, result, err := client.TestRunList(testCaseUID, filter)
 	if err != nil {
 		log.Fatal(err)
 	}
