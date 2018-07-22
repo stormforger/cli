@@ -1,11 +1,15 @@
 package cmd
 
 import (
+	"bytes"
 	"fmt"
 	"log"
 	"os"
 	"path"
+	"strings"
 	"unicode/utf8"
+
+	"github.com/stormforger/cli/api/filefixture"
 
 	"github.com/spf13/cobra"
 	"github.com/stormforger/cli/api"
@@ -96,6 +100,7 @@ func runDataSourcePush(cmd *cobra.Command, args []string) {
 	client := NewClient()
 
 	var params *api.FileFixtureParams
+	someErrors := false
 	for _, fileName := range args[1:] {
 		fieldNames := pushOpts.FieldNames
 
@@ -118,16 +123,32 @@ func runDataSourcePush(cmd *cobra.Command, args []string) {
 		}
 
 		if !success {
-			fmt.Fprintln(os.Stderr, "Could not create or update files as data sources!")
-			fmt.Fprintln(os.Stderr, string(result))
+			fmt.Fprintf(os.Stderr, "%v could not be create or updated! Error: %s\n", params.Name, string(result))
 
-			os.Exit(1)
+			someErrors = true
+			continue
 		}
 
 		if rootOpts.OutputFormat == "json" {
 			fmt.Println(string(result))
 		} else {
-			fmt.Printf("Uploaded %v successfully!\n", params.Name)
+
+			fixture, err := filefixture.UnmarshalFileFixture(bytes.NewReader(result))
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			fmt.Printf(
+				"%v successfully uploaded! Name: %s, Items: %d, Columns: %s\n",
+				params.Name,
+				fixture.Name,
+				fixture.CurrentVersion.ItemCount,
+				strings.Join(fixture.CurrentVersion.FieldNames, ", "),
+			)
 		}
+	}
+
+	if someErrors {
+		os.Exit(1)
 	}
 }

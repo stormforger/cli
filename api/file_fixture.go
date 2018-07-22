@@ -53,7 +53,7 @@ func (c *Client) ListFileFixture(organization string) (bool, []byte, error) {
 }
 
 // PushFileFixture uploads (insert or update) a file fixture
-func (c *Client) PushFileFixture(fileName string, data io.Reader, organization string, params *FileFixtureParams) (bool, string, error) {
+func (c *Client) PushFileFixture(fileName string, data io.Reader, organization string, params *FileFixtureParams) (bool, []byte, error) {
 	extraParams := map[string]string{
 		"file_fixture[name]": params.Name,
 		"file_fixture[type]": params.Type,
@@ -73,26 +73,26 @@ func (c *Client) PushFileFixture(fileName string, data io.Reader, organization s
 
 	req, err := fileUploadRequest(c.APIEndpoint+"/file_fixtures/"+organization, "POST", extraParams, "file_fixture[file_fixture_version][original]", fileName, "application/octet-stream", data)
 	if err != nil {
-		return false, "", err
+		return false, nil, err
 	}
 
 	response, err := c.doRequestRaw(req)
 	if err != nil {
-		return false, "", err
+		return false, nil, err
 	}
 
 	body, err := ioutil.ReadAll(response.Body)
 	if err != nil {
-		return false, "", err
+		return false, nil, err
 	}
 
 	defer response.Body.Close()
 
 	if response.StatusCode >= 300 {
-		return false, string(body), nil
+		return false, body, nil
 	}
 
-	return true, string(body), nil
+	return true, body, nil
 }
 
 // DeleteFileFixture deletes a file fixture
