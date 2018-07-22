@@ -35,17 +35,25 @@ var (
 
 	testCaseListOpts struct {
 		Organisation string
+		Archived     bool
 	}
 )
 
 func init() {
 	TestCaseCmd.AddCommand(testCaseListCmd)
+
+	testCaseListCmd.Flags().BoolVarP(&testCaseListOpts.Archived, "archived", "", false, "List archived test cases")
 }
 
 func runTestCaseList(cmd *cobra.Command, args []string) {
 	client := NewClient()
 
-	status, result, err := client.ListTestCases(testCaseListOpts.Organisation)
+	filter := ""
+	if testCaseListOpts.Archived {
+		filter = "archived"
+	}
+
+	status, result, err := client.ListTestCases(testCaseListOpts.Organisation, filter)
 	if err != nil {
 		log.Fatal(err)
 	}

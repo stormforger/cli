@@ -34,8 +34,15 @@ type TestRunResources struct {
 }
 
 // TestRunList will list all test runs for a given test case
-func (c *Client) TestRunList(testCaseUID string) (bool, []byte, error) {
+func (c *Client) TestRunList(testCaseUID string, filter string) (bool, []byte, error) {
 	path := "/test_cases/" + testCaseUID + "/test_runs"
+
+	switch filter {
+	case "archived":
+		path = path + "/?only=archived"
+	case "all":
+		path = path + "/?only=all"
+	}
 
 	status, response, err := c.fetch(path)
 

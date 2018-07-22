@@ -6,8 +6,15 @@ import (
 )
 
 // ListTestCases returns a list of test cases
-func (c *Client) ListTestCases(organization string) (bool, []byte, error) {
+func (c *Client) ListTestCases(organization string, filter string) (bool, []byte, error) {
 	path := "/organisations/" + organization + "/test_cases"
+
+	switch filter {
+	case "archived":
+		path = path + "/?only=archived"
+	case "all":
+		path = path + "/?only=all"
+	}
 
 	return c.fetch(path)
 }
