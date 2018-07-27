@@ -49,12 +49,22 @@ Examples
 			if testRunLaunchOpts.DumpTraffic && testRunLaunchOpts.CheckNFR != "" {
 				log.Fatal("--dump-traffic and --nfr-check-file are mutual exclusive")
 			}
+
+			if testRunLaunchOpts.ClusterRegion != "" && !stringInSlice(testRunLaunchOpts.ClusterRegion, validRegions) {
+				log.Fatalf("%s is not a valid region", testRunLaunchOpts.ClusterRegion)
+			}
+
+			if testRunLaunchOpts.ClusterSizing != "" && !stringInSlice(testRunLaunchOpts.ClusterSizing, validSizings) {
+				log.Fatalf("%s is not a valid sizing", testRunLaunchOpts.ClusterSizing)
+			}
 		},
 	}
 
 	testRunLaunchOpts struct {
 		Title                 string
 		Notes                 string
+		ClusterRegion         string
+		ClusterSizing         string
 		Watch                 bool
 		MaxWatchTime          time.Duration
 		CheckNFR              string
@@ -64,6 +74,28 @@ Examples
 		SessionValidationMode bool
 		Validate              bool
 	}
+
+	validRegions = []string{
+		"ap-northeast-1",
+		"ap-southeast-1",
+		"ap-southeast-2",
+		"eu-central-1",
+		"eu-west-1",
+		"sa-east-1",
+		"us-east-1",
+		"us-west-1",
+		"us-west-2",
+	}
+
+	validSizings = []string{
+		"preflight",
+		"tiny",
+		"small",
+		"medium",
+		"large",
+		"xlarge",
+		"2xlarge",
+	}
 )
 
 func init() {
@@ -71,6 +103,9 @@ func init() {
 
 	testRunLaunchCmd.Flags().StringVarP(&testRunLaunchOpts.Title, "title", "t", "", "Descriptive title of test run")
 	testRunLaunchCmd.Flags().StringVarP(&testRunLaunchOpts.Notes, "notes", "n", "", "Longer description (Markdown supported)")
+
+	testRunLaunchCmd.Flags().StringVar(&testRunLaunchOpts.ClusterRegion, "region", "", "Region to start test in")
+	testRunLaunchCmd.Flags().StringVar(&testRunLaunchOpts.ClusterSizing, "sizing", "", "Cluster sizing to use")
 
 	testRunLaunchCmd.Flags().BoolVarP(&testRunLaunchOpts.Watch, "watch", "w", false, "Automatically watch newly launched test run")
 	testRunLaunchCmd.Flags().DurationVar(&testRunLaunchOpts.MaxWatchTime, "watch-timeout", 0, "Maximum duration in seconds to watch")
@@ -93,6 +128,8 @@ func testRunLaunch(cmd *cobra.Command, args []string) {
 	launchOptions := api.TestRunLaunchOptions{
 		Title:                 testRunLaunchOpts.Title,
 		Notes:                 testRunLaunchOpts.Notes,
+		ClusterRegion:         testRunLaunchOpts.ClusterRegion,
+		ClusterSizing:         testRunLaunchOpts.ClusterSizing,
 		DisableGzip:           testRunLaunchOpts.DisableGzip,
 		SkipWait:              testRunLaunchOpts.SkipWait,
 		DumpTraffic:           testRunLaunchOpts.DumpTraffic,
@@ -108,30 +145,38 @@ func testRunLaunch(cmd *cobra.Command, args []string) {
 		log.Fatal(err)
 	}
 
-	if status {
-		if testRunLaunchOpts.Watch || testRunLaunchOpts.CheckNFR != "" || testRunLaunchOpts.Validate {
-			testRun := new(testrun.TestRun)
-			err = jsonapi.UnmarshalPayload(strings.NewReader(response), testRun)
-			if err != nil {
-				log.Fatal(err)
-			}
+	if !status {
+		fmt.Fprintln(os.Stderr, "Could not launch test run!")
+		fmt.Println(response)
 
-			watchTestRun(testRun.ID, testRunLaunchOpts.MaxWatchTime.Round(time.Second).Seconds(), rootOpts.OutputFormat)
+		os.Exit(1)
+	}
 
-			if testRunLaunchOpts.CheckNFR != "" || testRunLaunchOpts.Validate {
-				fmt.Println("Test finished, running non-functional checks...")
+	testRun := new(testrun.TestRun)
+	err = jsonapi.UnmarshalPayload(strings.NewReader(response), testRun)
+	if err != nil {
+		log.Fatal(err)
+	}
 
-				fileName := ""
-				var nfrData io.Reader
-				if testRunLaunchOpts.CheckNFR != "" {
-					fileName = filepath.Base(testRunLaunchOpts.CheckNFR)
-					nfrData, err = os.OpenFile(testRunLaunchOpts.CheckNFR, os.O_RDONLY, 0755)
-					if err != nil {
-						log.Fatal(err)
-					}
-				} else {
-					fileName = "validation.yml"
-					nfrData = bytes.NewBufferString(`version: "0.1"
+	fmt.Printf("Launching test %s - %s\n", testRun.Scope, "https://app.stormforger.com/tr/"+testRun.ID)
+
+	if testRunLaunchOpts.Watch || testRunLaunchOpts.CheckNFR != "" || testRunLaunchOpts.Validate {
+		watchTestRun(testRun.ID, testRunLaunchOpts.MaxWatchTime.Round(time.Second).Seconds(), rootOpts.OutputFormat)
+
+		if testRunLaunchOpts.CheckNFR != "" || testRunLaunchOpts.Validate {
+			fmt.Println("Test finished, running non-functional checks...")
+
+			fileName := ""
+			var nfrData io.Reader
+			if testRunLaunchOpts.CheckNFR != "" {
+				fileName = filepath.Base(testRunLaunchOpts.CheckNFR)
+				nfrData, err = os.OpenFile(testRunLaunchOpts.CheckNFR, os.O_RDONLY, 0755)
+				if err != nil {
+					log.Fatal(err)
+				}
+			} else {
+				fileName = "validation.yml"
+				nfrData = bytes.NewBufferString(`version: "0.1"
 requirements:
 - test.completed: true
 - checks:
@@ -139,22 +184,14 @@ requirements:
     test: ["=", 1]
 - http.error_ratio:
     test: ["=", 0]`)
-				}
-
-				runNfrCheck(*client, testRun.ID, fileName, nfrData)
-			} else {
-				result := fetchTestRun(*client, testRun.ID)
-				fmt.Println(string(result))
 			}
+
+			runNfrCheck(*client, testRun.ID, fileName, nfrData)
 		} else {
-			fmt.Println(response)
+			result := fetchTestRun(*client, testRun.ID)
+			fmt.Println(string(result))
 		}
-
-		os.Exit(0)
 	} else {
-		fmt.Fprintln(os.Stderr, "Could not launch test run!")
 		fmt.Println(response)
-
-		os.Exit(1)
 	}
 }
