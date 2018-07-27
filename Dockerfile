@@ -1,4 +1,4 @@
-FROM ubuntu:trusty
+FROM ubuntu:18.04
 
 COPY forge /bin
 
