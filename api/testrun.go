@@ -19,6 +19,8 @@ import (
 type TestRunLaunchOptions struct {
 	Title                 string
 	Notes                 string
+	ClusterRegion         string
+	ClusterSizing         string
 	DisableGzip           bool
 	SkipWait              bool
 	DumpTraffic           bool
@@ -178,10 +180,12 @@ func (c *Client) TestRunDump(pathID string) (io.ReadCloser, error) {
 // to update an existing test case it.
 func (c *Client) TestRunCreate(testCaseUID string, options TestRunLaunchOptions) (bool, string, error) {
 	type testConfigAttr struct {
-		DisableGzip           bool `json:"disable_gzip,omitempty"`
-		SkipWait              bool `json:"skip_wait,omitempty"`
-		DumpTraffic           bool `json:"dump_traffic_full,omitempty"`
-		SessionValidationMode bool `json:"session_validation_mode,omitempty"`
+		DisableGzip           bool   `json:"disable_gzip,omitempty"`
+		SkipWait              bool   `json:"skip_wait,omitempty"`
+		DumpTraffic           bool   `json:"dump_traffic_full,omitempty"`
+		SessionValidationMode bool   `json:"session_validation_mode,omitempty"`
+		ClusterSizing         string `json:"cluster_sizing,omitempty"`
+		ClusterRegion         string `json:"cluster_region,omitempty"`
 	}
 
 	type testAttr struct {
@@ -199,8 +203,15 @@ func (c *Client) TestRunCreate(testCaseUID string, options TestRunLaunchOptions)
 	}
 
 	var testConfig *testConfigAttr
-	if options.DisableGzip || options.SkipWait || options.DumpTraffic || options.SessionValidationMode {
+	if options.DisableGzip ||
+		options.SkipWait ||
+		options.DumpTraffic ||
+		options.SessionValidationMode ||
+		options.ClusterRegion != "" ||
+		options.ClusterSizing != "" {
 		testConfig = &testConfigAttr{
+			ClusterSizing:         options.ClusterSizing,
+			ClusterRegion:         options.ClusterRegion,
 			DisableGzip:           options.DisableGzip,
 			SkipWait:              options.SkipWait,
 			DumpTraffic:           options.DumpTraffic,
