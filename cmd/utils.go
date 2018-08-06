@@ -162,6 +162,7 @@ func watchTestRun(testRunUID string, maxWatchTime float64, outputFormat string) 
 
 				if testRun.StartedAt != "" {
 					formattedStartedAt = humanize.Time(parseTime(testRun.StartedAt))
+					testStarted = true
 				}
 				if testRun.EstimatedEnd != "" {
 					formattedEstimatedEnd = humanize.Time(parseTime(testRun.EstimatedEnd))
