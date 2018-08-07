@@ -10,7 +10,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/google/jsonapi"
 	"github.com/spf13/cobra"
 	"github.com/stormforger/cli/api"
 	"github.com/stormforger/cli/api/testrun"
@@ -152,15 +151,46 @@ func testRunLaunch(cmd *cobra.Command, args []string) {
 		os.Exit(1)
 	}
 
-	testRun := new(testrun.TestRun)
-	err = jsonapi.UnmarshalPayload(strings.NewReader(response), testRun)
+	testRun, err := testrun.UnmarshalSingle(strings.NewReader(response))
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	fmt.Printf("Launching test %s - %s\n", testRun.Scope, "https://app.stormforger.com/tr/"+testRun.ID)
+	if rootOpts.OutputFormat == "json" {
+		fmt.Println(string(response))
+	} else {
+		// FIXME can we integrate this into testrun.UnmarshalSingle somehow?
+		meta, err := api.UnmarshalMeta(strings.NewReader(response))
+		if err != nil {
+			log.Fatal(err)
+		}
+		fmt.Printf(`Launching test %s
+UID: %s
+Web URL: %s
+`,
+			testRun.Scope,
+			testRun.ID,
+			meta.Links.SelfWeb,
+		)
+
+		fmt.Printf("Configuration: %s cluster in %s\n", testRun.TestConfiguration.ClusterSizing, testRun.TestConfiguration.ClusterRegion)
+
+		if testRun.TestConfiguration.DisableGzip {
+			fmt.Print("  [\u2713] Disabled GZIP\n")
+		}
+		if testRun.TestConfiguration.SkipWait {
+			fmt.Print("  [\u2713] Skip Waits\n")
+		}
+		if testRun.TestConfiguration.DumpTrafficFull {
+			fmt.Print("  [\u2713] Traffic Dump\n")
+		}
+		if testRun.TestConfiguration.SessionValidationMode {
+			fmt.Print("  [\u2713] Session Validation Mode\n")
+		}
+	}
 
 	if testRunLaunchOpts.Watch || testRunLaunchOpts.CheckNFR != "" || testRunLaunchOpts.Validate {
+		fmt.Println("\nWatching...")
 		watchTestRun(testRun.ID, testRunLaunchOpts.MaxWatchTime.Round(time.Second).Seconds(), rootOpts.OutputFormat)
 
 		if testRunLaunchOpts.CheckNFR != "" || testRunLaunchOpts.Validate {
@@ -191,7 +221,5 @@ requirements:
 			result := fetchTestRun(*client, testRun.ID)
 			fmt.Println(string(result))
 		}
-	} else {
-		fmt.Println(response)
 	}
 }

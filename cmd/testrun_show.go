@@ -6,6 +6,7 @@ import (
 	"log"
 
 	"github.com/spf13/cobra"
+	"github.com/stormforger/cli/api"
 	"github.com/stormforger/cli/api/testrun"
 )
 
@@ -49,13 +50,36 @@ func testRunShow(cmd *cobra.Command, args []string) {
 		log.Fatal(err)
 	}
 
+	// FIXME can we integrate this into testrun.UnmarshalSingle somehow?
+	meta, err := api.UnmarshalMeta(bytes.NewReader(result))
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	fmt.Printf("%s (%s, %s)\n", testRun.Scope, testRun.State, testRun.ID)
+	fmt.Printf("Report  %s\n", meta.Links.SelfWeb)
 	if testRun.Title != "" {
 		fmt.Printf("Title   %s\n", testRun.Title)
 	}
 	fmt.Printf("Started %s\n", testRun.StartedAt)
 	fmt.Printf("Ended   %s\n", testRun.EndedAt)
+	fmt.Print("Configuration:\n")
+	fmt.Printf("  Setup: %s cluster in %s\n", testRun.TestConfiguration.ClusterSizing, testRun.TestConfiguration.ClusterRegion)
+
+	if testRun.TestConfiguration.DisableGzip {
+		fmt.Print("  [\u2713] Disabled GZIP\n")
+	}
+	if testRun.TestConfiguration.SkipWait {
+		fmt.Print("  [\u2713] Skip Waits\n")
+	}
+	if testRun.TestConfiguration.DumpTrafficFull {
+		fmt.Print("  [\u2713] Traffic Dump\n")
+	}
+	if testRun.TestConfiguration.SessionValidationMode {
+		fmt.Print("  [\u2713] Session Validation Mode\n")
+	}
+
 	if testRun.Notes != "" {
-		fmt.Printf("%s\n", testRun.Notes)
+		fmt.Printf("\nNotes:\n%s\n", testRun.Notes)
 	}
 }

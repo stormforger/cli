@@ -15,18 +15,30 @@ type List struct {
 
 // TestRun represents a single TestRun
 type TestRun struct {
-	ID        string `jsonapi:"primary,test_runs"`
-	Scope     string `jsonapi:"attr,scope"`
-	Title     string `jsonapi:"attr,title,omitempty"`
-	Notes     string `jsonapi:"attr,notes,omitempty"`
-	State     string `jsonapi:"attr,state,omitempty"`
-	StartedBy string `jsonapi:"attr,started_by,omitempty"`
-	StartedAt string `jsonapi:"attr,started_at,omitempty"`
-	EndedAt   string `jsonapi:"attr,ended_at,omitempty"`
+	ID                string             `jsonapi:"primary,test_runs"`
+	Scope             string             `jsonapi:"attr,scope"`
+	Title             string             `jsonapi:"attr,title,omitempty"`
+	Notes             string             `jsonapi:"attr,notes,omitempty"`
+	State             string             `jsonapi:"attr,state,omitempty"`
+	StartedBy         string             `jsonapi:"attr,started_by,omitempty"`
+	StartedAt         string             `jsonapi:"attr,started_at,omitempty"`
+	EndedAt           string             `jsonapi:"attr,ended_at,omitempty"`
+	TestConfiguration *TestConfiguration `jsonapi:"relation,test_configuration,omitempty"`
 
 	// attributes for in progress
 	EstimatedEnd string `jsonapi:"attr,estimated_end,omitempty"`
 	Progress     int    `jsonapi:"attr,progress,omitempty"`
+}
+
+// TestConfiguration contains configuration options for the test case
+type TestConfiguration struct {
+	ID                    string `jsonapi:"primary,test_configurations"`
+	DisableGzip           bool   `jsonapi:"attr,disable_gzip"`
+	SkipWait              bool   `jsonapi:"attr,skip_wait"`
+	DumpTrafficFull       bool   `jsonapi:"attr,dump_traffic_full"`
+	SessionValidationMode bool   `jsonapi:"attr,session_validation_mode"`
+	ClusterSizing         string `jsonapi:"attr,cluster_sizing"`
+	ClusterRegion         string `jsonapi:"attr,cluster_region"`
 }
 
 // NfrResultList is a list of NFR results
@@ -69,15 +81,11 @@ func Unmarshal(input io.Reader) (List, error) {
 	return result, nil
 }
 
-// UnmarshalSingle unmarshals a single TestRun records
+// UnmarshalSingle unmarshals a single test run record
 func UnmarshalSingle(input io.Reader) (TestRun, error) {
 	item := new(TestRun)
 	err := jsonapi.UnmarshalPayload(input, item)
-	if err != nil {
-		return TestRun{}, err
-	}
-
-	return *item, nil
+	return *item, err
 }
 
 // UnmarshalNfrResults unmarshals a list of NFR result records
