@@ -17,11 +17,9 @@ type Links struct {
 }
 
 func UnmarshalMeta(input io.Reader) (Meta, error) {
-	type foo struct {
+	var data struct {
 		Meta *Meta `json:"data"`
 	}
-
-	var data foo
 	if err := json.NewDecoder(input).Decode(&data); err != nil {
 		return Meta{}, err
 	}

@@ -5,7 +5,6 @@ import (
 	"crypto/sha256"
 	"crypto/tls"
 	"crypto/x509"
-	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -110,17 +109,8 @@ func NewClient(apiEndpoint string, jwtToken string) *Client {
 //       success also the email address of the
 //       authenticated user (useful) to check
 //       if we are authenticated as the correct user
-func (c *Client) Ping() (bool, error) {
-	req, err := http.NewRequest("GET", c.APIEndpoint+"/authenticated_ping", nil)
-
-	resp, err := c.doRequestRaw(req)
-	if err != nil {
-		return false, err
-	}
-
-	defer resp.Body.Close()
-
-	return (resp.StatusCode == 200), errors.New("could not perform authenticated ping")
+func (c *Client) Ping() (bool, []byte, error) {
+	return c.fetch("/authenticated_ping")
 }
 
 func newPatchRequest(uri string, params map[string]string) (*http.Request, error) {

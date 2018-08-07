@@ -25,9 +25,12 @@ func init() {
 func runOrganisationList(cmd *cobra.Command, args []string) {
 	client := NewClient()
 
-	result, err := client.ListOrganisations()
+	success, result, err := client.ListOrganisations()
 	if err != nil {
 		log.Fatal(err)
+	}
+	if !success {
+		log.Fatal(string(result))
 	}
 
 	if rootOpts.OutputFormat == "json" {

@@ -35,7 +35,7 @@ func (c *Client) Login(email string, password string) (string, error) {
 	}
 
 	if resp.StatusCode != 200 {
-		return "", errors.New("login not successful")
+		return "", errors.New("login not successful! please verify that you can login with these credentials at https://app.stormforger.com")
 	}
 
 	var dat map[string]interface{}

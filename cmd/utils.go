@@ -61,9 +61,12 @@ func findFixtureByName(client api.Client, organization string, name string) *fil
 // findOrganisationByName fetches a FileFixture from a given
 // organization.
 func findOrganisationByName(client api.Client, name string) *organisation.Organisation {
-	response, err := client.ListOrganisations()
+	status, response, err := client.ListOrganisations()
 	if err != nil {
 		log.Fatal(err)
+	}
+	if !status {
+		log.Fatal(string(response))
 	}
 
 	organisations, err := organisation.Unmarshal(bytes.NewReader(response))
