@@ -113,6 +113,10 @@ func (c *Client) Ping() (bool, []byte, error) {
 	return c.fetch("/authenticated_ping")
 }
 
+func (c *Client) PingUnauthenticated() (bool, []byte, error) {
+	return c.fetch("/ping")
+}
+
 func newPatchRequest(uri string, params map[string]string) (*http.Request, error) {
 	body := &bytes.Buffer{}
 	writer := multipart.NewWriter(body)
