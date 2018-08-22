@@ -14,10 +14,11 @@ import (
 var (
 	// testRunListCmd represents the calllog command
 	testRunListCmd = &cobra.Command{
-		Use:   "list <test-case-ref>",
-		Short: "List of completed test runs",
-		Long:  `List of completed test runs.`,
-		Run:   testRunList,
+		Use:     "list <test-case-ref>",
+		Aliases: []string{"ls"},
+		Short:   "List of completed test runs",
+		Long:    `List of completed test runs.`,
+		Run:     testRunList,
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
 			if len(args) > 1 {
 				log.Fatal("Too many arguments")
