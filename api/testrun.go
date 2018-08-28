@@ -105,6 +105,21 @@ func (c *Client) TestRunCallLog(pathID string, preview bool) (io.ReadCloser, err
 		path += "?preview=true"
 	}
 
+	return c.TestRunLogs(path, preview)
+}
+
+// TestRunUserLog will download the user logs
+func (c *Client) TestRunUserLog(pathID string) (io.ReadCloser, error) {
+	testRun := ExtractTestRunResources(pathID)
+
+	path := "/test_runs/" + testRun.UID + "/user_log"
+
+	return c.TestRunLogs(path, false)
+}
+
+// TestRunLogs will download logs from the given path. It will also
+// handle compression accordingly.
+func (c *Client) TestRunLogs(path string, preview bool) (io.ReadCloser, error) {
 	req, err := http.NewRequest("GET", c.APIEndpoint+path, nil)
 	if err != nil {
 		return nil, err
@@ -118,7 +133,7 @@ func (c *Client) TestRunCallLog(pathID string, preview bool) (io.ReadCloser, err
 	}
 
 	if response.StatusCode != 200 {
-		return nil, errors.New("could not download call log")
+		return nil, errors.New("could not download log")
 	}
 
 	var reader io.ReadCloser

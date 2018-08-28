@@ -28,8 +28,8 @@ The call log contains:
   * response size (in Bytes)
   * duration (in ms)
   * request tag`,
-		Run:              runTestRunLogsOptions,
-		PersistentPreRun: ensureTestRunLogsOptions,
+		Run:              runTestRunLogs,
+		PersistentPreRun: ensureTestRunLogs,
 	}
 
 	logOpts struct {
@@ -47,24 +47,35 @@ func init() {
 	calllogCmd.Flags().StringVar(&logOpts.OutputFile, "file", "-", "save logs to file or '-' for stdout")
 }
 
-func ensureTestRunLogsOptions(cmd *cobra.Command, args []string) {
+func ensureTestRunLogs(cmd *cobra.Command, args []string) {
 	if len(args) != 1 {
 		log.Fatal("Expecting exactly one argument: Test Run Reference")
 	}
 
-	if logOpts.Type != "request" {
+	if logOpts.Type != "request" && logOpts.Type != "user" {
 		log.Fatal(fmt.Sprintf("Unsupported log type %s", logOpts.Type))
 	}
 }
 
-func runTestRunLogsOptions(cmd *cobra.Command, args []string) {
+func runTestRunLogs(cmd *cobra.Command, args []string) {
 	client := NewClient()
 
 	testRunUID := getTestRunUID(*client, args[0])
 
-	reader, err := client.TestRunCallLog(testRunUID, !logOpts.Full)
-	if err != nil {
-		log.Fatal(err)
+	var reader io.ReadCloser
+	var err error
+
+	switch logOpts.Type {
+	case "request":
+		reader, err = client.TestRunCallLog(testRunUID, !logOpts.Full)
+		if err != nil {
+			log.Fatal(err)
+		}
+	case "user":
+		reader, err = client.TestRunUserLog(testRunUID)
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
 
 	if logOpts.OutputFile == "-" {
