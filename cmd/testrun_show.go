@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/pkg/browser"
 	"github.com/spf13/cobra"
 	"github.com/stormforger/cli/api"
 	"github.com/stormforger/cli/api/testrun"
@@ -25,14 +26,14 @@ var (
 	}
 
 	testRunShowOpts struct {
-		Type       string
-		Full       bool
-		OutputFile string
+		OpenInBrowser bool
 	}
 )
 
 func init() {
 	TestRunCmd.AddCommand(testRunShowCmd)
+
+	testRunShowCmd.Flags().BoolVar(&testRunShowOpts.OpenInBrowser, "open", false, "Open test run in browser")
 }
 
 func testRunShow(cmd *cobra.Command, args []string) {
@@ -54,6 +55,16 @@ func testRunShow(cmd *cobra.Command, args []string) {
 	meta, err := api.UnmarshalMeta(bytes.NewReader(result))
 	if err != nil {
 		log.Fatal(err)
+	}
+
+	if testRunShowOpts.OpenInBrowser {
+		fmt.Printf("Opening %s in browser...\n", meta.Links.SelfWeb)
+		err = browser.OpenURL(meta.Links.SelfWeb)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		return
 	}
 
 	fmt.Printf("%s (%s, %s)\n", testRun.Scope, testRun.State, testRun.ID)

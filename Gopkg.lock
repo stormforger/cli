@@ -117,6 +117,14 @@
   version = "v1.2.0"
 
 [[projects]]
+  branch = "master"
+  digest = "1:fb519f672ebe265e5316551188145afd54dfb928452b125afe6dfaa26f800397"
+  name = "github.com/pkg/browser"
+  packages = ["."]
+  pruneopts = "NUT"
+  revision = "c90ca0c84f15f81c982e32665bffd8d7aac8f097"
+
+[[projects]]
   digest = "1:330e9062b308ac597e28485699c02223bd052437a6eed32a173c9227dcb9d95a"
   name = "github.com/spf13/afero"
   packages = [
@@ -219,6 +227,7 @@
     "github.com/howeyc/gopass",
     "github.com/mitchellh/go-homedir",
     "github.com/pelletier/go-toml",
+    "github.com/pkg/browser",
     "github.com/spf13/cobra",
     "github.com/spf13/viper",
   ]

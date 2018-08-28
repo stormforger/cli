@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/pkg/browser"
 	"github.com/spf13/cobra"
 	"github.com/stormforger/cli/api"
 	"github.com/stormforger/cli/api/testrun"
@@ -72,6 +73,7 @@ in your JavaScript definition.
 	}
 
 	testRunLaunchOpts struct {
+		OpenInBrowser         bool
 		Title                 string
 		Notes                 string
 		ClusterRegion         string
@@ -111,6 +113,8 @@ in your JavaScript definition.
 
 func init() {
 	TestCaseCmd.AddCommand(testRunLaunchCmd)
+
+	testRunLaunchCmd.Flags().BoolVar(&testRunLaunchOpts.OpenInBrowser, "open", false, "Open test run in browser")
 
 	testRunLaunchCmd.Flags().StringVarP(&testRunLaunchOpts.Title, "title", "t", "", "Descriptive title of test run")
 	testRunLaunchCmd.Flags().StringVarP(&testRunLaunchOpts.Notes, "notes", "n", "", "Longer description (Markdown supported)")
@@ -200,6 +204,14 @@ Web URL: %s
 		}
 		if testRun.TestConfiguration.SessionValidationMode {
 			fmt.Print("  [\u2713] Session Validation Mode\n")
+		}
+
+		if testRunLaunchOpts.OpenInBrowser {
+			fmt.Printf("Opening %s in browser...\n", meta.Links.SelfWeb)
+			err = browser.OpenURL(meta.Links.SelfWeb)
+			if err != nil {
+				log.Fatal(err)
+			}
 		}
 	}
 
