@@ -64,6 +64,8 @@ forge ping
 
 Help is available to all commands with `--help`.
 
+There is a global `--output` option that allows to select between `human`, `plain` and `json` (default `human`). **Note that this is not yet implemented for all commands**. Also the JSON output is not yet fully settled and is subject to change. `plain` tries to be a very simple, human-readble format, whereas `human` is a more verbose default for interactive usage.
+
 
 ### Test Cases
 
