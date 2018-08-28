@@ -20,7 +20,7 @@ var (
 	testRunLaunchCmd = &cobra.Command{
 		Use:   "launch <test-case-ref>",
 		Short: "Create and launch a new test run",
-		Long: `Create and launch a new test run based on given test case
+		Long: fmt.Sprintf(`Create and launch a new test run based on given test case
 
 <test-case-ref> can be 'organisation-name/test-case-name' or 'test-case-uid'.
 
@@ -34,7 +34,19 @@ Examples
 
   forge test-case launch xPSX5KXM
 
+
+Configuration
+-------------
+You can specify configuration for a test run that will overwrite what is defined
+in your JavaScript definition.
+
+* available cluster sizings:
+  * %s
+* available cluster regions:
+  * %s
 `,
+			strings.Join(validSizings, "\n  * "),
+			strings.Join(validRegions, "\n  * ")),
 		Run: testRunLaunch,
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
 			if len(args) < 1 {
