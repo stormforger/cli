@@ -27,7 +27,7 @@ func (c *Client) Login(email string, password string) (string, error) {
 		return "", err
 	}
 
-	defer resp.Body.Close()
+	defer close(resp.Body)
 
 	responseBody, err := ioutil.ReadAll(resp.Body)
 	if err != nil {

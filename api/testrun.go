@@ -144,7 +144,7 @@ func (c *Client) TestRunLogs(path string, preview bool) (io.ReadCloser, error) {
 			return nil, err
 		}
 
-		defer reader.Close()
+		defer close(reader)
 	default:
 		reader = response.Body
 	}
@@ -183,7 +183,7 @@ func (c *Client) TestRunDump(pathID string) (io.ReadCloser, error) {
 			return nil, err
 		}
 
-		defer reader.Close()
+		defer close(reader)
 	default:
 		reader = response.Body
 	}
@@ -261,7 +261,7 @@ func (c *Client) TestRunCreate(testCaseUID string, options TestRunLaunchOptions)
 		return false, "", err
 	}
 
-	defer response.Body.Close()
+	defer close(response.Body)
 
 	return response.StatusCode < 400, string(body), nil
 }
@@ -281,7 +281,7 @@ func (c *Client) TestRunAbort(testRunUID string) (bool, string, error) {
 		return false, "", err
 	}
 
-	defer response.Body.Close()
+	defer close(response.Body)
 
 	return response.StatusCode < 400, string(body), nil
 }
@@ -305,10 +305,7 @@ func (c *Client) TestRunNfrCheck(uid string, fileName string, data io.Reader) (b
 		return false, nil, err
 	}
 
-	err = response.Body.Close()
-	if err != nil {
-		return false, nil, err
-	}
+	defer close(response.Body)
 
 	return response.StatusCode < 400, body, nil
 }

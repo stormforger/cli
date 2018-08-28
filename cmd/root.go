@@ -90,7 +90,10 @@ func setupConfig() {
 	viper.AddConfigPath(".")
 	viper.AddConfigPath("$HOME")
 
-	viper.ReadInConfig()
+	err = viper.ReadInConfig()
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	err = viper.BindPFlag("jwt", RootCmd.PersistentFlags().Lookup("jwt"))
 	if err != nil {

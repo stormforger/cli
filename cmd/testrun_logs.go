@@ -88,10 +88,18 @@ func runTestRunLogs(cmd *cobra.Command, args []string) {
 		if err != nil {
 			log.Fatal(err)
 		}
-		defer file.Close()
-		defer reader.Close()
 
 		_, err = io.Copy(file, reader)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		err = file.Close()
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		err = reader.Close()
 		if err != nil {
 			log.Fatal(err)
 		}

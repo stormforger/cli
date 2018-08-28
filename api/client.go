@@ -217,3 +217,10 @@ func (c *Client) fetch(path string) (bool, []byte, error) {
 
 	return true, body, nil
 }
+
+func close(c io.Closer) {
+	err := c.Close()
+	if err != nil {
+		log.Fatal(err)
+	}
+}

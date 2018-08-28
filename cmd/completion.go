@@ -45,10 +45,23 @@ func init() {
 
 func generateCompletionFiles(cmd *cobra.Command, args []string) {
 	log.Printf("Creating completion file for bash in %s\n", completionFileNameBash)
-	RootCmd.GenBashCompletionFile(completionFileNameBash)
-	os.Chmod(completionFileNameBash, 0777)
+	err := RootCmd.GenBashCompletionFile(completionFileNameBash)
+	if err != nil {
+		log.Fatal(err)
+	}
+	err = os.Chmod(completionFileNameBash, 0777)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	log.Printf("Creating completion file for zsh in %s\n", completionFileNameZsh)
-	RootCmd.GenZshCompletionFile(completionFileNameZsh)
-	os.Chmod(completionFileNameZsh, 0777)
+	err = RootCmd.GenZshCompletionFile(completionFileNameZsh)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	err = os.Chmod(completionFileNameZsh, 0777)
+	if err != nil {
+		log.Fatal(err)
+	}
 }

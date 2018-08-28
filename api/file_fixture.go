@@ -34,7 +34,7 @@ func (c *Client) MoveFileFixture(organization string, fileFixtureUID string, new
 		return false, "", err
 	}
 
-	defer response.Body.Close()
+	defer close(response.Body)
 
 	if response.StatusCode != 200 {
 		return false, string(body), nil
@@ -86,7 +86,7 @@ func (c *Client) PushFileFixture(fileName string, data io.Reader, organization s
 		return false, nil, err
 	}
 
-	defer response.Body.Close()
+	defer close(response.Body)
 
 	if response.StatusCode >= 300 {
 		return false, body, nil
@@ -112,7 +112,7 @@ func (c *Client) DeleteFileFixture(fileFixtureUID string, organization string) (
 		return false, "", err
 	}
 
-	defer response.Body.Close()
+	defer close(response.Body)
 
 	if response.StatusCode >= 300 {
 		return false, string(body), nil

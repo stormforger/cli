@@ -44,7 +44,7 @@ func (c *Client) TestCaseValidate(organization string, fileName string, data io.
 		return false, "", err
 	}
 
-	defer response.Body.Close()
+	defer close(response.Body)
 
 	if response.StatusCode != 200 {
 		return false, string(body), nil
@@ -78,7 +78,7 @@ func (c *Client) TestCaseCreate(organization string, testCaseName string, fileNa
 		return false, "", err
 	}
 
-	defer response.Body.Close()
+	defer close(response.Body)
 
 	if response.StatusCode != 200 {
 		return false, string(body), nil
@@ -110,7 +110,7 @@ func (c *Client) TestCaseUpdate(testCaseUID string, fileName string, data io.Rea
 		return false, "", err
 	}
 
-	defer response.Body.Close()
+	defer close(response.Body)
 
 	if response.StatusCode != 200 {
 		return false, string(body), nil
