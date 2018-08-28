@@ -103,16 +103,13 @@ func NewClient(apiEndpoint string, jwtToken string) *Client {
 
 // Ping performs an authenticated ping to check if the API
 // is working and the user is properly authenticated.
-//
-// FIXME would be nice to return a struct
-//       where we see the status and in case of
-//       success also the email address of the
-//       authenticated user (useful) to check
-//       if we are authenticated as the correct user
 func (c *Client) Ping() (bool, []byte, error) {
 	return c.fetch("/authenticated_ping")
 }
 
+// PingUnauthenticated performs an unauthenticated ping. This
+// can be used to see if a connection is possible and/or the API
+// is up in general.
 func (c *Client) PingUnauthenticated() (bool, []byte, error) {
 	return c.fetch("/ping")
 }

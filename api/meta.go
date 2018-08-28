@@ -5,6 +5,8 @@ import (
 	"io"
 )
 
+// Meta holds meta data of a JSONApi response. Currently
+// only "links" are extracted.
 type Meta struct {
 	Links *Links `json:"links"`
 }
@@ -16,6 +18,8 @@ type Links struct {
 	TestCase string `json:"test_case"`
 }
 
+// UnmarshalMeta will take a io.Reader and try to parse
+// "meta" information from a JSONApi response.
 func UnmarshalMeta(input io.Reader) (Meta, error) {
 	var data struct {
 		Meta *Meta `json:"data"`
