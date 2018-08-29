@@ -14,10 +14,6 @@ var (
 		Long:  `Will convert a given HAR archive into a StormForger test case definition.`,
 		Run:   runHar,
 	}
-
-	harOpts struct {
-		SkipAssets bool
-	}
 )
 
 func runHar(cmd *cobra.Command, args []string) {
@@ -42,6 +38,4 @@ func runHar(cmd *cobra.Command, args []string) {
 
 func init() {
 	RootCmd.AddCommand(harCmd)
-
-	harCmd.Flags().BoolVarP(&harOpts.SkipAssets, "skip-assets", "s", false, "Ignore assets?")
 }
