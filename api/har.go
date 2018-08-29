@@ -1,6 +1,10 @@
 package api
 
 import (
+	"bytes"
+	"compress/gzip"
+	"encoding/json"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"log"
@@ -9,12 +13,23 @@ import (
 // Har converts the given HAR archive file into
 // a StormForger test case definition
 func (c *Client) Har(fileName string, data io.Reader) (string, error) {
-	// TODO how to pass options, like --skip-assets here?
-	//      defining a struct maybe, but where?
-	//      finally: add options here
 	extraParams := map[string]string{}
 
-	req, err := fileUploadRequest(c.APIEndpoint+"/har", "POST", extraParams, "har_file", fileName, "application/json", data)
+	input, err := ioutil.ReadAll(data)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	if !json.Valid(input) {
+		return "", fmt.Errorf("given HAR is not valid JSON")
+	}
+
+	var buf bytes.Buffer
+	harFileGzip := gzip.NewWriter(&buf)
+	io.Copy(harFileGzip, bytes.NewReader(input))
+	harFileGzip.Close()
+
+	req, err := fileUploadRequest(c.APIEndpoint+"/har", "POST", extraParams, "har_file", fileName, "application/gzip", bytes.NewReader(buf.Bytes()))
 
 	resp, err := c.HTTPClient.Do(req)
 	if err != nil {
