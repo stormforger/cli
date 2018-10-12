@@ -216,7 +216,10 @@ Web URL: %s
 	}
 
 	if testRunLaunchOpts.Watch || testRunLaunchOpts.CheckNFR != "" || testRunLaunchOpts.Validate {
-		fmt.Println("\nWatching...")
+		if rootOpts.OutputFormat != "json" {
+			fmt.Println("\nWatching...")
+		}
+
 		watchTestRun(testRun.ID, testRunLaunchOpts.MaxWatchTime.Round(time.Second).Seconds(), rootOpts.OutputFormat)
 
 		if testRunLaunchOpts.CheckNFR != "" || testRunLaunchOpts.Validate {
