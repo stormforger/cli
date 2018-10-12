@@ -4,8 +4,10 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 
 	"github.com/spf13/cobra"
+	"github.com/stormforger/cli/api"
 )
 
 var (
@@ -60,12 +62,30 @@ func runTestCaseUpdate(cmd *cobra.Command, args []string) {
 		log.Fatal(err)
 	}
 
-	printPrettyJSON(message)
+	if rootOpts.OutputFormat == "json" {
+		fmt.Println(message)
+
+		if success {
+			os.Exit(0)
+		} else {
+			os.Exit(1)
+		}
+	}
 
 	if success {
 		os.Exit(0)
 	}
 
-	fmt.Println()
+	errorMeta, err := api.UnmarshalErrorMeta(strings.NewReader(message))
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Fprintf(os.Stderr, "%s\n\n", errorMeta.Message)
+	for _, e := range errorMeta.Errors {
+		fmt.Fprintf(os.Stderr, "%s: %s\n", e.Code, e.Title)
+		fmt.Fprintln(os.Stderr, e.FormattedError)
+	}
+
 	os.Exit(1)
 }
