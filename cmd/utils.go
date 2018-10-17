@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"bufio"
 	"bytes"
 	"encoding/json"
 	"fmt"
@@ -9,6 +10,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"time"
 
@@ -102,6 +104,58 @@ func readFromStdinOrReadFromArgument(args []string, defaultFileName string, argP
 
 func readFromStdinOrReadFirstArgument(args []string, defaultFileName string) (fileName string, reader io.Reader, err error) {
 	return readFromStdinOrReadFromArgument(args, defaultFileName, 0)
+}
+
+func readTestCaseFromStdinOrReadFromArgument(args []string, defaultFileName string, argPos int) (fileName string, reader io.Reader, err error) {
+	fileName, testCaseFile, err := readFromStdinOrReadFromArgument(args, defaultFileName, argPos)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	basePath := ""
+	if f := args[argPos]; f != "-" {
+		basePath = filepath.Dir(f)
+	} else {
+		var err error
+		basePath, err = os.Getwd()
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+
+	pr, pw := io.Pipe()
+
+	go func() {
+		defer pw.Close()
+
+		re := regexp.MustCompile("//#include (.+?)$")
+
+		scanner := bufio.NewScanner(testCaseFile)
+		for scanner.Scan() {
+			line := scanner.Text()
+
+			if match := re.FindStringSubmatch(line); match != nil {
+				includeFile := strings.TrimSpace(match[1])
+
+				if !filepath.IsAbs(includeFile) {
+					includeFile = filepath.Join(basePath, includeFile)
+				}
+
+				f, err := os.Open(includeFile)
+				if err != nil {
+					log.Fatal(err)
+				}
+
+				pw.Write([]byte("// == start include (" + includeFile + ")\n"))
+				io.Copy(pw, f)
+				pw.Write([]byte("// == end include (" + includeFile + ")\n"))
+			} else {
+				pw.Write([]byte(line + "\n"))
+			}
+		}
+	}()
+
+	return fileName, pr, err
 }
 
 func printPrettyJSON(message string) {
