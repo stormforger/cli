@@ -72,19 +72,19 @@ func runTestCaseUpdate(cmd *cobra.Command, args []string) {
 		}
 	}
 
-	if success {
-		os.Exit(0)
-	}
-
 	errorMeta, err := api.UnmarshalErrorMeta(strings.NewReader(message))
 	if err != nil {
 		log.Fatal(err)
 	}
 
+	if len(errorMeta.Errors) == 0 {
+		os.Exit(0)
+	}
+
 	fmt.Fprintf(os.Stderr, "%s\n\n", errorMeta.Message)
-	for _, e := range errorMeta.Errors {
-		fmt.Fprintf(os.Stderr, "%s: %s\n", e.Code, e.Title)
-		fmt.Fprintln(os.Stderr, e.FormattedError)
+	for i, e := range errorMeta.Errors {
+		fmt.Fprintf(os.Stderr, "%d) %s: %s\n", i+1, e.Code, e.Title)
+		fmt.Fprintf(os.Stderr, "%s\n\n", e.FormattedError)
 	}
 
 	os.Exit(1)

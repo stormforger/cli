@@ -28,7 +28,7 @@ type ErrorPayload struct {
 type APIError struct {
 	Code           string          `json:"code"`
 	Title          string          `json:"title"`
-	Details        string          `json:"details"`
+	Detail         string          `json:"detail"`
 	MetaRaw        json.RawMessage `json:"meta"`
 	FormattedError string
 }
@@ -73,7 +73,7 @@ func UnmarshalErrorMeta(input io.Reader) (ErrorPayload, error) {
 	for i, e := range data.Errors {
 		switch e.Code {
 		case "E0":
-			data.Errors[i].FormattedError = e.Details
+			data.Errors[i].FormattedError = e.Detail
 		case "E23":
 			errorMeta = new(EvaluationErrorMeta)
 			err := json.Unmarshal(e.MetaRaw, errorMeta)
