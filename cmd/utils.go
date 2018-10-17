@@ -123,14 +123,19 @@ func readTestCaseFromStdinOrReadFromArgument(args []string, defaultFileName stri
 		}
 	}
 
-	pr, pw := io.Pipe()
+	inputWithIncludes := processIncludes(testCaseFile, basePath)
+
+	return fileName, inputWithIncludes, err
+}
+
+func processIncludes(input io.Reader, basePath string) io.Reader {
+	pr, output := io.Pipe()
+	re := regexp.MustCompile("//#include (.+?)$")
 
 	go func() {
-		defer pw.Close()
+		defer output.Close()
 
-		re := regexp.MustCompile("//#include (.+?)$")
-
-		scanner := bufio.NewScanner(testCaseFile)
+		scanner := bufio.NewScanner(input)
 		for scanner.Scan() {
 			line := scanner.Text()
 
@@ -146,16 +151,16 @@ func readTestCaseFromStdinOrReadFromArgument(args []string, defaultFileName stri
 					log.Fatal(err)
 				}
 
-				pw.Write([]byte("// == start include (" + includeFile + ")\n"))
-				io.Copy(pw, f)
-				pw.Write([]byte("// == end include (" + includeFile + ")\n"))
+				fmt.Fprint(output, "// == start include ("+includeFile+")\n")
+				io.Copy(output, f)
+				fmt.Fprint(output, "// == end include ("+includeFile+")\n")
 			} else {
-				pw.Write([]byte(line + "\n"))
+				fmt.Fprintln(output, line)
 			}
 		}
 	}()
 
-	return fileName, pr, err
+	return pr
 }
 
 func printPrettyJSON(message string) {
