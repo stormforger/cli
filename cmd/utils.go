@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"bufio"
 	"bytes"
 	"encoding/json"
 	"fmt"
@@ -9,6 +10,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"time"
 
@@ -102,6 +104,63 @@ func readFromStdinOrReadFromArgument(args []string, defaultFileName string, argP
 
 func readFromStdinOrReadFirstArgument(args []string, defaultFileName string) (fileName string, reader io.Reader, err error) {
 	return readFromStdinOrReadFromArgument(args, defaultFileName, 0)
+}
+
+func readTestCaseFromStdinOrReadFromArgument(args []string, defaultFileName string, argPos int) (fileName string, reader io.Reader, err error) {
+	fileName, testCaseFile, err := readFromStdinOrReadFromArgument(args, defaultFileName, argPos)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	basePath := ""
+	if f := args[argPos]; f != "-" {
+		basePath = filepath.Dir(f)
+	} else {
+		var err error
+		basePath, err = os.Getwd()
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+
+	inputWithIncludes := processIncludes(testCaseFile, basePath)
+
+	return fileName, inputWithIncludes, err
+}
+
+func processIncludes(input io.Reader, basePath string) io.Reader {
+	pr, output := io.Pipe()
+	re := regexp.MustCompile("//#include (.+?)$")
+
+	go func() {
+		defer output.Close()
+
+		scanner := bufio.NewScanner(input)
+		for scanner.Scan() {
+			line := scanner.Text()
+
+			if match := re.FindStringSubmatch(line); match != nil {
+				includeFile := strings.TrimSpace(match[1])
+
+				if !filepath.IsAbs(includeFile) {
+					includeFile = filepath.Join(basePath, includeFile)
+				}
+
+				f, err := os.Open(includeFile)
+				if err != nil {
+					log.Fatal(err)
+				}
+
+				fmt.Fprint(output, "// == start include ("+includeFile+")\n")
+				io.Copy(output, f)
+				fmt.Fprint(output, "// == end include ("+includeFile+")\n")
+			} else {
+				fmt.Fprintln(output, line)
+			}
+		}
+	}()
+
+	return pr
 }
 
 func printPrettyJSON(message string) {

@@ -52,7 +52,7 @@ func runTestCaseUpdate(cmd *cobra.Command, args []string) {
 
 	testCaseUID := lookupTestCase(*client, args[0])
 
-	fileName, testCaseFile, err := readFromStdinOrReadFromArgument(args, "test_case.js", 1)
+	fileName, testCaseFile, err := readTestCaseFromStdinOrReadFromArgument(args, "test_case.js", 1)
 	if err != nil {
 		log.Fatal(err)
 	}
