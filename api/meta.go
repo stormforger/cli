@@ -20,12 +20,14 @@ type Links struct {
 	TestCase string `json:"test_case"`
 }
 
+// ErrorPayload holds the list of returned JSONAPI errors
 type ErrorPayload struct {
-	Message string     `json:"message"`
-	Errors  []APIError `json:"errors"`
+	Message string        `json:"message"`
+	Errors  []ErrorDetail `json:"errors"`
 }
 
-type APIError struct {
+// ErrorDetail holds data on a specific JSONAPI error
+type ErrorDetail struct {
 	Code           string          `json:"code"`
 	Title          string          `json:"title"`
 	Detail         string          `json:"detail"`
@@ -33,6 +35,7 @@ type APIError struct {
 	FormattedError string
 }
 
+// EvaluationErrorMeta holds meta data on JS Evaluation errors
 type EvaluationErrorMeta struct {
 	Message  string                 `json:"message"`
 	RawStack string                 `json:"raw_stack"`
@@ -40,6 +43,8 @@ type EvaluationErrorMeta struct {
 	Stack    []EvaluationStackFrame `json:"stack"`
 }
 
+// EvaluationStackFrame represents a stack frame returned by
+// evaluation errors
 type EvaluationStackFrame struct {
 	Context   string `json:"context"`
 	File      string `json:"file"`
@@ -63,6 +68,8 @@ func UnmarshalMeta(input io.Reader) (Meta, error) {
 	return *data.Meta, nil
 }
 
+// UnmarshalErrorMeta will take the response (io.Reader) and
+// will extract JSONAPI errors.
 func UnmarshalErrorMeta(input io.Reader) (ErrorPayload, error) {
 	var data ErrorPayload
 	if err := json.NewDecoder(input).Decode(&data); err != nil {

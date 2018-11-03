@@ -19,6 +19,9 @@ func (c *Client) Login(email string, password string) (string, error) {
 	}
 
 	req, err := http.NewRequest("POST", c.APIEndpoint+"/user/token", body)
+	if err != nil {
+		return "", err
+	}
 
 	req.Header.Set("Content-Type", "application/json")
 

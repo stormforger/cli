@@ -30,6 +30,9 @@ func (c *Client) Har(fileName string, data io.Reader) (string, error) {
 	harFileGzip.Close()
 
 	req, err := fileUploadRequest(c.APIEndpoint+"/har", "POST", extraParams, "har_file", fileName, "application/gzip", bytes.NewReader(buf.Bytes()))
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	resp, err := c.HTTPClient.Do(req)
 	if err != nil {

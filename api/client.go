@@ -151,6 +151,9 @@ func fileUploadRequest(uri string, method string, params map[string]string, para
 		return nil, err
 	}
 	_, err = io.Copy(part, data)
+	if err != nil {
+		return nil, err
+	}
 
 	for key, val := range params {
 		_ = writer.WriteField(key, val)

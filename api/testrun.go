@@ -248,6 +248,9 @@ func (c *Client) TestRunCreate(testCaseUID string, options TestRunLaunchOptions)
 	}
 
 	req, err := http.NewRequest("POST", c.APIEndpoint+"/test_cases/"+testCaseUID+"/test_runs", bytes.NewReader(jsonPayload))
+	if err != nil {
+		return false, "", err
+	}
 
 	req.Header.Set("Content-Type", "application/json")
 
@@ -270,6 +273,9 @@ func (c *Client) TestRunCreate(testCaseUID string, options TestRunLaunchOptions)
 // to update an existing test case it.
 func (c *Client) TestRunAbort(testRunUID string) (bool, string, error) {
 	req, err := http.NewRequest("POST", c.APIEndpoint+"/test_runs/"+testRunUID+"/abort", nil)
+	if err != nil {
+		return false, "", err
+	}
 
 	response, err := c.doRequestRaw(req)
 	if err != nil {
@@ -294,6 +300,9 @@ func (c *Client) TestRunNfrCheck(uid string, fileName string, data io.Reader) (b
 	path := "/test_runs/" + uid + "/check_nfr"
 
 	req, err := fileUploadRequest(c.APIEndpoint+path, "POST", extraParams, "nfr_file", fileName, "application/x-yaml", data)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	response, err := c.doRequestRaw(req)
 	if err != nil {
