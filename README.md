@@ -1,5 +1,6 @@
-[ ![Travis CI Status](https://travis-ci.org/stormforger/cli.svg?branch=master)](https://travis-ci.org/stormforger/cli)
-[ ![Go Report Card](https://goreportcard.com/badge/github.com/stormforger/cli)](https://goreportcard.com/report/github.com/stormforger/cli)
+<!-- markdownlint-disable MD041 MD012 -->
+[![Travis CI Status](https://travis-ci.org/stormforger/cli.svg?branch=master)](https://travis-ci.org/stormforger/cli)
+[![Go Report Card](https://goreportcard.com/badge/github.com/stormforger/cli)](https://goreportcard.com/report/github.com/stormforger/cli)
 
 
 # forge! The StormForger Command Line Client
@@ -24,13 +25,13 @@ Download the latest release from [GitHub releases](https://github.com/stormforge
 
 In case you are on macOS and using [Homebrew](https://brew.sh/) you can:
 
-```
+```console
 brew install stormforger/forge/forge
 ```
 
 You can also use our published Docker image [`stormforger/cli`](https://hub.docker.com/r/stormforger/cli). We will publish the `latest` tag, so you can do:
 
-```
+```console
 docker pull stormforger/cli
 docker run stormforger/cli
 ```
@@ -42,7 +43,7 @@ Most actions require authentication. So in case you don't have a StormForger acc
 
 When done, you can login via
 
-```
+```console
 forge login your-email@example.com
 ```
 
@@ -55,7 +56,7 @@ Beside via `.stormforger.toml`, you can provide your JWT via
 
 When you are done, you can check your token via `ping` which makes an authenticated ping request:
 
-```
+```console
 forge ping
 ```
 
@@ -72,6 +73,7 @@ There is a global `--output` option that allows to select between `human`, `plai
 Test cases are scoped by organisation. You always have to provide at least the organisation (`acme-inc`) or a test case in form of `organisation-name/test-case-name`.
 
 You can...
+
 * list existing test cases in your `acme-inc` organisation: `forge test-case list acme-inc`
 * validate a test definition without saving it: `forge test-case validate acme-inc cases/simple.js`
 * create a new test case named `checkout` inside `acme-inc`: `forge test-case create acme-inc/checkout cases/simple.js`
@@ -79,7 +81,7 @@ You can...
 
 Commands that take a file, also accept `-` to take input from stdin. Example:
 
-```
+```console
 sed 's/${target}/testapp.loadtest.party/g' tests/templated.js | forge tc update acme-inc/checkout -
 ```
 
@@ -123,11 +125,13 @@ You can...
 
 ## Build
 
-<hr>
-<hr>
+---
+---
+
 You can **STOP READING** now unless you want to know how to build `forge` and make releases!
-<hr>
-<hr>
+
+---
+---
 
 
 ### Dependencies
@@ -140,7 +144,7 @@ To add a dependency, simply import it and then run `dep ensure` which will add t
 
 To update all dependencies, run `dep ensure -update`.
 
-In any case: **Make sure you add dependencies in a dedicated commit!**.
+In any case: **Make sure you add or update dependencies in a dedicated commit!**.
 
 
 ### Release
@@ -149,7 +153,7 @@ Releases are done via [Travis CI](https://travis-ci.org/stormforger/cli).
 
 When ready for a release and pull requests are merged into master, just create and push a new tag:
 
-```
+```console
 git tag vA.B.C
 git push --tag
 ```
@@ -165,14 +169,14 @@ In case there is an issue with the normal release process, a manual (or local) r
 
 Releases are done with `goreleaser`:
 
-```
+```console
 go get -u github.com/goreleaser/goreleaser
 ```
 
-In order to publish releases to GitHub, you need a personal access token, which you can acquire here: https://github.com/settings/tokens.
+In order to publish releases to GitHub, you need a personal access token, which you can acquire [here](https://github.com/settings/tokens).
 
 Now you can make a release with
 
-```
+```console
 GITHUB_TOKEN="geheim" make test local_release
 ```
