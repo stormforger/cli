@@ -1,7 +1,7 @@
 sudo: false
 language: go
 go:
-- "1.11"
+- "1.11.x"
 script: make test
 services:
   - docker
