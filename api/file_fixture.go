@@ -9,7 +9,7 @@ import (
 // FileFixtureParams represents params BLA TODO
 type FileFixtureParams struct {
 	Name            string
-	Type            string
+	Raw             bool
 	FieldNames      string
 	Delimiter       string
 	FirstRowHeaders bool
@@ -54,9 +54,13 @@ func (c *Client) ListFileFixture(organization string) (bool, []byte, error) {
 
 // PushFileFixture uploads (insert or update) a file fixture
 func (c *Client) PushFileFixture(fileName string, data io.Reader, organization string, params *FileFixtureParams) (bool, []byte, error) {
+	fixtureType := "structured"
+	if params.Raw {
+		fixtureType = "raw"
+	}
 	extraParams := map[string]string{
 		"file_fixture[name]": params.Name,
-		"file_fixture[type]": params.Type,
+		"file_fixture[type]": fixtureType,
 	}
 
 	if params.FirstRowHeaders {
