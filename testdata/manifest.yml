@@ -1,0 +1,100 @@
+# Managing Test Data
+# ==================
+#
+# The idea is to have a manifest which defines how test data should
+# be handled.
+#
+# "data_sources" is a list of maps containing:
+# * path (required): Local path to file
+# * organisation (required): StormForger orga where to push the file to
+# * name (optional, default: ""): Name of the remote file. If not provided, the basename of
+#   "path" will be used.
+# * delimiter: Column delimiter to be used
+# * auto_column_names (optional, default: false): Use first row as field names
+# * fields (optional, defaults: [a, b, c, …]): List of field names to be used. May not be
+#   used with "auto_column_names".
+#
+# Examples
+# -------------------------
+#
+# $ forge ds push data/foo.csv
+#
+# Means: Upload "data/foo.csv" to acme-inc organisation and save it as
+# "shop/foo.csv", using ";" as delimiter and determine column
+# names automatically.
+#
+#
+# $ forge ds push data/bar.csv
+#
+# Means: Upload "data/bar.csv" to acme-inc organisation and save it as
+# "shop/bar.csv", using "," as delimiter and use the provided field
+# names. We could also use this to sanity check (cli + API) that we expect
+# three columns to be found after processing.
+#
+#
+# $ forge ds push data/images/test.png
+#
+# Means: Upload "data/images/test.png" to acme-inc organisation, save it as
+# "test.png" (derived from the basename of the given file) as a raw data
+# source
+#
+#
+# $ forge ds push all
+#
+# Could mean to go through all defined data sources and update each
+# according to the manifest.
+#
+---
+data_sources:
+- path: testdata/csv/logins_with_headers.csv
+  organisation: foo
+  name: shop/foo.csv
+  delimiter: ","
+  auto_column_names: true
+
+- path: testdata/csv/products.csv
+  organisation: foo
+  name: shop/products.csv
+  delimiter: ";"
+  fields:
+  - id
+  - sku
+  - name
+
+- path: testdata/test.png
+  organisation: foo
+  raw: true
+
+
+# Managing Test Cases
+# ===================
+#
+# The idea is similar to the handling of data sources, but for test cases.
+#
+# Examples
+# -------------------------
+#
+# $ forge test-case push cases/foo.js
+#
+# Will upsert (create or update) acme-inc/acme-shop
+# with cases/foo.js.
+#
+#
+# $ forge test-case push all
+#
+# Same as above, but upsert all defined test
+# cases. Current idea: A test case (file) can be
+# used multiple times and will be processed in order
+# of definition. This could be used to mirror test
+# cases to other organisations.
+#
+test_cases:
+- path: cases/foo.js
+  organisation: acme-inc
+  name: acme-shop
+- path: cases/bar.js
+  organisation: acme-inc
+  name: acme-sandbox
+- path: cases/bar.js
+  organisation: acme-sandbox
+  name: acme-sandbox
