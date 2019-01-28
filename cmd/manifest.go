@@ -10,7 +10,7 @@ import (
 	yaml "gopkg.in/yaml.v2"
 )
 
-const maxDataSourceSize = 100 * 1024 * 1024
+const maxDataSourceSize = 100 * 1024 * 1024 // 100MB
 
 type manifest struct {
 	DataSources *[]dataSourceEntry `yaml:"data_sources"`
