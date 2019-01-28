@@ -37,10 +37,9 @@ type ErrorDetail struct {
 
 // EvaluationErrorMeta holds meta data on JS Evaluation errors
 type EvaluationErrorMeta struct {
-	Message  string                 `json:"message"`
-	RawStack string                 `json:"raw_stack"`
-	Name     string                 `json:"name"`
-	Stack    []EvaluationStackFrame `json:"stack"`
+	Message string                 `json:"message"`
+	Name    string                 `json:"name"`
+	Stack   []EvaluationStackFrame `json:"stack"`
 }
 
 // EvaluationStackFrame represents a stack frame returned by
