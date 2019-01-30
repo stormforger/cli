@@ -9,6 +9,7 @@ import (
 	"strings"
 	"unicode/utf8"
 
+	"github.com/fatih/color"
 	"github.com/stormforger/cli/api"
 	"github.com/stormforger/cli/api/filefixture"
 
@@ -155,6 +156,11 @@ func lookupPushOpts(localFileName string, args []string) pushCmdOpts {
 }
 
 func runDataSourcePush(cmd *cobra.Command, args []string) {
+	green := color.New(color.FgGreen).SprintFunc()
+	red := color.New(color.FgRed).SprintFunc()
+	okStatus := green("\u2713")
+	failStatus := red("\u2717")
+
 	// files to upload
 	var localFilesToUpload []string
 	if !useManifest {
@@ -192,7 +198,7 @@ func runDataSourcePush(cmd *cobra.Command, args []string) {
 		}
 
 		if !success {
-			fmt.Fprintf(os.Stderr, "%v could not be create or updated! Error: %s\n", params.Name, string(result))
+			fmt.Fprintf(os.Stderr, "%s %v could not be create or updated! Error: %s\n", failStatus, params.Name, string(result))
 
 			someErrors = true
 			continue
@@ -208,14 +214,15 @@ func runDataSourcePush(cmd *cobra.Command, args []string) {
 				}
 
 				fmt.Printf(
-					"%s successfully uploaded! Name: %s, Items: %d, Columns: %s\n",
+					"%s %s successfully uploaded! Name: %s, Items: %d, Columns: %s\n",
+					okStatus,
 					params.Name,
 					fixture.Name,
 					fixture.CurrentVersion.ItemCount,
 					strings.Join(fixture.CurrentVersion.FieldNames, ", "),
 				)
 			} else {
-				fmt.Printf("%s uploaded!\n", params.Name)
+				fmt.Printf("%s %s uploaded!\n", okStatus, params.Name)
 			}
 		}
 	}
