@@ -24,6 +24,10 @@ var (
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
 			// manifest file was given?
 			if manifestFile != "" {
+				if len(args) < 1 {
+					log.Fatal("Missing files to push (or 'all')")
+				}
+
 				fi, err := os.Stat(manifestFile)
 				if err != nil || !fi.Mode().IsRegular() {
 					log.Fatalf("Manifest file not found: %s", manifestFile)
