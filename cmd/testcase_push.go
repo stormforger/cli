@@ -18,6 +18,10 @@ var (
 		Long:  `Creates or updates a test case.`,
 		Run:   runTestCasePush,
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
+			if testCasePushOpts.manifestFile == "" {
+				log.Fatal("No manifest file provided")
+			}
+
 			if len(args) < 1 {
 				log.Fatal("Missing test case to push (or 'all')")
 			}
