@@ -52,11 +52,11 @@ func (m *manifest) validate() (bool, error) {
 			return false, err
 		}
 
-		if names[ds.Name] || paths[ds.Path] {
+		if names[ds.Organisation+ds.Name] || paths[ds.Path] {
 			return false, fmt.Errorf("Manifest: Data sources not unique, %v | %v is defined multiple times", ds.Name, ds.Path)
 		}
 
-		names[ds.Name] = true
+		names[ds.Organisation+ds.Name] = true
 		paths[ds.Path] = true
 	}
 
@@ -68,11 +68,11 @@ func (m *manifest) validate() (bool, error) {
 			return false, err
 		}
 
-		if names[tc.Name] || paths[tc.Path] {
+		if names[tc.Organisation+tc.Name] || paths[tc.Path] {
 			return false, fmt.Errorf("Manifest: Test Cases not unique, %v | %v is defined multiple times", tc.Name, tc.Path)
 		}
 
-		names[tc.Name] = true
+		names[tc.Organisation+tc.Name] = true
 		paths[tc.Path] = true
 
 	}
