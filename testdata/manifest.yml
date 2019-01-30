@@ -70,6 +70,7 @@ data_sources:
 # ===================
 #
 # The idea is similar to the handling of data sources, but for test cases.
+#
 # "test_cases" is a list of maps containing:
 # * path (required): Local path to test case JavaScript definition
 # * organisation (required): StormForger orga where to push the file to
@@ -87,15 +88,12 @@ data_sources:
 #
 # $ forge test-case push all
 #
-# Same as above, but upsert all defined test
-# cases. Current idea: A test case (file) can be
-# used multiple times and will be processed in order
-# of definition. This could be used to mirror test
-# cases to other organisations.
-#
+# Same as above, but upserts all defined test
+# cases.
+
 test_cases:
 - path: testdata/cases/acme-inc/blackfriday2019.js
-  organisation: xB2hNQWN
+  organisation: xB2hNQWN # can be the organisation UID or name
   name: shop-blackfriday2019
   notes: |-
     # Black Friday 2019
@@ -103,11 +101,12 @@ test_cases:
     * check searches
     * visit products and use basket
     * do checkout
+
 - path: testdata/cases/simple.js
   organisation: acme-inc
   name: simple-service
 
-# This test case will be created/updated, but warnings will be shown
+  # This test case will be created/updated, but warnings will be shown
 - path: testdata/cases/valid_with_warnings.js
   organisation: acme-inc
   name: test-warnings
@@ -115,4 +114,4 @@ test_cases:
 # This test case won't be created
 - path: testdata/cases/invalid/syntax.js
   organisation: acme-inc
-  name: i-wont-be-created-syntax
+  name: i-will-not-be-created-syntax
