@@ -18,8 +18,8 @@ var (
 		Long:  `Creates or updates a test case.`,
 		Run:   runTestCasePush,
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
-			if len(args) != 1 {
-				log.Fatal("Missing test case to push (or 'all'")
+			if len(args) < 1 {
+				log.Fatal("Missing test case to push (or 'all')")
 			}
 
 			fi, err := os.Stat(testCasePushOpts.manifestFile)
