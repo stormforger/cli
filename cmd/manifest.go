@@ -17,14 +17,14 @@ type manifest struct {
 	TestCases   *[]testCaseEntry   `yaml:"test_cases"`
 }
 
-func (m *manifest) lookupDataSource(path string) dataSourceEntry {
+func (m *manifest) lookupDataSource(path string) (bool, dataSourceEntry) {
 	for _, dataSource := range *m.DataSources {
 		if dataSource.Path == path {
-			return dataSource
+			return true, dataSource
 		}
 	}
 
-	return dataSourceEntry{}
+	return false, dataSourceEntry{}
 }
 
 func (m *manifest) allDSPaths() (out []string) {
@@ -33,6 +33,61 @@ func (m *manifest) allDSPaths() (out []string) {
 	}
 
 	return
+}
+
+func (m *manifest) allTCPaths() (out []string) {
+	for _, source := range *m.TestCases {
+		out = append(out, source.Path)
+	}
+
+	return
+}
+
+func (m *manifest) validate() (bool, error) {
+	names := make(map[string]bool)
+	paths := make(map[string]bool)
+	for _, ds := range *m.DataSources {
+		_, err := ds.validate()
+		if err != nil {
+			return false, err
+		}
+
+		if names[ds.Name] || paths[ds.Path] {
+			return false, fmt.Errorf("Manifest: Data sources not unique, %v | %v is defined multiple times", ds.Name, ds.Path)
+		}
+
+		names[ds.Name] = true
+		paths[ds.Path] = true
+	}
+
+	names = make(map[string]bool)
+	paths = make(map[string]bool)
+	for _, tc := range *m.TestCases {
+		_, err := tc.validate()
+		if err != nil {
+			return false, err
+		}
+
+		if names[tc.Name] || paths[tc.Path] {
+			return false, fmt.Errorf("Manifest: Test Cases not unique, %v | %v is defined multiple times", tc.Name, tc.Path)
+		}
+
+		names[tc.Name] = true
+		paths[tc.Path] = true
+
+	}
+
+	return true, nil
+}
+
+func (m *manifest) LookupTestCase(path string) (bool, testCaseEntry) {
+	for _, testCase := range *m.TestCases {
+		if testCase.Path == path {
+			return true, testCase
+		}
+	}
+
+	return false, testCaseEntry{}
 }
 
 type dataSourceEntry struct {
@@ -48,7 +103,7 @@ type dataSourceEntry struct {
 func (ds *dataSourceEntry) validate() (bool, error) {
 	fi, err := os.Stat(ds.Path)
 	if err != nil || !fi.Mode().IsRegular() {
-		return false, fmt.Errorf("Manifest: file not found: %s", ds.Path)
+		return false, fmt.Errorf("Manifest: data source file not found: %s", ds.Path)
 	}
 
 	if fi.Size() > maxDataSourceSize {
@@ -70,40 +125,28 @@ func (ds *dataSourceEntry) validate() (bool, error) {
 	return false, nil
 }
 
-func (m *manifest) validate() (bool, error) {
-	names := make(map[string]bool)
-	paths := make(map[string]bool)
-	for _, ds := range *m.DataSources {
-		_, err := ds.validate()
-		if err != nil {
-			return false, err
-		}
-
-		if names[ds.Name] || paths[ds.Path] {
-			return false, fmt.Errorf("Manifest: Data sources not unique, %v | %v is defined multiple times", ds.Name, ds.Path)
-		}
-
-		names[ds.Name] = true
-		paths[ds.Path] = true
-	}
-
-	return true, nil
-}
-
 type testCaseEntry struct {
 	Path         string `yaml:"path"`
 	Organisation string `yaml:"organisation"`
 	Name         string `yaml:"name"`
+	Comments     string `yaml:"notes"`
 }
 
-func (m *manifest) LookupTestCase(path string) testCaseEntry {
-	for _, testCase := range *m.TestCases {
-		if testCase.Path == path {
-			return testCase
-		}
+func (tc *testCaseEntry) validate() (bool, error) {
+	fi, err := os.Stat(tc.Path)
+	if err != nil || !fi.Mode().IsRegular() {
+		return false, fmt.Errorf("Manifest: test case file not found: %s", tc.Path)
 	}
 
-	return testCaseEntry{}
+	if tc.Organisation == "" {
+		return false, fmt.Errorf("Manifest: Organisation missing: %s", tc.Path)
+	}
+
+	if tc.Name == "" {
+		return false, fmt.Errorf("Manifest: Test Case name missing: %s", tc.Path)
+	}
+
+	return false, nil
 }
 
 func loadManifest(data io.Reader) (manifest, error) {

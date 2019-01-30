@@ -126,8 +126,8 @@ func lookupPushOpts(localFileName string, args []string) pushCmdOpts {
 		return pushOpts
 	}
 
-	ds := manifestDefinition.lookupDataSource(localFileName)
-	if ds.Path != "" {
+	found, ds := manifestDefinition.lookupDataSource(localFileName)
+	if !found || ds.Path != "" {
 
 		uploadName := ds.Name
 		if uploadName == "" {

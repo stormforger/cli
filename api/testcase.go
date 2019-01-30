@@ -3,6 +3,7 @@ package api
 import (
 	"io"
 	"io/ioutil"
+	"net/http"
 )
 
 // ListTestCases returns a list of test cases
@@ -56,14 +57,40 @@ func (c *Client) TestCaseValidate(organization string, fileName string, data io.
 // TestCaseCreate will send a test case definition (JS) to the API
 // to create it.
 func (c *Client) TestCaseCreate(organization string, testCaseName string, fileName string, data io.Reader) (bool, string, error) {
-	// TODO how to pass options here?
-	//      defining a struct maybe, but where?
-	//      finally: add options here
 	extraParams := map[string]string{
 		"test_case[name]": testCaseName,
 	}
 
 	req, err := fileUploadRequest(c.APIEndpoint+"/organisations/"+organization+"/test_cases", "POST", extraParams, "test_case[javascript_definition]", fileName, "application/javascript", data)
+	if err != nil {
+		return false, "", err
+	}
+
+	response, err := c.doRequestRaw(req)
+	if err != nil {
+		return false, "", err
+	}
+
+	body, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		return false, "", err
+	}
+
+	defer close(response.Body)
+
+	if response.StatusCode != http.StatusCreated {
+		return false, string(body), nil
+	}
+
+	return true, string(body), nil
+}
+
+// TestCaseUpdate will send a test case definition (JS) to the API
+// to update an existing test case it.
+func (c *Client) TestCaseUpdate(testCaseUID string, fileName string, data io.Reader) (bool, string, error) {
+	extraParams := map[string]string{}
+
+	req, err := fileUploadRequest(c.APIEndpoint+"/test_cases/"+testCaseUID, "PATCH", extraParams, "test_case[javascript_definition]", fileName, "application/javascript", data)
 	if err != nil {
 		return false, "", err
 	}
@@ -87,15 +114,16 @@ func (c *Client) TestCaseCreate(organization string, testCaseName string, fileNa
 	return true, string(body), nil
 }
 
-// TestCaseUpdate will send a test case definition (JS) to the API
-// to update an existing test case it.
-func (c *Client) TestCaseUpdate(testCaseUID string, fileName string, data io.Reader) (bool, string, error) {
-	// TODO how to pass options here?
-	//      defining a struct maybe, but where?
-	//      finally: add options here
-	extraParams := map[string]string{}
+// TestCaseUpsert will send a test case definition (JS) to the API
+// to create a new or update an existing test case.
+func (c *Client) TestCaseUpsert(organization, testCaseName, notes, fileName string, data io.Reader) (bool, string, error) {
+	extraParams := map[string]string{
+		"upsert":              "1",
+		"test_case[name]":     testCaseName,
+		"test_case[comments]": notes,
+	}
 
-	req, err := fileUploadRequest(c.APIEndpoint+"/test_cases/"+testCaseUID, "PATCH", extraParams, "test_case[javascript_definition]", fileName, "application/javascript", data)
+	req, err := fileUploadRequest(c.APIEndpoint+"/organisations/"+organization+"/test_cases", "POST", extraParams, "test_case[javascript_definition]", fileName, "application/javascript", data)
 	if err != nil {
 		return false, "", err
 	}
@@ -112,7 +140,7 @@ func (c *Client) TestCaseUpdate(testCaseUID string, fileName string, data io.Rea
 
 	defer close(response.Body)
 
-	if response.StatusCode != 200 {
+	if response.StatusCode >= http.StatusBadRequest {
 		return false, string(body), nil
 	}
 

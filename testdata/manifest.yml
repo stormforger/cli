@@ -70,6 +70,11 @@ data_sources:
 # ===================
 #
 # The idea is similar to the handling of data sources, but for test cases.
+# "test_cases" is a list of maps containing:
+# * path (required): Local path to test case JavaScript definition
+# * organisation (required): StormForger orga where to push the file to
+# * name (required): Name of the test case to be updated or created
+# * notes (optional): Notes/Comments in Markdown describing the test case
 #
 # Examples
 # -------------------------
@@ -89,12 +94,25 @@ data_sources:
 # cases to other organisations.
 #
 test_cases:
-- path: cases/foo.js
+- path: testdata/cases/acme-inc/blackfriday2019.js
+  organisation: xB2hNQWN
+  name: shop-blackfriday2019
+  notes: |-
+    # Black Friday 2019
+    * test landing page
+    * check searches
+    * visit products and use basket
+    * do checkout
+- path: testdata/cases/simple.js
   organisation: acme-inc
-  name: acme-shop
-- path: cases/bar.js
+  name: simple-service
+
+# This test case will be created/updated, but warnings will be shown
+- path: testdata/cases/valid_with_warnings.js
   organisation: acme-inc
-  name: acme-sandbox
-- path: cases/bar.js
-  organisation: acme-sandbox
-  name: acme-sandbox
+  name: test-warnings
+
+# This test case won't be created
+- path: testdata/cases/invalid/syntax.js
+  organisation: acme-inc
+  name: i-wont-be-created-syntax
