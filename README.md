@@ -5,7 +5,7 @@
 
 # forge! The StormForger Command Line Client
 
-Please note that this tool is still **HEAVY WORK IN PROGRESS**. If you have any questions, don't hesitate to get in [contact](https://stormforger.com/support).
+If you have any questions, don't hesitate to get in [contact](https://stormforger.com/support).
 
 Using `forge` you can:
 
