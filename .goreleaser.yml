@@ -12,10 +12,9 @@ brew:
   homepage: "https://stormforger.com"
   description: "The StormForger Command Line Client, called 'forge'"
 dockers:
-  - image: stormforger/cli
-    tag_templates:
-      - '{{ .Tag }}'
-      - latest
+- image_templates:
+  - 'stormforger/cli:{{ .Tag }}'
+  - 'stormforger/cli:latest'
 builds:
 - goos:
   - linux
@@ -26,20 +25,21 @@ builds:
   main: .
   ldflags: -s -w -X github.com/stormforger/cli/buildinfo.version={{.Version}} -X github.com/stormforger/cli/buildinfo.commit={{.Commit}} -X github.com/stormforger/cli/buildinfo.date={{.Date}}
   binary: forge
-archive:
-  format: zip
-  format_overrides:
-    - goos: linux
-      format: tar.gz
-  name_template: '{{ .Binary }}_v{{.Version}}_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{.Arm }}{{ end }}'
-  files:
-  - licence*
-  - LICENCE*
-  - license*
-  - LICENSE*
-  - readme*
-  - README*
-  - changelog*
-  - CHANGELOG*
+archives:
+  - id: release
+    format: zip
+    format_overrides:
+      - goos: linux
+        format: tar.gz
+    name_template: '{{ .Binary }}_v{{.Version}}_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{.Arm }}{{ end }}'
+    files:
+    - licence*
+    - LICENCE*
+    - license*
+    - LICENSE*
+    - readme*
+    - README*
+    - changelog*
+    - CHANGELOG*
 snapshot:
   name_template: SNAPSHOT-{{ .Commit }}
