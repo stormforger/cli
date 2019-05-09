@@ -2,12 +2,12 @@ BINARY=forge
 
 GOFILES_NOVENDOR = $(shell find . -type f -name '*.go' -not -path "./vendor/*")
 
-.PHONY: all test build release local_release fmt vet setup errcheck lint
+.PHONY: all test build release local_release fmt vet setup lint
 
 all: build
 
 test: vet
-	script/gorun go test -v
+	go test -v
 
 build:
 	go build -o ${BINARY}
@@ -25,12 +25,9 @@ fmt:
 	gofmt -w -s ${GOFILES_NOVENDOR}
 
 vet:
-	script/gorun go vet
+	go vet
 
-errcheck:
-	script/gorun errcheck
-
-lint:
+lint: vet
 	errcheck
 	golangci-lint run
 
