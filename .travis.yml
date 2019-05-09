@@ -2,7 +2,9 @@ sudo: false
 language: go
 go:
 - "1.12.x"
-script: go get && make test
+script:
+  - env GO111MODULE=on go get
+  - env GO111MODULE=on make test
 services:
   - docker
 env:
