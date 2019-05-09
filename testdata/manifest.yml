@@ -45,6 +45,9 @@
 # according to the manifest.
 #
 ---
+defaults:
+  organisation: foo
+
 data_sources:
 - path: testdata/csv/logins_with_headers.csv
   organisation: foo
