@@ -2,7 +2,7 @@ BINARY=forge
 
 GOFILES_NOVENDOR = $(shell find . -type f -name '*.go' -not -path "./vendor/*")
 
-.PHONY: all test build release local_release fmt vet setup
+.PHONY: all test build release local_release fmt vet setup errcheck lint
 
 all: build
 
@@ -30,10 +30,11 @@ vet:
 errcheck:
 	script/gorun errcheck
 
+lint:
+	errcheck
+	golangci-lint run
+
 setup:
-	go get -u github.com/golang/dep/cmd/dep
 	go get -u github.com/kisielk/errcheck
-	go get -u gopkg.in/alecthomas/gometalinter.v1
-	go get -u golang.org/x/tools/cmd/goimports
+	go get -u github.com/golangci/golangci-lint/cmd/golangci-lint
 	go get -u github.com/goreleaser/goreleaser
-	gometalinter.v1 --install

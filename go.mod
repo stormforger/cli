@@ -20,6 +20,7 @@ require (
 	github.com/spf13/pflag v1.0.3 // indirect
 	github.com/spf13/viper v0.0.0-20181119093840-06c7c0d9b3c7
 	github.com/stormforger/cli v0.31.0
-	golang.org/x/crypto v0.0.0-20181127143415-eb0de9b17e85 // indirect
-	golang.org/x/sys v0.0.0-20181128092732-4ed8d59d0b35 // indirect
+	golang.org/x/crypto v0.0.0-20190506204251-e1dfcc566284 // indirect
+	golang.org/x/sys v0.0.0-20190508220229-2d0786266e9c // indirect
+	golang.org/x/text v0.3.2 // indirect
 )
