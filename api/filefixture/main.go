@@ -22,19 +22,19 @@ type FileFixture struct {
 	Name           string     `jsonapi:"attr,name"`
 	CurrentVersion *Version   `jsonapi:"relation,current_version,omitempty"`
 	Versions       []*Version `jsonapi:"relation,versions,omitempty"`
-	CreatedAt      string     `jsonapi:"attr,created_at"`
-	UpdatedAt      string     `jsonapi:"attr,updated_at"`
+	CreatedAt      time.Time  `jsonapi:"attr,created_at,iso8601"`
+	UpdatedAt      time.Time  `jsonapi:"attr,updated_at,iso8601"`
 }
 
 // Version respresents a concrete version of a file fixture
 type Version struct {
-	ID         string   `jsonapi:"primary,file_fixture_version_structureds"`
-	Hash       string   `jsonapi:"attr,hash"`
-	FileSize   int      `jsonapi:"attr,file_size"`
-	ItemCount  int      `jsonapi:"attr,item_count"`
-	FieldNames []string `jsonapi:"attr,field_names"`
-	CreatedAt  string   `jsonapi:"attr,created_at"`
-	UpdatedAt  string   `jsonapi:"attr,updated_at"`
+	ID         string    `jsonapi:"primary,file_fixture_version_structureds"`
+	Hash       string    `jsonapi:"attr,hash"`
+	FileSize   int       `jsonapi:"attr,file_size"`
+	ItemCount  int       `jsonapi:"attr,item_count"`
+	FieldNames []string  `jsonapi:"attr,field_names"`
+	CreatedAt  time.Time `jsonapi:"attr,created_at,iso8601"`
+	UpdatedAt  time.Time `jsonapi:"attr,updated_at,iso8601"`
 }
 
 // Unmarshal unmarshals a list of FileFixture records
@@ -63,7 +63,7 @@ func UnmarshalFileFixture(input io.Reader) (*FileFixture, error) {
 	fixture := new(FileFixture)
 	err := jsonapi.UnmarshalPayload(input, fixture)
 	if err != nil {
-		return new(FileFixture), err
+		return nil, err
 	}
 
 	return fixture, nil
@@ -97,25 +97,18 @@ func ShowName(input io.Reader) {
 
 // ShowDetails print out details of a file fixture, including its current version
 func ShowDetails(fileFixture *FileFixture) {
-	// TODO where to move this? shouldn't this be already done earlier?
-	fixtureCreatedAt := parseTime(fileFixture.CreatedAt)
-	fixtureUpdatedAt := parseTime(fileFixture.UpdatedAt)
-	fixtureCurrentVersionCreatedAt := parseTime(fileFixture.CurrentVersion.CreatedAt)
-
 	fmt.Printf("Name:            %s\n", fileFixture.Name)
 	fmt.Printf("UID:             %s\n", fileFixture.ID)
-	fmt.Printf("Created:         %s (%s)\n", convertToLocalTZ(fixtureCreatedAt), humanize.Time(fixtureCreatedAt))
-	fmt.Printf("Updated:         %s (%s)\n", convertToLocalTZ(fixtureUpdatedAt), humanize.Time(fixtureUpdatedAt))
+	fmt.Printf("Created:         %s (%s)\n", convertToLocalTZ(fileFixture.CreatedAt), humanize.Time(fileFixture.CreatedAt))
+	fmt.Printf("Updated:         %s (%s)\n", convertToLocalTZ(fileFixture.UpdatedAt), humanize.Time(fileFixture.UpdatedAt))
 	fmt.Printf("Current Version: %s\n", fileFixture.CurrentVersion.ID)
 	fmt.Printf("  SHA256 Hash:   %s\n", fileFixture.CurrentVersion.Hash)
 	fmt.Printf("  Size:          %s\n", humanize.Bytes(uint64(fileFixture.CurrentVersion.FileSize)))
 	fmt.Printf("  Line Count:    %v\n", fileFixture.CurrentVersion.ItemCount)
-	fmt.Printf("  Created:       %s (%s)\n", convertToLocalTZ(fixtureCurrentVersionCreatedAt), humanize.Time(fixtureCurrentVersionCreatedAt))
+	fmt.Printf("  Created:       %s (%s)\n", convertToLocalTZ(fileFixture.CurrentVersion.CreatedAt), humanize.Time(fileFixture.CurrentVersion.CreatedAt))
 	fmt.Printf("Version(s):      %v\n", len(fileFixture.Versions))
 	for _, version := range fileFixture.Versions {
-		versionCreatedAt := parseTime(version.CreatedAt)
-
-		fmt.Printf("  - %s (created %s)\n", version.ID, convertToLocalTZ(versionCreatedAt))
+		fmt.Printf("  - %s (created %s)\n", version.ID, convertToLocalTZ(version.CreatedAt))
 	}
 }
 
@@ -126,13 +119,4 @@ func convertToLocalTZ(timeToConvert time.Time) time.Time {
 	}
 
 	return timeToConvert.In(loc)
-}
-
-func parseTime(subject string) time.Time {
-	parsedTime, err := time.Parse(time.RFC3339Nano, subject)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	return parsedTime
 }
