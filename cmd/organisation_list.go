@@ -12,7 +12,7 @@ import (
 var (
 	organisationListCmd = &cobra.Command{
 		Use:     "list",
-		Aliases: []string{},
+		Aliases: []string{"ls"},
 		Short:   "List organisations you have access to",
 		Run:     runOrganisationList,
 	}

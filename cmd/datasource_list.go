@@ -12,8 +12,8 @@ import (
 
 var (
 	datasourceListCmd = &cobra.Command{
-		Use:     "ls <organization-ref>",
-		Aliases: []string{"list"},
+		Use:     "list <organization-ref>",
+		Aliases: []string{"ls"},
 		Short:   "List fixtures",
 		Run:     runDataSourceList,
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
