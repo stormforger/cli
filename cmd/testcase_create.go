@@ -49,7 +49,7 @@ Examples
 
 			testCaseCreateOpts.Organisation = lookupOrganisationUID(*NewClient(), segments[0])
 			if testCaseCreateOpts.Organisation == "" {
-				log.Fatal("Missing organization")
+				log.Fatal("Missing organisation")
 			}
 
 			testCaseCreateOpts.Name = segments[1]
@@ -72,7 +72,7 @@ func init() {
 }
 
 func runTestCaseCreate(cmd *cobra.Command, args []string) {
-	organizationUID := testCaseCreateOpts.Organisation
+	orgaUID := testCaseCreateOpts.Organisation
 
 	fileName, testCaseFile, err := readTestCaseFromStdinOrReadFromArgument(args, "test_case.js", 1)
 	if err != nil {
@@ -93,7 +93,7 @@ func runTestCaseCreate(cmd *cobra.Command, args []string) {
 
 	client := NewClient()
 
-	success, message, errValidation := client.TestCaseCreate(organizationUID, testCaseName, fileName, testCaseFile)
+	success, message, errValidation := client.TestCaseCreate(orgaUID, testCaseName, fileName, testCaseFile)
 	if errValidation != nil {
 		log.Fatal(errValidation)
 	}

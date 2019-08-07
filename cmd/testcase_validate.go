@@ -41,12 +41,12 @@ Examples
 			}
 
 			if len(args) < 2 {
-				log.Fatal("Missing arguments; organization reference and test case file to validate (or - to read from stdin)")
+				log.Fatal("Missing arguments; organisation reference and test case file to validate (or - to read from stdin)")
 			}
 
 			testCaseValidateOpts.Organisation = lookupOrganisationUID(*NewClient(), args[0])
 			if testCaseValidateOpts.Organisation == "" {
-				log.Fatal("Missing organization")
+				log.Fatal("Missing organisation")
 			}
 		},
 	}
