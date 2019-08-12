@@ -9,7 +9,7 @@ import (
 
 var (
 	datasourceShowCmd = &cobra.Command{
-		Use:     "show <organization-ref> <name>",
+		Use:     "show <organisation-ref> <name>",
 		Aliases: []string{},
 		Short:   "Show details of fixture",
 		Run:     runDatasourceShow,
@@ -19,12 +19,12 @@ var (
 			}
 
 			if len(args) < 2 {
-				log.Fatal("Missing organization or datasource")
+				log.Fatal("Missing organisation or datasource")
 			}
 
 			datasourceOpts.Organisation = lookupOrganisationUID(*NewClient(), args[0])
 			if datasourceOpts.Organisation == "" {
-				log.Fatal("Missing organization")
+				log.Fatal("Missing organisation")
 			}
 		},
 	}
