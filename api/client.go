@@ -92,7 +92,7 @@ type Client struct {
 }
 
 // NewClient returns a new initialized API client
-func NewClient(apiEndpoint string, jwtToken string) *Client {
+func NewClient(apiEndpoint, jwtToken string) *Client {
 	return &Client{
 		HTTPClient:  defaultHTTPClient(),
 		APIEndpoint: apiEndpoint,
@@ -130,7 +130,7 @@ func newPatchRequest(uri string, params map[string]string) (*http.Request, error
 	return req, err
 }
 
-func createFormFile(w *multipart.Writer, fieldname string, filename string, contenttype string) (io.Writer, error) {
+func createFormFile(w *multipart.Writer, fieldname, filename, contenttype string) (io.Writer, error) {
 	replacer := strings.NewReplacer("\\", "\\\\", `"`, "\\\"")
 
 	h := make(textproto.MIMEHeader)
@@ -142,7 +142,7 @@ func createFormFile(w *multipart.Writer, fieldname string, filename string, cont
 	return w.CreatePart(h)
 }
 
-func fileUploadRequest(uri string, method string, params map[string]string, paramName string, fileName string, mimeType string, data io.Reader) (*http.Request, error) {
+func fileUploadRequest(uri, method string, params map[string]string, paramName, fileName, mimeType string, data io.Reader) (*http.Request, error) {
 	body := &bytes.Buffer{}
 	writer := multipart.NewWriter(body)
 	part, err := createFormFile(writer, paramName, fileName, mimeType)
@@ -189,7 +189,7 @@ func (c *Client) doRequestRaw(request *http.Request) (*http.Response, error) {
 }
 
 // LookupAndFetchResource tries to download a given resource from the API
-func (c *Client) LookupAndFetchResource(resourceType string, input string) (bool, []byte, error) {
+func (c *Client) LookupAndFetchResource(resourceType, input string) (bool, []byte, error) {
 	return c.FetchResource("/lookup?type=" + resourceType + "&q=" + input)
 }
 
