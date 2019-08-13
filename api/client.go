@@ -2,6 +2,7 @@ package api
 
 import (
 	"bytes"
+	"compress/gzip"
 	"crypto/sha256"
 	"crypto/tls"
 	"crypto/x509"
@@ -130,7 +131,8 @@ func newPatchRequest(uri string, params map[string]string) (*http.Request, error
 	return req, err
 }
 
-func createFormFile(w *multipart.Writer, fieldname, filename, contenttype string) (io.Writer, error) {
+// createGZIPFormFile creates a "mime/multipart".Writer header similar to CreateFormFile but with content-encoding=gzip.
+func createGZIPFormFile(w *multipart.Writer, fieldname, filename, contenttype string) (io.Writer, error) {
 	replacer := strings.NewReplacer("\\", "\\\\", `"`, "\\\"")
 
 	h := make(textproto.MIMEHeader)
@@ -138,20 +140,24 @@ func createFormFile(w *multipart.Writer, fieldname, filename, contenttype string
 		fmt.Sprintf(`form-data; name="%s"; filename="%s"`,
 			replacer.Replace(fieldname), replacer.Replace(filename)))
 	h.Set("Content-Type", contenttype)
+	h.Set("Content-Encoding", "gzip")
 
 	return w.CreatePart(h)
 }
 
-func fileUploadRequest(uri, method string, params map[string]string, paramName, fileName, mimeType string, data io.Reader) (*http.Request, error) {
+func fileUploadRequest(uri, method string, params map[string]string, fileParamName, fileName, mimeType string, data io.Reader) (*http.Request, error) {
 	body := &bytes.Buffer{}
 	writer := multipart.NewWriter(body)
-	part, err := createFormFile(writer, paramName, fileName, mimeType)
-
+	part, err := createGZIPFormFile(writer, fileParamName, fileName, mimeType)
 	if err != nil {
 		return nil, err
 	}
-	_, err = io.Copy(part, data)
-	if err != nil {
+
+	gzipWriter := gzip.NewWriter(part)
+	if _, err = io.Copy(gzipWriter, data); err != nil {
+		return nil, err
+	}
+	if err := gzipWriter.Close(); err != nil {
 		return nil, err
 	}
 
