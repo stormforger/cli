@@ -1,6 +1,7 @@
 package api
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -22,7 +23,7 @@ func (c *Client) Har(fileName string, data io.Reader) (string, error) {
 		return "", fmt.Errorf("given HAR is not valid JSON")
 	}
 
-	req, err := fileUploadRequest(c.APIEndpoint+"/har", "POST", extraParams, "har_file", fileName, "application/octet-stream", data)
+	req, err := fileUploadRequest(c.APIEndpoint+"/har", "POST", extraParams, "har_file", fileName, "application/octet-stream", bytes.NewReader(input))
 	if err != nil {
 		log.Fatal(err)
 	}
