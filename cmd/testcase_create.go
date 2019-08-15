@@ -19,14 +19,15 @@ var (
 		Long: `Create a new test case.
 
 <test-case-ref> is 'organisation-name/test-case-name'.
+<test-case-file> is a path or - for stdin.
 
 Examples
 --------
-* create a new test case named 'checkout' in the 'acme-inc' organisation
+* Create a new test case named 'checkout' in the 'acme-inc' organisation
 
   forge test-case create acme-inc/checkout cases/checkout_process.js
 
-* alternatively the test definition can be piped in as well
+* Alternatively the test definition can be piped in as well
 
   cat cases/checkout_process.js | forge test-case create acme-inc/checkout -
 
