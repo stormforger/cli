@@ -18,8 +18,8 @@ var (
 				log.Fatal("Too many arguments")
 			}
 
-			if len(args) < 1 {
-				log.Fatal("Missing organisation")
+			if len(args) < 2 {
+				log.Fatal("Missing organisation or datasource")
 			}
 
 			datasourceOpts.Organisation = lookupOrganisationUID(*NewClient(), args[0])

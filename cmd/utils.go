@@ -36,7 +36,7 @@ func stringInSlice(a string, list []string) bool {
 func findFixtureByName(client api.Client, orga string, name string) *filefixture.FileFixture {
 	success, result, err := client.ListFileFixture(orga)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("ListFileFixtures failed: %v", err)
 	}
 
 	if !success {
@@ -48,7 +48,7 @@ func findFixtureByName(client api.Client, orga string, name string) *filefixture
 
 	fileFixtures, err := filefixture.Unmarshal(bytes.NewReader(result))
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Unmarshal failed: %v", err)
 	}
 
 	fileFixture := fileFixtures.FindByName(name)
