@@ -2,7 +2,6 @@ package api
 
 import (
 	"bytes"
-	"compress/gzip"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -24,12 +23,7 @@ func (c *Client) Har(fileName string, data io.Reader) (string, error) {
 		return "", fmt.Errorf("given HAR is not valid JSON")
 	}
 
-	var buf bytes.Buffer
-	harFileGzip := gzip.NewWriter(&buf)
-	io.Copy(harFileGzip, bytes.NewReader(input))
-	harFileGzip.Close()
-
-	req, err := fileUploadRequest(c.APIEndpoint+"/har", "POST", extraParams, "har_file", fileName, "application/gzip", bytes.NewReader(buf.Bytes()))
+	req, err := fileUploadRequest(c.APIEndpoint+"/har", "POST", extraParams, "har_file", fileName, "application/octet-stream", bytes.NewReader(input))
 	if err != nil {
 		log.Fatal(err)
 	}

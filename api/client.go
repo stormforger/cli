@@ -2,6 +2,7 @@ package api
 
 import (
 	"bytes"
+	"compress/gzip"
 	"crypto/sha256"
 	"crypto/tls"
 	"crypto/x509"
@@ -92,7 +93,7 @@ type Client struct {
 }
 
 // NewClient returns a new initialized API client
-func NewClient(apiEndpoint string, jwtToken string) *Client {
+func NewClient(apiEndpoint, jwtToken string) *Client {
 	return &Client{
 		HTTPClient:  defaultHTTPClient(),
 		APIEndpoint: apiEndpoint,
@@ -130,7 +131,8 @@ func newPatchRequest(uri string, params map[string]string) (*http.Request, error
 	return req, err
 }
 
-func createFormFile(w *multipart.Writer, fieldname string, filename string, contenttype string) (io.Writer, error) {
+// createGZIPFormFile creates a "mime/multipart".Writer header similar to CreateFormFile but with content-encoding=gzip.
+func createGZIPFormFile(w *multipart.Writer, fieldname, filename, contenttype string) (io.Writer, error) {
 	replacer := strings.NewReplacer("\\", "\\\\", `"`, "\\\"")
 
 	h := make(textproto.MIMEHeader)
@@ -138,20 +140,24 @@ func createFormFile(w *multipart.Writer, fieldname string, filename string, cont
 		fmt.Sprintf(`form-data; name="%s"; filename="%s"`,
 			replacer.Replace(fieldname), replacer.Replace(filename)))
 	h.Set("Content-Type", contenttype)
+	h.Set("Content-Encoding", "gzip")
 
 	return w.CreatePart(h)
 }
 
-func fileUploadRequest(uri string, method string, params map[string]string, paramName string, fileName string, mimeType string, data io.Reader) (*http.Request, error) {
+func fileUploadRequest(uri, method string, params map[string]string, fileParamName, fileName, mimeType string, data io.Reader) (*http.Request, error) {
 	body := &bytes.Buffer{}
 	writer := multipart.NewWriter(body)
-	part, err := createFormFile(writer, paramName, fileName, mimeType)
-
+	part, err := createGZIPFormFile(writer, fileParamName, fileName, mimeType)
 	if err != nil {
 		return nil, err
 	}
-	_, err = io.Copy(part, data)
-	if err != nil {
+
+	gzipWriter := gzip.NewWriter(part)
+	if _, err = io.Copy(gzipWriter, data); err != nil {
+		return nil, err
+	}
+	if err := gzipWriter.Close(); err != nil {
 		return nil, err
 	}
 
@@ -189,7 +195,7 @@ func (c *Client) doRequestRaw(request *http.Request) (*http.Response, error) {
 }
 
 // LookupAndFetchResource tries to download a given resource from the API
-func (c *Client) LookupAndFetchResource(resourceType string, input string) (bool, []byte, error) {
+func (c *Client) LookupAndFetchResource(resourceType, input string) (bool, []byte, error) {
 	return c.FetchResource("/lookup?type=" + resourceType + "&q=" + input)
 }
 
