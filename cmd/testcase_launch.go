@@ -27,11 +27,11 @@ var (
 
 Examples
 --------
-* launch by organisation and test case name
+* Launch by organisation and test case name
 
   forge test-case launch acme-inc/checkout
 
-* alternatively the test case UID can also be provided
+* Alternatively the test case UID can also be provided
 
   forge test-case launch xPSX5KXM
 
@@ -41,13 +41,12 @@ Configuration
 You can specify configuration for a test run that will overwrite what is defined
 in your JavaScript definition.
 
-* available cluster sizings:
+* Available cluster sizings:
   * %s
-* available cluster regions:
-  * %s
+
+Available cluster regions are available at https://docs.stormforger.com/reference/test-cluster/#cluster-region
 `,
-			strings.Join(validSizings, "\n  * "),
-			strings.Join(validRegions, "\n  * ")),
+			strings.Join(validSizings, "\n  * ")),
 		Run: testRunLaunch,
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
 			if len(args) < 1 {
@@ -89,13 +88,21 @@ in your JavaScript definition.
 	}
 
 	validRegions = []string{
+		"ap-east-1",
 		"ap-northeast-1",
+		"ap-northeast-2",
+		"ap-south-1",
 		"ap-southeast-1",
 		"ap-southeast-2",
+		"ca-central-1",
 		"eu-central-1",
+		"eu-north-1",
 		"eu-west-1",
+		"eu-west-2",
+		"eu-west-3",
 		"sa-east-1",
 		"us-east-1",
+		"us-east-2",
 		"us-west-1",
 		"us-west-2",
 	}
