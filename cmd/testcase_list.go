@@ -13,9 +13,9 @@ import (
 var (
 	// testCaseListCmd represents the testCaseValidate command
 	testCaseListCmd = &cobra.Command{
-		Use:     "list <organization-ref>",
+		Use:     "list <organisation-ref>",
 		Aliases: []string{"ls"},
-		Short:   "List test case for a given organization",
+		Short:   "List test case for a given organisation",
 		Run:     runTestCaseList,
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
 			if len(args) > 1 {
@@ -23,12 +23,12 @@ var (
 			}
 
 			if len(args) < 1 {
-				log.Fatal("Missing organization")
+				log.Fatal("Missing organisation")
 			}
 
 			testCaseListOpts.Organisation = lookupOrganisationUID(*NewClient(), args[0])
 			if testCaseListOpts.Organisation == "" {
-				log.Fatal("Missing organization")
+				log.Fatal("Missing organisation")
 			}
 		},
 	}

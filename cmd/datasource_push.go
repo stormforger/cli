@@ -17,12 +17,12 @@ import (
 
 var (
 	datasourcePushCmd = &cobra.Command{
-		Use:   "push <organization-ref> <file>",
+		Use:   "push <organisation-ref> <file>",
 		Short: "Upload a file",
 		Run:   runDataSourcePush,
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
 			if len(args) < 2 {
-				log.Fatal("Expecting one or more arguments: File(s) to upload")
+				log.Fatal("Expecting one or more arguments: organisation and file(s) to upload")
 			}
 
 			if pushOpts.Raw && (pushOpts.FieldNames != "" || pushOpts.Delimiter != "" || pushOpts.FirstRowHeaders) {
@@ -43,7 +43,7 @@ var (
 
 			datasourceOpts.Organisation = lookupOrganisationUID(*NewClient(), args[0])
 			if datasourceOpts.Organisation == "" {
-				log.Fatal("Missing organization")
+				log.Fatal("Missing organisation")
 			}
 		},
 	}

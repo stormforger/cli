@@ -32,12 +32,11 @@ func stringInSlice(a string, list []string) bool {
 	return false
 }
 
-// FindFixtureByName fetches a FileFixture from a given
-// organization.
-func findFixtureByName(client api.Client, organization string, name string) *filefixture.FileFixture {
-	success, result, err := client.ListFileFixture(organization)
+// FindFixtureByName fetches a FileFixture from a given Organisation.
+func findFixtureByName(client api.Client, orga string, name string) *filefixture.FileFixture {
+	success, result, err := client.ListFileFixture(orga)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("ListFileFixtures failed: %v", err)
 	}
 
 	if !success {
@@ -49,19 +48,18 @@ func findFixtureByName(client api.Client, organization string, name string) *fil
 
 	fileFixtures, err := filefixture.Unmarshal(bytes.NewReader(result))
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Unmarshal failed: %v", err)
 	}
 
 	fileFixture := fileFixtures.FindByName(name)
 	if fileFixture.ID == "" {
-		log.Fatalf("Data source %s not found in organization %s!", name, organization)
+		log.Fatalf("Data source %s not found in organisation %s!", name, orga)
 	}
 
 	return &fileFixture
 }
 
-// findOrganisationByName fetches a FileFixture from a given
-// organization.
+// findOrganisationByName fetches a FileFixture from a given Organisation.
 func findOrganisationByName(client api.Client, name string) *organisation.Organisation {
 	status, response, err := client.ListOrganisations()
 	if err != nil {
