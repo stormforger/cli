@@ -3,14 +3,14 @@ release:
   github:
     owner: stormforger
     name: cli
-brew:
-  github:
-    owner: stormforger
-    name: homebrew-forge
-  install: bin.install "forge"
-  folder: Formula
-  homepage: "https://stormforger.com"
-  description: "The StormForger Command Line Client, called 'forge'"
+brews:
+  - github:
+      owner: stormforger
+      name: homebrew-forge
+    install: bin.install "forge"
+    folder: Formula
+    homepage: "https://stormforger.com"
+    description: "The StormForger Command Line Client, called 'forge'"
 dockers:
 - image_templates:
   - 'stormforger/cli:{{ .Tag }}'
