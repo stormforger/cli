@@ -72,20 +72,34 @@ func runTestCaseUpdate(cmd *cobra.Command, args []string) {
 		}
 	}
 
+	// NOTE: The testcase api endpoint may return an API error with either a 200 or 400.
+	//  200 - no errors
+	//  200 - with errors field, in case of validation errors where the testcase is still saved
+	//  400 - with errors field, if the testcase could not be parsed and saved
+
 	errorMeta, err := api.UnmarshalErrorMeta(strings.NewReader(message))
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	if len(errorMeta.Errors) == 0 {
+	prefix := "INFO"
+	if !success {
+		prefix = "ERROR"
+	} else if len(errorMeta.Errors) > 0 {
+		prefix = "WARN"
+	}
+
+	fmt.Fprintf(os.Stderr, "%s: %s\n", prefix, errorMeta.Message)
+	if len(errorMeta.Errors) > 0 {
+		for i, e := range errorMeta.Errors {
+			fmt.Fprintf(os.Stderr, "\n%d) %s: %s\n", i+1, e.Code, e.Title)
+			fmt.Fprintf(os.Stderr, "%s\n", e.FormattedError)
+		}
+	}
+
+	if success {
 		os.Exit(0)
+	} else {
+		os.Exit(1)
 	}
-
-	fmt.Fprintf(os.Stderr, "%s\n\n", errorMeta.Message)
-	for i, e := range errorMeta.Errors {
-		fmt.Fprintf(os.Stderr, "%d) %s: %s\n", i+1, e.Code, e.Title)
-		fmt.Fprintf(os.Stderr, "%s\n\n", e.FormattedError)
-	}
-
-	os.Exit(1)
 }
