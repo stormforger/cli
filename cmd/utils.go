@@ -82,16 +82,15 @@ func findOrganisationByName(client api.Client, name string) *organisation.Organi
 	return &organisation
 }
 
-func readFromStdinOrReadFromArgument(args []string, defaultFileName string, argPos int) (fileName string, reader io.Reader, err error) {
-	fileName = defaultFileName
-
-	argument := args[argPos]
-
-	if argument == "-" {
+// readFromStdinOrReadFromArgument returns the filename and a filereader for fileArg.
+// If fileArg matches "-", the defaultFileName and stdin is returned
+func readFromStdinOrReadFromArgument(fileArg, defaultFileName string) (fileName string, reader io.Reader, err error) {
+	if fileArg == "-" {
+		fileName = defaultFileName
 		reader = os.Stdin
 	} else {
-		fileName = filepath.Base(argument)
-		reader, err = os.OpenFile(argument, os.O_RDONLY, 0755)
+		fileName = filepath.Base(fileArg)
+		reader, err = os.OpenFile(fileArg, os.O_RDONLY, 0755)
 		if err != nil {
 			return "", nil, err
 		}
@@ -100,18 +99,14 @@ func readFromStdinOrReadFromArgument(args []string, defaultFileName string, argP
 	return fileName, reader, err
 }
 
-func readFromStdinOrReadFirstArgument(args []string, defaultFileName string) (fileName string, reader io.Reader, err error) {
-	return readFromStdinOrReadFromArgument(args, defaultFileName, 0)
-}
-
-func readTestCaseFromStdinOrReadFromArgument(args []string, defaultFileName string, argPos int) (fileName string, reader io.Reader, err error) {
-	fileName, testCaseFile, err := readFromStdinOrReadFromArgument(args, defaultFileName, argPos)
+func readTestCaseFromStdinOrReadFromArgument(arg, defaultFileName string) (fileName string, reader io.Reader, err error) {
+	fileName, testCaseFile, err := readFromStdinOrReadFromArgument(arg, defaultFileName)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	basePath := ""
-	if f := args[argPos]; f != "-" {
+	if f := arg; f != "-" {
 		basePath = filepath.Dir(f)
 	} else {
 		var err error

@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"io"
 	"log"
 	"os"
 	"strings"
@@ -52,7 +53,7 @@ func runTestCaseUpdate(cmd *cobra.Command, args []string) {
 
 	testCaseUID := lookupTestCase(*client, args[0])
 
-	fileName, testCaseFile, err := readTestCaseFromStdinOrReadFromArgument(args, "test_case.js", 1)
+	fileName, testCaseFile, err := readTestCaseFromStdinOrReadFromArgument(args[1], "test_case.js")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -63,7 +64,8 @@ func runTestCaseUpdate(cmd *cobra.Command, args []string) {
 	}
 
 	if rootOpts.OutputFormat == "json" {
-		fmt.Println(message)
+		// if the user wants json, we don't bother to parse it and just dump it.
+		printValidationResultJSON(message)
 
 		if success {
 			os.Exit(0)
@@ -82,6 +84,20 @@ func runTestCaseUpdate(cmd *cobra.Command, args []string) {
 		log.Fatal(err)
 	}
 
+	printValidationResultHuman(os.Stderr, fileName, success, errorMeta)
+
+	if success {
+		os.Exit(0)
+	} else {
+		os.Exit(1)
+	}
+}
+
+func printValidationResultJSON(message string) {
+	fmt.Println(message)
+}
+
+func printValidationResultHuman(fp io.Writer, fileName string, success bool, errorMeta api.ErrorPayload) {
 	prefix := "INFO"
 	if !success {
 		prefix = "ERROR"
@@ -89,17 +105,14 @@ func runTestCaseUpdate(cmd *cobra.Command, args []string) {
 		prefix = "WARN"
 	}
 
-	fmt.Fprintf(os.Stderr, "%s: %s\n", prefix, errorMeta.Message)
+	if fileName != "" {
+		fmt.Fprintf(fp, "# FILE: %s\n", fileName)
+	}
+	fmt.Fprintf(fp, "%s: %s\n", prefix, errorMeta.Message)
 	if len(errorMeta.Errors) > 0 {
 		for i, e := range errorMeta.Errors {
-			fmt.Fprintf(os.Stderr, "\n%d) %s: %s\n", i+1, e.Code, e.Title)
-			fmt.Fprintf(os.Stderr, "%s\n", e.FormattedError)
+			fmt.Fprintf(fp, "\n%d) %s: %s\n", i+1, e.Code, e.Title)
+			fmt.Fprintf(fp, "%s\n", e.FormattedError)
 		}
-	}
-
-	if success {
-		os.Exit(0)
-	} else {
-		os.Exit(1)
 	}
 }
