@@ -75,7 +75,7 @@ func init() {
 func runTestCaseCreate(cmd *cobra.Command, args []string) {
 	orgaUID := testCaseCreateOpts.Organisation
 
-	fileName, testCaseFile, err := readTestCaseFromStdinOrReadFromArgument(args, "test_case.js", 1)
+	fileName, testCaseFile, err := readTestCaseFromStdinOrReadFromArgument(args[1], "test_case.js")
 	if err != nil {
 		log.Fatal(err)
 	}

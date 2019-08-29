@@ -33,7 +33,7 @@ func testRunNfrRun(cmd *cobra.Command, args []string) {
 
 	testRunUID := getTestRunUID(*client, args[0])
 
-	fileName, file, err := readFromStdinOrReadFromArgument(args, "nfr.yml", 1)
+	fileName, file, err := readFromStdinOrReadFromArgument(args[1], "nfr.yml")
 	if err != nil {
 		log.Fatal(err)
 	}

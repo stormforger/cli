@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"fmt"
 	"log"
 	"os"
 	"strings"
@@ -13,35 +12,46 @@ import (
 var (
 	// testCaseValidateCmd represents the testCaseValidate command
 	testCaseValidateCmd = &cobra.Command{
-		Use:   "validate <organisation-ref> <test-case-file>",
+		Use:   "validate <organisation-ref> <test-case-files>",
 		Short: "Upload a test case definition JavaScript and validate it",
 		Long: `Upload a test case definition JavaScript and validate it.
 
 We do require the organisation in order to validate the test case against
 the available resources and limits of that given organisation.
 
-<organisation-ref> is the name or the UID of your organisation.
+<organisation-ref> is the name or the UID of your organisation
+<test-case-files> is one or more file names to validate
 
 Examples
 --------
-* validate a test case (with limits of 'acme-inc' organisation)
+* Validate a test case (with limits of 'acme-inc' organisation)
 
   forge test-case validate acme-inc cases/checkout_process.js
 
-* alternatively the test definition can be piped in as well
+* Alternatively the test definition can be piped in as well
 
-  cat cases/checkout_process.js | forge test-case validate acme-inc -
+	cat cases/checkout_process.js | forge test-case validate acme-inc -
+
+* Verify multiple files at once
+
+	forge test-case validate acme-inc ./dist/foo.js ./dist/bar.js ./dist/foobar.js
 
 `,
 
 		Run: runTestCaseValidate,
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
-			if len(args) > 2 {
-				log.Fatal("Too many arguments")
-			}
-
 			if len(args) < 2 {
 				log.Fatal("Missing arguments; organisation reference and test case file to validate (or - to read from stdin)")
+			}
+
+			stdinUsed := false
+			for _, arg := range args {
+				if arg == "-" {
+					if stdinUsed {
+						log.Fatalf("Stdin ('-') provided multiple times")
+					}
+					stdinUsed = true
+				}
 			}
 
 			testCaseValidateOpts.Organisation = lookupOrganisationUID(*NewClient(), args[0])
@@ -61,42 +71,53 @@ func init() {
 }
 
 func runTestCaseValidate(cmd *cobra.Command, args []string) {
-	fileName, testCaseFile, err := readTestCaseFromStdinOrReadFromArgument(args, "test_case.js", 1)
-	if err != nil {
-		log.Fatal(err)
+	client := NewClient()
+
+	validationError := false
+	for _, arg := range args[1:] {
+		argValidationError, err := runTestCaseValidateArg(cmd, client, arg)
+		if err != nil {
+			log.Fatalf("ERROR: %v for %s\n", err, arg)
+		}
+		if argValidationError {
+			validationError = true
+		}
 	}
 
-	client := NewClient()
+	if validationError {
+		os.Exit(1)
+	}
+}
+
+// returns true if there were any validation ERRORS (not warnings)!
+func runTestCaseValidateArg(cmd *cobra.Command, client *api.Client, fileOrStdin string) (bool, error) {
+	fileName, testCaseFile, err := readTestCaseFromStdinOrReadFromArgument(fileOrStdin, "test_case.js")
+	if err != nil {
+		return true, err
+	}
 
 	success, message, errValidation := client.TestCaseValidate(testCaseValidateOpts.Organisation, fileName, testCaseFile)
 	if errValidation != nil {
-		log.Fatal(errValidation)
+		return true, errValidation
 	}
+	// NOTE: We can get success, success with warnings or just straight up validation errors (success=false)
+	// see testcase_update.go
 
 	if rootOpts.OutputFormat == "json" {
-		fmt.Println(message)
-
-		if success {
-			os.Exit(0)
-		} else {
-			os.Exit(1)
-		}
+		// if the user wants json, we don't bother to parse it and just dump it.
+		printValidationResultJSON(message)
+		return !success, nil
 	}
 
 	errorMeta, err := api.UnmarshalErrorMeta(strings.NewReader(message))
 	if err != nil {
-		log.Fatal(err)
+		return true, err
 	}
+
+	printValidationResultHuman(os.Stderr, fileName, success, errorMeta)
 
 	if len(errorMeta.Errors) == 0 {
-		os.Exit(0)
+		return false, nil
 	}
-
-	fmt.Fprintf(os.Stderr, "%s\n\n", errorMeta.Message)
-	for i, e := range errorMeta.Errors {
-		fmt.Fprintf(os.Stderr, "%d) %s: %s\n", i+1, e.Code, e.Title)
-		fmt.Fprintf(os.Stderr, "%s\n\n", e.FormattedError)
-	}
-
-	os.Exit(1)
+	return true, nil
 }
