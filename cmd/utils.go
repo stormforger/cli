@@ -106,8 +106,8 @@ func readTestCaseFromStdinOrReadFromArgument(arg, defaultFileName string) (fileN
 	}
 
 	basePath := ""
-	if f := arg; f != "-" {
-		basePath = filepath.Dir(f)
+	if arg != "-" {
+		basePath = filepath.Dir(arg)
 	} else {
 		var err error
 		basePath, err = os.Getwd()
