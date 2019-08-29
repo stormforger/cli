@@ -34,7 +34,7 @@ Examples
 
 * Verify multiple files at once
 
-	forge test-case validate acme-inc ./dist/*.js
+	forge test-case validate acme-inc ./dist/foo.js ./dist/bar.js ./dist/foobar.js
 
 `,
 
