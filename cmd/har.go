@@ -18,7 +18,7 @@ var (
 
 func runHar(cmd *cobra.Command, args []string) {
 	if len(args) > 0 {
-		fileName, harFile, err := readTestCaseFromStdinOrReadFromArgument(args[0], "har.json")
+		fileName, harFile, err := readFromStdinOrReadFromArgument(args[0], "har.json")
 		if err != nil {
 			log.Fatal(err)
 		}
