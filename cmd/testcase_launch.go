@@ -161,7 +161,6 @@ func testRunLaunch(cmd *cobra.Command, args []string) {
 	if testRunLaunchOpts.Validate {
 		launchOptions.SessionValidationMode = true
 		launchOptions.ClusterSizing = "preflight"
-		launchOptions.ClusterRegion = "eu-west-1"
 	}
 
 	status, response, err := client.TestRunCreate(testCaseUID, launchOptions)
