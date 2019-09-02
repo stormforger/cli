@@ -191,7 +191,7 @@ func watchTestRun(testRunUID string, maxWatchTime float64, outputFormat string) 
 	testEnded := false
 
 	for true {
-		runningSince := time.Now().Sub(started).Seconds()
+		runningSince := time.Since(started).Seconds()
 
 		testRun, response, err := client.TestRunWatch(testRunUID)
 		if err != nil {
