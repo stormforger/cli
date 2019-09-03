@@ -28,6 +28,7 @@ func (c *Client) MoveFileFixture(organization string, fileFixtureUID string, new
 	if err != nil {
 		return false, "", err
 	}
+	defer response.Body.Close()
 
 	body, err := ioutil.ReadAll(response.Body)
 	if err != nil {
@@ -80,6 +81,7 @@ func (c *Client) PushFileFixture(fileName string, data io.Reader, organization s
 	if err != nil {
 		return false, nil, err
 	}
+	defer response.Body.Close()
 
 	body, err := ioutil.ReadAll(response.Body)
 	if err != nil {
@@ -106,6 +108,7 @@ func (c *Client) DeleteFileFixture(fileFixtureUID string, organization string) (
 	if err != nil {
 		return false, "", err
 	}
+	defer response.Body.Close()
 
 	body, err := ioutil.ReadAll(response.Body)
 	if err != nil {

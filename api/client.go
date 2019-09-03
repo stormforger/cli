@@ -214,6 +214,7 @@ func (c *Client) fetch(path string) (bool, []byte, error) {
 	if err != nil {
 		return false, nil, err
 	}
+	defer response.Body.Close()
 
 	body, err := ioutil.ReadAll(response.Body)
 	if err != nil {
