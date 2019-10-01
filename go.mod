@@ -18,6 +18,6 @@ require (
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/spf13/viper v1.4.0
 	github.com/stretchr/testify v1.4.0 // indirect
-	golang.org/x/crypto v0.0.0-20190923035154-9ee001bba392 // indirect
+	golang.org/x/crypto v0.0.0-20191001141032-4663e185863a // indirect
 	golang.org/x/text v0.3.2 // indirect
 )
