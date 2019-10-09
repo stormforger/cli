@@ -9,7 +9,7 @@ require (
 	github.com/howeyc/gopass v0.0.0-20190910152052-7cb4b85ec19c
 	github.com/magiconair/properties v1.8.1 // indirect
 	github.com/mattn/go-colorable v0.1.4 // indirect
-	github.com/mattn/go-isatty v0.0.9 // indirect
+	github.com/mattn/go-isatty v0.0.10 // indirect
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/pelletier/go-toml v1.5.0
 	github.com/pkg/browser v0.0.0-20180916011732-0a3d74bf9ce4
