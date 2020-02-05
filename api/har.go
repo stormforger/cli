@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
-	"log"
 )
 
 // Har converts the given HAR archive file into
@@ -16,21 +15,21 @@ func (c *Client) Har(fileName string, data io.Reader) (string, error) {
 
 	input, err := ioutil.ReadAll(data)
 	if err != nil {
-		log.Fatal(err)
+		return "", fmt.Errorf("%s: %v", fileName, err)
 	}
 
 	if !json.Valid(input) {
-		return "", fmt.Errorf("given HAR is not valid JSON")
+		return "", fmt.Errorf("%s: given HAR is not valid JSON", fileName)
 	}
 
 	req, err := fileUploadRequest(c.APIEndpoint+"/har", "POST", extraParams, "har_file", fileName, "application/octet-stream", bytes.NewReader(input))
 	if err != nil {
-		log.Fatal(err)
+		return "", err
 	}
 
 	resp, err := c.HTTPClient.Do(req)
 	if err != nil {
-		log.Fatal(err)
+		return "", err
 	}
 
 	body, err := ioutil.ReadAll(resp.Body)

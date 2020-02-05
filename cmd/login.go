@@ -97,7 +97,6 @@ func ensureEmail(args []string) {
 			fmt.Println()
 			log.Fatal("No email provided")
 		}
-
 	}
 }
 
