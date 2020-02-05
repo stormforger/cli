@@ -7,7 +7,6 @@ import (
 	"reflect"
 	"time"
 
-	humanize "github.com/dustin/go-humanize"
 	"github.com/google/jsonapi"
 )
 
@@ -93,30 +92,4 @@ func ShowName(input io.Reader) {
 
 		fmt.Printf("* %s (ID: %s, Content-Hash: %s, Fields: %s)\n", fixture.Name, fixture.ID, fixture.CurrentVersion.Hash, fixture.CurrentVersion.FieldNames)
 	}
-}
-
-// ShowDetails print out details of a file fixture, including its current version
-func ShowDetails(fileFixture *FileFixture) {
-	fmt.Printf("Name:            %s\n", fileFixture.Name)
-	fmt.Printf("UID:             %s\n", fileFixture.ID)
-	fmt.Printf("Created:         %s (%s)\n", convertToLocalTZ(fileFixture.CreatedAt), humanize.Time(fileFixture.CreatedAt))
-	fmt.Printf("Updated:         %s (%s)\n", convertToLocalTZ(fileFixture.UpdatedAt), humanize.Time(fileFixture.UpdatedAt))
-	fmt.Printf("Current Version: %s\n", fileFixture.CurrentVersion.ID)
-	fmt.Printf("  SHA256 Hash:   %s\n", fileFixture.CurrentVersion.Hash)
-	fmt.Printf("  Size:          %s\n", humanize.Bytes(uint64(fileFixture.CurrentVersion.FileSize)))
-	fmt.Printf("  Line Count:    %v\n", fileFixture.CurrentVersion.ItemCount)
-	fmt.Printf("  Created:       %s (%s)\n", convertToLocalTZ(fileFixture.CurrentVersion.CreatedAt), humanize.Time(fileFixture.CurrentVersion.CreatedAt))
-	fmt.Printf("Version(s):      %v\n", len(fileFixture.Versions))
-	for _, version := range fileFixture.Versions {
-		fmt.Printf("  - %s (created %s)\n", version.ID, convertToLocalTZ(version.CreatedAt))
-	}
-}
-
-func convertToLocalTZ(timeToConvert time.Time) time.Time {
-	loc, err := time.LoadLocation("Local")
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	return timeToConvert.In(loc)
 }
