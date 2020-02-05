@@ -3,10 +3,8 @@ package cmd
 import (
 	"bufio"
 	"bytes"
-	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
@@ -156,33 +154,6 @@ func processIncludes(input io.Reader, basePath string) io.Reader {
 	return pr
 }
 
-func printPrettyJSON(message string) {
-	prettyJSON := prettyFormatJSON(message)
-
-	_, err := prettyJSON.WriteTo(os.Stdout)
-	if err != nil {
-		log.Fatal(err)
-	}
-}
-
-func prettyFormatJSON(message string) (out bytes.Buffer) {
-	err := json.Indent(&out, []byte(message), "", "  ")
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	return out
-}
-
-func readOrganisationUIDFromFile() string {
-	content, err := ioutil.ReadFile(".stormforger-organisation")
-	if err != nil {
-		return ""
-	}
-
-	return strings.TrimSpace(string(content))
-}
-
 func watchTestRun(testRunUID string, maxWatchTime float64, outputFormat string) {
 	client := NewClient()
 	started := time.Now()
@@ -273,16 +244,6 @@ func watchTestRun(testRunUID string, maxWatchTime float64, outputFormat string) 
 
 		time.Sleep(5 * time.Second)
 	}
-}
-
-func findFirstNonEmpty(candidates []string) string {
-	for _, item := range candidates {
-		if item != "" {
-			return item
-		}
-	}
-
-	return ""
 }
 
 func lookupOrganisationUID(client api.Client, input string) string {
