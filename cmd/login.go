@@ -64,6 +64,9 @@ func runLogin(cmd *cobra.Command, args []string) {
 			err = ioutil.WriteFile(stormforgerConfig, content, 0644)
 			if err != nil {
 				log.Fatal(err)
+			} else {
+				color.White("\nLogin successful!\n\n")
+				color.Red("JWT token stored at %s.\n\n", stormforgerConfig)
 			}
 
 			setupConfig()
