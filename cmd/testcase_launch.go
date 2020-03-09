@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
@@ -85,6 +86,7 @@ Available cluster regions are available at https://docs.stormforger.com/referenc
 		DumpTraffic           bool
 		SessionValidationMode bool
 		Validate              bool
+		TestRunIDOutputFile   string
 	}
 
 	validRegions = []string{
@@ -120,6 +122,8 @@ Available cluster regions are available at https://docs.stormforger.com/referenc
 
 func init() {
 	TestCaseCmd.AddCommand(testRunLaunchCmd)
+
+	testRunLaunchCmd.Flags().StringVar(&testRunLaunchOpts.TestRunIDOutputFile, "uid-file", "", "Output file for the test-run id")
 
 	testRunLaunchCmd.Flags().BoolVar(&testRunLaunchOpts.OpenInBrowser, "open", false, "Open test run in browser")
 
@@ -178,6 +182,15 @@ func testRunLaunch(cmd *cobra.Command, args []string) {
 	testRun, err := testrun.UnmarshalSingle(strings.NewReader(response))
 	if err != nil {
 		log.Fatal(err)
+	}
+
+	if testRunLaunchOpts.TestRunIDOutputFile != "" {
+		f := testRunLaunchOpts.TestRunIDOutputFile
+		err := ioutil.WriteFile(f, []byte(testRun.ID), 0644)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Failed to write file: %v\n", err)
+			os.Exit(1)
+		}
 	}
 
 	if rootOpts.OutputFormat == "json" {

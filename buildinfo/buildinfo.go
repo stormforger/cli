@@ -7,7 +7,7 @@ import (
 
 // Build infos are set during build
 var (
-	version string
+	version string = "dev"
 	date    string
 	commit  string
 )
