@@ -42,7 +42,7 @@ The call log contains:
 func init() {
 	TestRunCmd.AddCommand(calllogCmd)
 
-	calllogCmd.Flags().StringVar(&logOpts.Type, "type", "request", "type of logs")
+	calllogCmd.Flags().StringVar(&logOpts.Type, "type", "request", "type of logs (request or user)")
 	calllogCmd.Flags().BoolVarP(&logOpts.Full, "full", "f", false, "download full logs")
 	calllogCmd.Flags().StringVar(&logOpts.OutputFile, "file", "-", "save logs to file or '-' for stdout")
 }
@@ -77,6 +77,7 @@ func runTestRunLogs(cmd *cobra.Command, args []string) {
 			log.Fatal(err)
 		}
 	}
+	defer reader.Close()
 
 	if logOpts.OutputFile == "-" {
 		_, err = io.Copy(os.Stdout, reader)
@@ -95,11 +96,6 @@ func runTestRunLogs(cmd *cobra.Command, args []string) {
 		}
 
 		err = file.Close()
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		err = reader.Close()
 		if err != nil {
 			log.Fatal(err)
 		}

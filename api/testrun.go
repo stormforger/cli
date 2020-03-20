@@ -132,9 +132,9 @@ func (c *Client) TestRunLogs(path string, preview bool) (io.ReadCloser, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer response.Body.Close()
 
 	if response.StatusCode != 200 {
+		response.Body.Close()
 		return nil, errors.New("could not download log")
 	}
 
@@ -145,12 +145,9 @@ func (c *Client) TestRunLogs(path string, preview bool) (io.ReadCloser, error) {
 		if err != nil {
 			return nil, err
 		}
-
-		defer close(reader)
 	default:
 		reader = response.Body
 	}
-
 	return reader, nil
 }
 
@@ -170,11 +167,12 @@ func (c *Client) TestRunDump(pathID string) (io.ReadCloser, error) {
 
 	response, err := c.doRequestRaw(req)
 	if err != nil {
+		response.Body.Close()
 		return nil, err
 	}
-	defer response.Body.Close()
 
 	if response.StatusCode != 200 {
+		response.Body.Close()
 		return nil, errors.New("could not load full dump")
 	}
 
@@ -185,8 +183,6 @@ func (c *Client) TestRunDump(pathID string) (io.ReadCloser, error) {
 		if err != nil {
 			return nil, err
 		}
-
-		defer close(reader)
 	default:
 		reader = response.Body
 	}
