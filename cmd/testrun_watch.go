@@ -35,14 +35,15 @@ and 2 if the given timeout was exceeded.`,
 )
 
 var successStates = []string{
-	"launching",
-	"deploying",
-	"starting",
-	"running",
-	"fetching_logs",
-	"log_fetched",
 	"analysing",
+	"deploying",
 	"done",
+	"fetching_logs",
+	"finished",
+	"launching",
+	"log_fetched",
+	"running",
+	"starting",
 }
 
 func init() {
