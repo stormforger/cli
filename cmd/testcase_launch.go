@@ -17,6 +17,16 @@ import (
 	"github.com/stormforger/cli/api/testrun"
 )
 
+const defaultNFRData = `version: "0.1"
+requirements:
+- test.completed: true
+- checks:
+    select: success_rate
+    test: ["=", 1]
+- http.error_ratio:
+    test: ["=", 0]
+`
+
 var (
 	// testRunLaunchCmd represents the test run launch command
 	testRunLaunchCmd = &cobra.Command{
@@ -254,14 +264,7 @@ Web URL: %s
 				}
 			} else {
 				fileName = "validation.yml"
-				nfrData = bytes.NewBufferString(`version: "0.1"
-requirements:
-- test.completed: true
-- checks:
-    select: success_rate
-    test: ["=", 1]
-- http.error_ratio:
-    test: ["=", 0]`)
+				nfrData = bytes.NewBufferString(defaultNFRData)
 			}
 
 			runNfrCheck(*client, testRun.ID, fileName, nfrData)
