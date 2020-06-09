@@ -407,12 +407,15 @@ func displayNfrResult(items testrun.NfrResultList) bool {
 
 	checkStatus := ""
 	anyFails := false
+	var success, total int
 	for _, item := range items.NfrResults {
+		total++ // we count everything, including disable and unavailable here.
 		if !item.Disabled {
 			actualSubject := ""
 
 			if item.SubjectAvailable {
 				if item.Success {
+					success++
 					checkStatus = green("\u2713")
 					actualSubject = fmt.Sprintf("was %s", item.SubjectWithUnit())
 				} else {
@@ -451,6 +454,7 @@ func displayNfrResult(items testrun.NfrResultList) bool {
 		}
 	}
 
+	fmt.Printf("%d/%d checks passed\n", success, total)
 	if !anyFails {
 		fmt.Printf(green("\nAll checks passed!\n"))
 	} else {
