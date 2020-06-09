@@ -26,7 +26,7 @@ var (
 				log.Fatal("Missing organisation")
 			}
 
-			testCaseListOpts.Organisation = lookupOrganisationUID(*NewClient(), args[0])
+			testCaseListOpts.Organisation = lookupOrganisationUID(NewClient(), args[0])
 			if testCaseListOpts.Organisation == "" {
 				log.Fatal("Missing organisation")
 			}

@@ -16,7 +16,7 @@ var (
 		Short:   "Show details of fixture",
 		Args:    cobra.ExactArgs(2),
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
-			datasourceOpts.Organisation = lookupOrganisationUID(*NewClient(), args[0])
+			datasourceOpts.Organisation = lookupOrganisationUID(NewClient(), args[0])
 			if datasourceOpts.Organisation == "" {
 				log.Fatal("Missing organisation")
 			}

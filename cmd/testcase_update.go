@@ -51,7 +51,7 @@ func init() {
 func runTestCaseUpdate(cmd *cobra.Command, args []string) {
 	client := NewClient()
 
-	testCaseUID := lookupTestCase(*client, args[0])
+	testCaseUID := mustLookupTestCase(client, args[0])
 
 	fileName, testCaseFile, err := readTestCaseFromStdinOrReadFromArgument(args[1], "test_case.js")
 	if err != nil {
@@ -66,12 +66,7 @@ func runTestCaseUpdate(cmd *cobra.Command, args []string) {
 	if rootOpts.OutputFormat == "json" {
 		// if the user wants json, we don't bother to parse it and just dump it.
 		printValidationResultJSON(message)
-
-		if success {
-			os.Exit(0)
-		} else {
-			os.Exit(1)
-		}
+		cmdExit(success)
 	}
 
 	// NOTE: The testcase api endpoint may return an API error with either a 200 or 400.
@@ -85,7 +80,10 @@ func runTestCaseUpdate(cmd *cobra.Command, args []string) {
 	}
 
 	printValidationResultHuman(os.Stderr, fileName, success, errorMeta)
+	cmdExit(success)
+}
 
+func cmdExit(success bool) {
 	if success {
 		os.Exit(0)
 	} else {

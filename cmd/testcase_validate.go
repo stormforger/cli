@@ -54,7 +54,7 @@ Examples
 				}
 			}
 
-			testCaseValidateOpts.Organisation = lookupOrganisationUID(*NewClient(), args[0])
+			testCaseValidateOpts.Organisation = lookupOrganisationUID(NewClient(), args[0])
 			if testCaseValidateOpts.Organisation == "" {
 				log.Fatal("Missing organisation")
 			}

@@ -43,7 +43,7 @@ func init() {
 func runTestCaseGet(cmd *cobra.Command, args []string) {
 	client := NewClient()
 
-	testCaseUID := lookupTestCase(*client, args[0])
+	testCaseUID := mustLookupTestCase(client, args[0])
 
 	success, response, err := client.DownloadTestCaseDefinition(testCaseUID)
 	if err != nil {
