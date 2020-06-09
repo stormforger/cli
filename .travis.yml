@@ -1,15 +1,31 @@
-sudo: false
 language: go
+
 go:
-- "1.11.x"
-script: make test
-services:
-  - docker
+- "1.12.x"
+
 env:
-  # DOCKER_USERNAME="stormforger"
-  # DOCKER_PASSWORD=$geheim
-  # GITHUB_TOKEN=${see tisba/"stormforger/cli goreleaser"}
-  - secure: "gEoD3DDjgjUghN2biVOqXmygXZzmPB1jC6xR38y2OWAZhFqD+wScs73Y1Uz8fx7qWIa/pWKwH76MUcSwV6DPit1tOsRqi+/Kr8j984wOhoo70dwOPsrCH5w/HqluclHsOGRPOWaNiVPPjFC18YJvzVSWLfoi2bbMeXljgjDP5nVCfhZ/cc1+yGkwqVI3/c92clAFPFA4ZYc+2HQVyqvNbIR+iEOgIiV5u3wK/JgSvmWEKHdGKQIGKYAv9KkwB7ob2q4KiuyWukRN+l1c5OBSZadqYy2wwJKj/mzRRuV40G//kYK8Y3LMp6xXIhN+GHTCdUXlrl6CVUSD9s6o6TwGoQplJKzAHR6xkvqhDDQGV6DDA1lnEBeflsNZn6mfQ8ODdpzqZgUyiUTsuRnVPo3bHvgrws50wLP7q0MlDZj2Lz4+Et41135979+Ca1h7YDfs3Gr0CuNjZvtPEcVCPBuvjuI5SAedvzoRjhB66tcPTT+bw8JzuGd6lW0aR2FHbH/PreaWwFejlEoo7o8jvR4uOGirHWjfrpn4tDCl+E/aWhevsNEG73bF890ah76yZ0GGiQ8LTcMLyNrEgnQfE2+WZ/d4OBhDCEPhhQXcF3Oa18iOmq8Cag+AcG3rMCvtXD54j1apwaAIyyB1xDQwK1oJ4arJNb0W+/DORpVF1QhVKQ0="
+  global:
+    - GO111MODULE=on
+    # DOCKER_USERNAME="stormforger"
+    # DOCKER_PASSWORD=$geheim
+    # GITHUB_TOKEN=${see tisba/"stormforger/cli goreleaser"}
+    - secure: "JwBtjM+m8PXW5Q/9bXZk9jAfFzy1PmwZyX1A/CoLZ6Xw/V58vUBi93RT88gItFwqLPwxDME1oJMxKD8OfkVI9mN9keVZuJzqOmb6S7C/bAUwXMRhfV7OkQpPlYj0rZpozdym8yXH9nY0pD1ojrLINFn2o7wMvZI97pntg8iThuOg9rYlsdBmDoSofTALm5H+M0u1I/PQIQ9oGEjXgVBLtzS6bIO0tI0CfIt4Mo+TWoVKAzondlzwuc6pL7GO9ZHUNO5TvXA6mJxp8m+jPxaYugSPvZb6gY8OSHMmAy85ql22qG6jQ0bf0rnDi5nNLqVHIuSs0iRI5WWKLZHTzqTAGFxHaB7jBXsyJTJ5WI6S+WudNNY7rNiJtDwHvsI4ULP5W/wjj67oMjAACk8LhP5NqeN/hEj1EAURyZVWlCjimHs90p9bLUFtqa8yT83EZws1MbjpS2Y6CNzY+lsxUmUPw0uoCl8a9fpSjQy32kqZgNADl3JdYSkSGrE+m15jLpwy5nEvqqLwuZNoI5r7EpR/3cZh9RgZAMyUXfUTL360iuO2OsvW1UTQGvbRFy2AgsUNweV72jBaqGiES8dpaDz3sYOaC0oF9fMpOEg59D0T7o2I1jKO7S2m0QfVueXo38q0gyYYXm+sG4PdgFaLbF4IyzEkMx2E3jyNM3qqKq7ZfwA="
+
+cache:
+  directories:
+    - $HOME/.cache/go-build
+    - $HOME/gopath/pkg/mod
+
+services:
+- docker
+
 after_success:
-  - test -n "$TRAVIS_TAG" && docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
-  - test -n "$TRAVIS_TAG" && curl -sL https://git.io/goreleaser | bash
+- test -n "$TRAVIS_TAG" && docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
+
+deploy:
+- provider: script
+  skip_cleanup: true
+  script: curl -sL https://git.io/goreleaser | bash
+  on:
+    tags: true
+    condition: $TRAVIS_OS_NAME = linux

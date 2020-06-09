@@ -75,6 +75,7 @@ func (c *Client) TestRunWatch(uid string) (testrun.TestRun, string, error) {
 	if err != nil {
 		return testrun.TestRun{}, "", err
 	}
+	defer response.Body.Close()
 
 	body, err := ioutil.ReadAll(response.Body)
 	if err != nil {
@@ -133,6 +134,7 @@ func (c *Client) TestRunLogs(path string, preview bool) (io.ReadCloser, error) {
 	}
 
 	if response.StatusCode != 200 {
+		response.Body.Close()
 		return nil, errors.New("could not download log")
 	}
 
@@ -143,12 +145,9 @@ func (c *Client) TestRunLogs(path string, preview bool) (io.ReadCloser, error) {
 		if err != nil {
 			return nil, err
 		}
-
-		defer close(reader)
 	default:
 		reader = response.Body
 	}
-
 	return reader, nil
 }
 
@@ -168,10 +167,12 @@ func (c *Client) TestRunDump(pathID string) (io.ReadCloser, error) {
 
 	response, err := c.doRequestRaw(req)
 	if err != nil {
+		response.Body.Close()
 		return nil, err
 	}
 
 	if response.StatusCode != 200 {
+		response.Body.Close()
 		return nil, errors.New("could not load full dump")
 	}
 
@@ -182,8 +183,6 @@ func (c *Client) TestRunDump(pathID string) (io.ReadCloser, error) {
 		if err != nil {
 			return nil, err
 		}
-
-		defer close(reader)
 	default:
 		reader = response.Body
 	}
@@ -258,6 +257,7 @@ func (c *Client) TestRunCreate(testCaseUID string, options TestRunLaunchOptions)
 	if err != nil {
 		return false, "", err
 	}
+	defer response.Body.Close()
 
 	body, err := ioutil.ReadAll(response.Body)
 	if err != nil {
@@ -281,6 +281,7 @@ func (c *Client) TestRunAbort(testRunUID string) (bool, string, error) {
 	if err != nil {
 		return false, "", err
 	}
+	defer response.Body.Close()
 
 	body, err := ioutil.ReadAll(response.Body)
 	if err != nil {
@@ -308,6 +309,7 @@ func (c *Client) TestRunNfrCheck(uid string, fileName string, data io.Reader) (b
 	if err != nil {
 		log.Fatal(err)
 	}
+	defer response.Body.Close()
 
 	body, err := ioutil.ReadAll(response.Body)
 	if err != nil {

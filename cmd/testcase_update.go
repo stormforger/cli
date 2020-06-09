@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"io"
 	"log"
 	"os"
 	"strings"
@@ -50,9 +51,9 @@ func init() {
 func runTestCaseUpdate(cmd *cobra.Command, args []string) {
 	client := NewClient()
 
-	testCaseUID := lookupTestCase(*client, args[0])
+	testCaseUID := mustLookupTestCase(client, args[0])
 
-	fileName, testCaseFile, err := readTestCaseFromStdinOrReadFromArgument(args, "test_case.js", 1)
+	fileName, testCaseFile, err := readTestCaseFromStdinOrReadFromArgument(args[1], "test_case.js")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -63,29 +64,53 @@ func runTestCaseUpdate(cmd *cobra.Command, args []string) {
 	}
 
 	if rootOpts.OutputFormat == "json" {
-		fmt.Println(message)
-
-		if success {
-			os.Exit(0)
-		} else {
-			os.Exit(1)
-		}
+		// if the user wants json, we don't bother to parse it and just dump it.
+		printValidationResultJSON(message)
+		cmdExit(success)
 	}
+
+	// NOTE: The testcase api endpoint may return an API error with either a 200 or 400.
+	//  200 - no errors
+	//  200 - with errors field, in case of validation errors where the testcase is still saved
+	//  400 - with errors field, if the testcase could not be parsed and saved
 
 	errorMeta, err := api.UnmarshalErrorMeta(strings.NewReader(message))
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	if len(errorMeta.Errors) == 0 {
+	printValidationResultHuman(os.Stderr, fileName, success, errorMeta)
+	cmdExit(success)
+}
+
+func cmdExit(success bool) {
+	if success {
 		os.Exit(0)
+	} else {
+		os.Exit(1)
+	}
+}
+
+func printValidationResultJSON(message string) {
+	fmt.Println(message)
+}
+
+func printValidationResultHuman(fp io.Writer, fileName string, success bool, errorMeta api.ErrorPayload) {
+	prefix := "INFO"
+	if !success {
+		prefix = "ERROR"
+	} else if len(errorMeta.Errors) > 0 {
+		prefix = "WARN"
 	}
 
-	fmt.Fprintf(os.Stderr, "%s\n\n", errorMeta.Message)
-	for i, e := range errorMeta.Errors {
-		fmt.Fprintf(os.Stderr, "%d) %s: %s\n", i+1, e.Code, e.Title)
-		fmt.Fprintf(os.Stderr, "%s\n\n", e.FormattedError)
+	if fileName != "" {
+		fmt.Fprintf(fp, "# FILE: %s\n", fileName)
 	}
-
-	os.Exit(1)
+	fmt.Fprintf(fp, "%s: %s\n", prefix, errorMeta.Message)
+	if len(errorMeta.Errors) > 0 {
+		for i, e := range errorMeta.Errors {
+			fmt.Fprintf(fp, "\n%d) %s: %s\n", i+1, e.Code, e.Title)
+			fmt.Fprintf(fp, "%s\n", e.FormattedError)
+		}
+	}
 }

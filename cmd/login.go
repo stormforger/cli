@@ -65,6 +65,8 @@ func runLogin(cmd *cobra.Command, args []string) {
 			if err != nil {
 				log.Fatal(err)
 			}
+			color.White("\nLogin successful!\n\n")
+			color.Red("JWT token stored at %s.\n\n", stormforgerConfig)
 
 			setupConfig()
 		} else {
@@ -97,7 +99,6 @@ func ensureEmail(args []string) {
 			fmt.Println()
 			log.Fatal("No email provided")
 		}
-
 	}
 }
 

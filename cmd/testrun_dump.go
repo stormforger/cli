@@ -51,6 +51,7 @@ func runTestRunDumpOptions(cmd *cobra.Command, args []string) {
 	if err != nil {
 		log.Fatal(err)
 	}
+	defer reader.Close()
 
 	if dumpOpts.OutputFile == "-" {
 		_, err = io.Copy(os.Stdout, reader)
@@ -69,11 +70,6 @@ func runTestRunDumpOptions(cmd *cobra.Command, args []string) {
 		}
 
 		err = file.Close()
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		err = reader.Close()
 		if err != nil {
 			log.Fatal(err)
 		}

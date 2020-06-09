@@ -39,6 +39,7 @@ func (c *Client) TestCaseValidate(organization string, fileName string, data io.
 	if err != nil {
 		return false, "", err
 	}
+	defer response.Body.Close()
 
 	body, err := ioutil.ReadAll(response.Body)
 	if err != nil {
@@ -70,6 +71,7 @@ func (c *Client) TestCaseCreate(organization string, testCaseName string, fileNa
 	if err != nil {
 		return false, "", err
 	}
+	defer response.Body.Close()
 
 	body, err := ioutil.ReadAll(response.Body)
 	if err != nil {
@@ -99,6 +101,7 @@ func (c *Client) TestCaseUpdate(testCaseUID string, fileName string, data io.Rea
 	if err != nil {
 		return false, "", err
 	}
+	defer response.Body.Close()
 
 	body, err := ioutil.ReadAll(response.Body)
 	if err != nil {

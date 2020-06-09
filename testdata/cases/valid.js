@@ -5,6 +5,9 @@ definition.setArrivalPhases([
   { duration: 15 * 60, rate: 60, max_users: 5000 },
 ]);
 
+definition.setTestOptions({
+  cluster: { sizing: "tiny", }
+})
 definition.session("base", function(session) {
   session.get("/users/configuration", {
     gzip: true,

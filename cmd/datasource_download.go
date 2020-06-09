@@ -11,7 +11,7 @@ import (
 
 var (
 	datasourceDownloadCmd = &cobra.Command{
-		Use:     "get <organization-ref> <name>",
+		Use:     "get <organisation-ref> <name>",
 		Aliases: []string{"download"},
 		Short:   "Download file fixture",
 		Run:     runDatasourceDownload,
@@ -21,12 +21,12 @@ var (
 			}
 
 			if len(args) < 1 {
-				log.Fatal("Missing organization")
+				log.Fatal("Missing organisation")
 			}
 
-			datasourceOpts.Organisation = lookupOrganisationUID(*NewClient(), args[0])
+			datasourceOpts.Organisation = lookupOrganisationUID(NewClient(), args[0])
 			if datasourceOpts.Organisation == "" {
-				log.Fatal("Missing organization")
+				log.Fatal("Missing organisation")
 			}
 		},
 	}

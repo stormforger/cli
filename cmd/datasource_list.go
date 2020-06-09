@@ -12,8 +12,8 @@ import (
 
 var (
 	datasourceListCmd = &cobra.Command{
-		Use:     "ls <organization-ref>",
-		Aliases: []string{"list"},
+		Use:     "list <organisation-ref>",
+		Aliases: []string{"ls"},
 		Short:   "List fixtures",
 		Run:     runDataSourceList,
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
@@ -22,12 +22,12 @@ var (
 			}
 
 			if len(args) < 1 {
-				log.Fatal("Missing organization")
+				log.Fatal("Missing organisation")
 			}
 
-			datasourceOpts.Organisation = lookupOrganisationUID(*NewClient(), args[0])
+			datasourceOpts.Organisation = lookupOrganisationUID(NewClient(), args[0])
 			if datasourceOpts.Organisation == "" {
-				log.Fatal("Missing organization")
+				log.Fatal("Missing organisation")
 			}
 		},
 	}

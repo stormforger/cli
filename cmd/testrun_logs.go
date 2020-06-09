@@ -14,7 +14,9 @@ var (
 	calllogCmd = &cobra.Command{
 		Use:   "logs <test-run-ref>",
 		Short: "Fetch call log (request log)",
-		Long: `Will fetch the test run's call log (request log).
+		Example: "$ forge test-run logs --type=user 12345\n" +
+			"$ forge test-run logs --type=request 67890",
+		Long: `test-run logs fetches the call log (or request log).
 
 By default, you will get the first 10k lines. Using --full you
 will download the entire request log.
@@ -27,7 +29,11 @@ The call log contains:
   * HTTP Status Code
   * response size (in Bytes)
   * duration (in ms)
-  * request tag`,
+	* request tag
+
+By passing --type=user you can download the userlog containing messages
+generated via 'session.log()'.
+`,
 		Run:              runTestRunLogs,
 		PersistentPreRun: ensureTestRunLogs,
 	}
@@ -42,7 +48,7 @@ The call log contains:
 func init() {
 	TestRunCmd.AddCommand(calllogCmd)
 
-	calllogCmd.Flags().StringVar(&logOpts.Type, "type", "request", "type of logs")
+	calllogCmd.Flags().StringVar(&logOpts.Type, "type", "request", "type of logs (request or user)")
 	calllogCmd.Flags().BoolVarP(&logOpts.Full, "full", "f", false, "download full logs")
 	calllogCmd.Flags().StringVar(&logOpts.OutputFile, "file", "-", "save logs to file or '-' for stdout")
 }
@@ -77,6 +83,7 @@ func runTestRunLogs(cmd *cobra.Command, args []string) {
 			log.Fatal(err)
 		}
 	}
+	defer reader.Close()
 
 	if logOpts.OutputFile == "-" {
 		_, err = io.Copy(os.Stdout, reader)
@@ -95,11 +102,6 @@ func runTestRunLogs(cmd *cobra.Command, args []string) {
 		}
 
 		err = file.Close()
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		err = reader.Close()
 		if err != nil {
 			log.Fatal(err)
 		}

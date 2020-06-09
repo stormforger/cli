@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
@@ -32,12 +31,11 @@ func stringInSlice(a string, list []string) bool {
 	return false
 }
 
-// FindFixtureByName fetches a FileFixture from a given
-// organization.
-func findFixtureByName(client api.Client, organization string, name string) *filefixture.FileFixture {
-	success, result, err := client.ListFileFixture(organization)
+// FindFixtureByName fetches a FileFixture from a given Organisation.
+func findFixtureByName(client api.Client, orga string, name string) *filefixture.FileFixture {
+	success, result, err := client.ListFileFixture(orga)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("ListFileFixtures failed: %v", err)
 	}
 
 	if !success {
@@ -49,20 +47,19 @@ func findFixtureByName(client api.Client, organization string, name string) *fil
 
 	fileFixtures, err := filefixture.Unmarshal(bytes.NewReader(result))
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Unmarshal failed: %v", err)
 	}
 
 	fileFixture := fileFixtures.FindByName(name)
 	if fileFixture.ID == "" {
-		log.Fatalf("Data source %s not found in organization %s!", name, organization)
+		log.Fatalf("Data source %s not found in organisation %s!", name, orga)
 	}
 
 	return &fileFixture
 }
 
-// findOrganisationByName fetches a FileFixture from a given
-// organization.
-func findOrganisationByName(client api.Client, name string) *organisation.Organisation {
+// findOrganisationByName fetches a FileFixture from a given Organisation.
+func findOrganisationByName(client *api.Client, name string) *organisation.Organisation {
 	status, response, err := client.ListOrganisations()
 	if err != nil {
 		log.Fatal(err)
@@ -84,16 +81,15 @@ func findOrganisationByName(client api.Client, name string) *organisation.Organi
 	return &organisation
 }
 
-func readFromStdinOrReadFromArgument(args []string, defaultFileName string, argPos int) (fileName string, reader io.Reader, err error) {
-	fileName = defaultFileName
-
-	argument := args[argPos]
-
-	if argument == "-" {
+// readFromStdinOrReadFromArgument returns the filename and a filereader for fileArg.
+// If fileArg matches "-", the defaultFileName and stdin is returned
+func readFromStdinOrReadFromArgument(fileArg, defaultFileName string) (fileName string, reader io.Reader, err error) {
+	if fileArg == "-" {
+		fileName = defaultFileName
 		reader = os.Stdin
 	} else {
-		fileName = filepath.Base(argument)
-		reader, err = os.OpenFile(argument, os.O_RDONLY, 0755)
+		fileName = filepath.Base(fileArg)
+		reader, err = os.OpenFile(fileArg, os.O_RDONLY, 0755)
 		if err != nil {
 			return "", nil, err
 		}
@@ -102,19 +98,15 @@ func readFromStdinOrReadFromArgument(args []string, defaultFileName string, argP
 	return fileName, reader, err
 }
 
-func readFromStdinOrReadFirstArgument(args []string, defaultFileName string) (fileName string, reader io.Reader, err error) {
-	return readFromStdinOrReadFromArgument(args, defaultFileName, 0)
-}
-
-func readTestCaseFromStdinOrReadFromArgument(args []string, defaultFileName string, argPos int) (fileName string, reader io.Reader, err error) {
-	fileName, testCaseFile, err := readFromStdinOrReadFromArgument(args, defaultFileName, argPos)
+func readTestCaseFromStdinOrReadFromArgument(arg, defaultFileName string) (fileName string, reader io.Reader, err error) {
+	fileName, testCaseFile, err := readFromStdinOrReadFromArgument(arg, defaultFileName)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	basePath := ""
-	if f := args[argPos]; f != "-" {
-		basePath = filepath.Dir(f)
+	if arg != "-" {
+		basePath = filepath.Dir(arg)
 	} else {
 		var err error
 		basePath, err = os.Getwd()
@@ -163,33 +155,6 @@ func processIncludes(input io.Reader, basePath string) io.Reader {
 	return pr
 }
 
-func printPrettyJSON(message string) {
-	prettyJSON := prettyFormatJSON(message)
-
-	_, err := prettyJSON.WriteTo(os.Stdout)
-	if err != nil {
-		log.Fatal(err)
-	}
-}
-
-func prettyFormatJSON(message string) (out bytes.Buffer) {
-	err := json.Indent(&out, []byte(message), "", "  ")
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	return out
-}
-
-func readOrganisationUIDFromFile() string {
-	content, err := ioutil.ReadFile(".stormforger-organisation")
-	if err != nil {
-		return ""
-	}
-
-	return strings.TrimSpace(string(content))
-}
-
 func watchTestRun(testRunUID string, maxWatchTime float64, outputFormat string) {
 	client := NewClient()
 	started := time.Now()
@@ -198,7 +163,7 @@ func watchTestRun(testRunUID string, maxWatchTime float64, outputFormat string) 
 	testEnded := false
 
 	for true {
-		runningSince := time.Now().Sub(started).Seconds()
+		runningSince := time.Since(started).Seconds()
 
 		testRun, response, err := client.TestRunWatch(testRunUID)
 		if err != nil {
@@ -282,17 +247,7 @@ func watchTestRun(testRunUID string, maxWatchTime float64, outputFormat string) 
 	}
 }
 
-func findFirstNonEmpty(candidates []string) string {
-	for _, item := range candidates {
-		if item != "" {
-			return item
-		}
-	}
-
-	return ""
-}
-
-func lookupOrganisationUID(client api.Client, input string) string {
+func lookupOrganisationUID(client *api.Client, input string) string {
 	organisation := findOrganisationByName(client, input)
 	if organisation.ID == "" {
 		log.Fatalf("Organisation %s not found", input)
@@ -301,7 +256,16 @@ func lookupOrganisationUID(client api.Client, input string) string {
 	return organisation.ID
 }
 
-func lookupTestCase(client api.Client, input string) string {
+// mustLookupTestCase returns the ID of the test-case for the given input or calls log.Fatal().
+func mustLookupTestCase(client *api.Client, input string) string {
+	s := lookupTestCase(client, input)
+	if s == "" {
+		log.Fatalf("Test case for query '%s' not found", input)
+	}
+	return s
+}
+
+func lookupTestCase(client *api.Client, input string) string {
 	segments := strings.Split(input, "/")
 	nameOrUID := input
 
@@ -322,10 +286,6 @@ func lookupTestCase(client api.Client, input string) string {
 		}
 
 		testCase := testCases.FindByNameOrUID(nameOrUID)
-		if testCase.ID == "" {
-			log.Fatalf("Test case %s not found", nameOrUID)
-		}
-
 		return testCase.ID
 	}
 
@@ -408,7 +368,27 @@ func runNfrCheck(client api.Client, testRunUID string, fileName string, nfrData 
 	}
 
 	if !status {
-		log.Fatalf("Could not perform test run NFR checks...\n%s", result)
+		var response struct {
+			Status  string
+			Message string
+			Error   string
+		}
+
+		log.Println("Could not perform test-run NFR checks...")
+		if err := json.Unmarshal(result, &response); err != nil {
+			log.Println(string(result))
+		} else {
+			if response.Status != "" {
+				log.Printf(" Status:\t%s\n", response.Status)
+			}
+			if response.Message != "" {
+				log.Printf(" Message:\t%s\n", response.Message)
+			}
+			if response.Error != "" {
+				log.Printf(" Error:\t%s\n", response.Error)
+			}
+		}
+		os.Exit(1)
 	}
 
 	items, err := testrun.UnmarshalNfrResults(bytes.NewReader(result))
@@ -432,12 +412,15 @@ func displayNfrResult(items testrun.NfrResultList) bool {
 
 	checkStatus := ""
 	anyFails := false
+	var success, total int
 	for _, item := range items.NfrResults {
+		total++ // we count everything, including disable and unavailable here.
 		if !item.Disabled {
 			actualSubject := ""
 
 			if item.SubjectAvailable {
 				if item.Success {
+					success++
 					checkStatus = green("\u2713")
 					actualSubject = fmt.Sprintf("was %s", item.SubjectWithUnit())
 				} else {
@@ -476,6 +459,7 @@ func displayNfrResult(items testrun.NfrResultList) bool {
 		}
 	}
 
+	fmt.Printf("%d/%d checks passed\n", success, total)
 	if !anyFails {
 		fmt.Printf(green("\nAll checks passed!\n"))
 	} else {

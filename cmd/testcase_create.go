@@ -12,23 +12,25 @@ import (
 )
 
 var (
+
 	// testCaseCreateCmd represents the testCaseValidate command
 	testCaseCreateCmd = &cobra.Command{
 		Use:   "create <test-case-ref> <test-case-file>",
 		Short: "Create a new test case",
 		Long: `Create a new test case.
 
-<test-case-ref> is 'organisation-name/test-case-name'.
+		<test-case-ref> is 'organisation-name/test-case-name'.
+		<test-case-file> is a path or - for stdin.
 
 Examples
 --------
-* create a new test case named 'checkout' in the 'acme-inc' organisation
+* Create a new test case named 'checkout' in the 'acme-inc' organisation
 
-  forge test-case create acme-inc/checkout cases/checkout_process.js
+forge test-case create acme-inc/checkout cases/checkout_process.js
 
-* alternatively the test definition can be piped in as well
+* Alternatively the test definition can be piped in as well
 
-  cat cases/checkout_process.js | forge test-case create acme-inc/checkout -
+cat cases/checkout_process.js | forge test-case create acme-inc/checkout -
 
 `,
 		Run: runTestCaseCreate,
@@ -47,9 +49,9 @@ Examples
 				log.Fatal("Invalid argument: <test-case-ref> has to be like organisation-name/test-case-name")
 			}
 
-			testCaseCreateOpts.Organisation = lookupOrganisationUID(*NewClient(), segments[0])
+			testCaseCreateOpts.Organisation = lookupOrganisationUID(NewClient(), segments[0])
 			if testCaseCreateOpts.Organisation == "" {
-				log.Fatal("Missing organization")
+				log.Fatal("Missing organisation")
 			}
 
 			testCaseCreateOpts.Name = segments[1]
@@ -62,6 +64,7 @@ Examples
 	testCaseCreateOpts struct {
 		Organisation string
 		Name         string
+		Update       bool // update test-case if already exists
 	}
 )
 
@@ -69,12 +72,13 @@ func init() {
 	TestCaseCmd.AddCommand(testCaseCreateCmd)
 
 	testCaseCreateCmd.PersistentFlags().StringVarP(&testCaseCreateOpts.Name, "name", "n", "", "Name of the new test case")
+	testCaseCreateCmd.PersistentFlags().BoolVar(&testCaseCreateOpts.Update, "update", false, "Update test-case instead, if it already exists")
 }
 
 func runTestCaseCreate(cmd *cobra.Command, args []string) {
-	organizationUID := testCaseCreateOpts.Organisation
+	orgaUID := testCaseCreateOpts.Organisation
 
-	fileName, testCaseFile, err := readTestCaseFromStdinOrReadFromArgument(args, "test_case.js", 1)
+	fileName, testCaseFile, err := readTestCaseFromStdinOrReadFromArgument(args[1], "test_case.js")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -93,19 +97,28 @@ func runTestCaseCreate(cmd *cobra.Command, args []string) {
 
 	client := NewClient()
 
-	success, message, errValidation := client.TestCaseCreate(organizationUID, testCaseName, fileName, testCaseFile)
+	testcaseUID := lookupTestCase(client, orgaUID+"/"+testCaseName)
+
+	var (
+		success       bool
+		message       string
+		errValidation error
+	)
+	if testcaseUID != "" && !testCaseCreateOpts.Update {
+		log.Fatal("Test-Case already exists.")
+	} else if testcaseUID == "" {
+		success, message, errValidation = client.TestCaseCreate(orgaUID, testCaseName, fileName, testCaseFile)
+	} else {
+		success, message, errValidation = client.TestCaseUpdate(testcaseUID, fileName, testCaseFile)
+	}
+
 	if errValidation != nil {
 		log.Fatal(errValidation)
 	}
 
 	if rootOpts.OutputFormat == "json" {
-		fmt.Println(message)
-
-		if success {
-			os.Exit(0)
-		} else {
-			os.Exit(1)
-		}
+		printValidationResultJSON(message)
+		cmdExit(success)
 	}
 
 	errorMeta, err := api.UnmarshalErrorMeta(strings.NewReader(message))
@@ -117,11 +130,6 @@ func runTestCaseCreate(cmd *cobra.Command, args []string) {
 		os.Exit(0)
 	}
 
-	fmt.Fprintf(os.Stderr, "%s\n\n", errorMeta.Message)
-	for i, e := range errorMeta.Errors {
-		fmt.Fprintf(os.Stderr, "%d) %s: %s\n", i+1, e.Code, e.Title)
-		fmt.Fprintf(os.Stderr, "%s\n\n", e.FormattedError)
-	}
-
-	os.Exit(1)
+	printValidationResultHuman(os.Stderr, fileName, success, errorMeta)
+	cmdExit(success)
 }

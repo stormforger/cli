@@ -5,7 +5,7 @@
 
 # forge! The StormForger Command Line Client
 
-Please note that this tool is still **HEAVY WORK IN PROGRESS**. If you have any questions, don't hesitate to get in [contact](https://stormforger.com/support).
+If you have any questions, don't hesitate to get in [contact](https://stormforger.com/support).
 
 Using `forge` you can:
 
@@ -138,13 +138,9 @@ You can **STOP READING** now unless you want to know how to build `forge` and ma
 
 Use `make setup` to install required go build dependencies.
 
-We use [`dep`](https://github.com/golang/dep) to vendor dependencies.
+We use [Go modules](https://github.com/golang/go/wiki/Modules) to manage dependencies.
 
-To add a dependency, simply import it and then run `dep ensure` which will add the dependency to the manifest.
-
-To update all dependencies, run `dep ensure -update`.
-
-In any case: **Make sure you add or update dependencies in a dedicated commit!**.
+If you change or update dependencies, run `go mod tidy`.
 
 
 ### Release

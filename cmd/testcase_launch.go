@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
@@ -16,6 +17,16 @@ import (
 	"github.com/stormforger/cli/api/testrun"
 )
 
+const defaultNFRData = `version: "0.1"
+requirements:
+- test.completed: true
+- checks:
+    select: success_rate
+    test: ["=", 1]
+- http.error_ratio:
+    test: ["=", 0]
+`
+
 var (
 	// testRunLaunchCmd represents the test run launch command
 	testRunLaunchCmd = &cobra.Command{
@@ -27,11 +38,11 @@ var (
 
 Examples
 --------
-* launch by organisation and test case name
+* Launch by organisation and test case name
 
   forge test-case launch acme-inc/checkout
 
-* alternatively the test case UID can also be provided
+* Alternatively the test case UID can also be provided
 
   forge test-case launch xPSX5KXM
 
@@ -41,13 +52,12 @@ Configuration
 You can specify configuration for a test run that will overwrite what is defined
 in your JavaScript definition.
 
-* available cluster sizings:
+* Available cluster sizings:
   * %s
-* available cluster regions:
-  * %s
+
+Available cluster regions are available at https://docs.stormforger.com/reference/test-cluster/#cluster-region
 `,
-			strings.Join(validSizings, "\n  * "),
-			strings.Join(validRegions, "\n  * ")),
+			strings.Join(validSizings, "\n  * ")),
 		Run: testRunLaunch,
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
 			if len(args) < 1 {
@@ -56,10 +66,6 @@ in your JavaScript definition.
 
 			if len(args) > 1 {
 				log.Fatal("Too many arguments")
-			}
-
-			if testRunLaunchOpts.DumpTraffic && testRunLaunchOpts.CheckNFR != "" {
-				log.Fatal("--dump-traffic and --nfr-check-file are mutual exclusive")
 			}
 
 			if testRunLaunchOpts.ClusterRegion != "" && !stringInSlice(testRunLaunchOpts.ClusterRegion, validRegions) {
@@ -86,16 +92,25 @@ in your JavaScript definition.
 		DumpTraffic           bool
 		SessionValidationMode bool
 		Validate              bool
+		TestRunIDOutputFile   string
 	}
 
 	validRegions = []string{
+		"ap-east-1",
 		"ap-northeast-1",
+		"ap-northeast-2",
+		"ap-south-1",
 		"ap-southeast-1",
 		"ap-southeast-2",
+		"ca-central-1",
 		"eu-central-1",
+		"eu-north-1",
 		"eu-west-1",
+		"eu-west-2",
+		"eu-west-3",
 		"sa-east-1",
 		"us-east-1",
+		"us-east-2",
 		"us-west-1",
 		"us-west-2",
 	}
@@ -113,6 +128,8 @@ in your JavaScript definition.
 
 func init() {
 	TestCaseCmd.AddCommand(testRunLaunchCmd)
+
+	testRunLaunchCmd.Flags().StringVar(&testRunLaunchOpts.TestRunIDOutputFile, "uid-file", "", "Output file for the test-run id")
 
 	testRunLaunchCmd.Flags().BoolVar(&testRunLaunchOpts.OpenInBrowser, "open", false, "Open test run in browser")
 
@@ -138,7 +155,7 @@ func init() {
 func testRunLaunch(cmd *cobra.Command, args []string) {
 	client := NewClient()
 
-	testCaseUID := lookupTestCase(*client, args[0])
+	testCaseUID := mustLookupTestCase(client, args[0])
 
 	launchOptions := api.TestRunLaunchOptions{
 		Title:                 testRunLaunchOpts.Title,
@@ -154,7 +171,6 @@ func testRunLaunch(cmd *cobra.Command, args []string) {
 	if testRunLaunchOpts.Validate {
 		launchOptions.SessionValidationMode = true
 		launchOptions.ClusterSizing = "preflight"
-		launchOptions.ClusterRegion = "eu-west-1"
 	}
 
 	status, response, err := client.TestRunCreate(testCaseUID, launchOptions)
@@ -172,6 +188,15 @@ func testRunLaunch(cmd *cobra.Command, args []string) {
 	testRun, err := testrun.UnmarshalSingle(strings.NewReader(response))
 	if err != nil {
 		log.Fatal(err)
+	}
+
+	if testRunLaunchOpts.TestRunIDOutputFile != "" {
+		f := testRunLaunchOpts.TestRunIDOutputFile
+		err := ioutil.WriteFile(f, []byte(testRun.ID), 0644)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Failed to write file: %v\n", err)
+			os.Exit(1)
+		}
 	}
 
 	if rootOpts.OutputFormat == "json" {
@@ -235,14 +260,7 @@ Web URL: %s
 				}
 			} else {
 				fileName = "validation.yml"
-				nfrData = bytes.NewBufferString(`version: "0.1"
-requirements:
-- test.completed: true
-- checks:
-    select: success_rate
-    test: ["=", 1]
-- http.error_ratio:
-    test: ["=", 0]`)
+				nfrData = bytes.NewBufferString(defaultNFRData)
 			}
 
 			runNfrCheck(*client, testRun.ID, fileName, nfrData)

@@ -10,7 +10,7 @@ import (
 
 var (
 	datasourceMoveCmd = &cobra.Command{
-		Use:     "mv <organization-ref> <name> <new-name>",
+		Use:     "mv <organisation-ref> <name> <new-name>",
 		Aliases: []string{"move", "rename"},
 		Short:   "Rename a fixture",
 		Run:     runDataSourceMove,
@@ -19,9 +19,9 @@ var (
 				log.Fatal("Expecting exactly three arguments: organisation, name of source and destination")
 			}
 
-			datasourceOpts.Organisation = lookupOrganisationUID(*NewClient(), args[0])
+			datasourceOpts.Organisation = lookupOrganisationUID(NewClient(), args[0])
 			if datasourceOpts.Organisation == "" {
-				log.Fatal("Missing organization")
+				log.Fatal("Missing organisation")
 			}
 		},
 	}

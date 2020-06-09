@@ -18,7 +18,7 @@ import (
 
 var (
 	datasourcePushCmd = &cobra.Command{
-		Use:   "push <organization-ref> <file>",
+		Use:   "push <organisation-ref> <file>",
 		Short: "Upload a file",
 		Run:   runDataSourcePush,
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
@@ -73,9 +73,9 @@ var (
 				log.Fatal("Delimiter can only be one character!")
 			}
 
-			datasourceOpts.Organisation = lookupOrganisationUID(*NewClient(), args[0])
+			datasourceOpts.Organisation = lookupOrganisationUID(NewClient(), args[0])
 			if datasourceOpts.Organisation == "" {
-				log.Fatal("Missing organization")
+				log.Fatal("Missing organisation")
 			}
 		},
 	}
