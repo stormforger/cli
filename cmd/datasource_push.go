@@ -41,7 +41,7 @@ var (
 				log.Fatal("Delimiter can only be one character!")
 			}
 
-			datasourceOpts.Organisation = lookupOrganisationUID(*NewClient(), args[0])
+			datasourceOpts.Organisation = lookupOrganisationUID(NewClient(), args[0])
 			if datasourceOpts.Organisation == "" {
 				log.Fatal("Missing organisation")
 			}

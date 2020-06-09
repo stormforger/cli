@@ -155,7 +155,7 @@ func init() {
 func testRunLaunch(cmd *cobra.Command, args []string) {
 	client := NewClient()
 
-	testCaseUID := lookupTestCase(*client, args[0])
+	testCaseUID := mustLookupTestCase(client, args[0])
 
 	launchOptions := api.TestRunLaunchOptions{
 		Title:                 testRunLaunchOpts.Title,

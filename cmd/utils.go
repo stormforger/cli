@@ -59,7 +59,7 @@ func findFixtureByName(client api.Client, orga string, name string) *filefixture
 }
 
 // findOrganisationByName fetches a FileFixture from a given Organisation.
-func findOrganisationByName(client api.Client, name string) *organisation.Organisation {
+func findOrganisationByName(client *api.Client, name string) *organisation.Organisation {
 	status, response, err := client.ListOrganisations()
 	if err != nil {
 		log.Fatal(err)
@@ -247,7 +247,7 @@ func watchTestRun(testRunUID string, maxWatchTime float64, outputFormat string) 
 	}
 }
 
-func lookupOrganisationUID(client api.Client, input string) string {
+func lookupOrganisationUID(client *api.Client, input string) string {
 	organisation := findOrganisationByName(client, input)
 	if organisation.ID == "" {
 		log.Fatalf("Organisation %s not found", input)
@@ -256,7 +256,16 @@ func lookupOrganisationUID(client api.Client, input string) string {
 	return organisation.ID
 }
 
-func lookupTestCase(client api.Client, input string) string {
+// mustLookupTestCase returns the ID of the test-case for the given input or calls log.Fatal().
+func mustLookupTestCase(client *api.Client, input string) string {
+	s := lookupTestCase(client, input)
+	if s == "" {
+		log.Fatalf("Test case for query '%s' not found", input)
+	}
+	return s
+}
+
+func lookupTestCase(client *api.Client, input string) string {
 	segments := strings.Split(input, "/")
 	nameOrUID := input
 
@@ -277,10 +286,6 @@ func lookupTestCase(client api.Client, input string) string {
 		}
 
 		testCase := testCases.FindByNameOrUID(nameOrUID)
-		if testCase.ID == "" {
-			log.Fatalf("Test case %s not found", nameOrUID)
-		}
-
 		return testCase.ID
 	}
 
