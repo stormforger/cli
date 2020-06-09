@@ -3,6 +3,7 @@ package cmd
 import (
 	"bufio"
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"io"
 	"log"
@@ -362,7 +363,27 @@ func runNfrCheck(client api.Client, testRunUID string, fileName string, nfrData 
 	}
 
 	if !status {
-		log.Fatalf("Could not perform test run NFR checks...\n%s", result)
+		var response struct {
+			Status  string
+			Message string
+			Error   string
+		}
+
+		log.Println("Could not perform test-run NFR checks...")
+		if err := json.Unmarshal(result, &response); err != nil {
+			log.Println(string(result))
+		} else {
+			if response.Status != "" {
+				log.Printf(" Status:\t%s\n", response.Status)
+			}
+			if response.Message != "" {
+				log.Printf(" Message:\t%s\n", response.Message)
+			}
+			if response.Error != "" {
+				log.Printf(" Error:\t%s\n", response.Error)
+			}
+		}
+		os.Exit(1)
 	}
 
 	items, err := testrun.UnmarshalNfrResults(bytes.NewReader(result))
