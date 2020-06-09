@@ -68,10 +68,6 @@ Available cluster regions are available at https://docs.stormforger.com/referenc
 				log.Fatal("Too many arguments")
 			}
 
-			if testRunLaunchOpts.DumpTraffic && testRunLaunchOpts.CheckNFR != "" {
-				log.Fatal("--dump-traffic and --nfr-check-file are mutual exclusive")
-			}
-
 			if testRunLaunchOpts.ClusterRegion != "" && !stringInSlice(testRunLaunchOpts.ClusterRegion, validRegions) {
 				log.Fatalf("%s is not a valid region", testRunLaunchOpts.ClusterRegion)
 			}
