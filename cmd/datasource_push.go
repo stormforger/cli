@@ -19,7 +19,6 @@ var (
 	datasourcePushCmd = &cobra.Command{
 		Use:   "push <organisation-ref> <file>",
 		Short: "Upload a file",
-		Run:   runDataSourcePush,
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
 			if len(args) < 2 {
 				log.Fatal("Expecting one or more arguments: organisation and file(s) to upload")
@@ -46,35 +45,41 @@ var (
 				log.Fatal("Missing organisation")
 			}
 		},
+		Run: func(cmd *cobra.Command, args []string) {
+			client := NewClient()
+			MainDataSourcePush(client, pushOpts, args)
+		},
 	}
 
-	pushOpts struct {
-		Raw             bool
-		Delimiter       string
-		FieldNames      string
-		Name            string
-		NamePrefixPath  string
-		FirstRowHeaders bool
-	}
+	pushOpts PushOpts
 )
+
+type PushOpts struct {
+	Raw             bool
+	Delimiter       string
+	FieldNames      string
+	Name            string
+	NamePrefixPath  string
+	FirstRowHeaders bool
+}
 
 func init() {
 	datasourceCmd.AddCommand(datasourcePushCmd)
 
 	// type of FF
-	datasourcePushCmd.Flags().BoolVarP(&pushOpts.Raw, "raw", "r", false, "Upload file as raw fixture")
+	datasourcePushCmd.Flags().BoolVarP(&pushOpts.Raw, "raw", "r", false, "Enable to upload file as raw fixture")
 
 	// general options
 	datasourcePushCmd.Flags().StringVarP(&pushOpts.Name, "name", "n", "", "Name for the file fixture")
 	datasourcePushCmd.Flags().StringVarP(&pushOpts.NamePrefixPath, "name-prefix-path", "p", "", "Prefix for name for the file fixture")
 
 	// options for structured FF
-	datasourcePushCmd.Flags().StringVarP(&pushOpts.Delimiter, "delimiter", "d", "", "Column Delimiter")
+	datasourcePushCmd.Flags().StringVarP(&pushOpts.Delimiter, "delimiter", "d", "", "Column Delimiter (defaults to ',' for structured file fixtures)")
 	datasourcePushCmd.Flags().StringVarP(&pushOpts.FieldNames, "fields", "f", "", "Name for the fields/columns, comma separated (,)")
-	datasourcePushCmd.Flags().BoolVarP(&pushOpts.FirstRowHeaders, "auto-field-names", "", false, "Interpret first row as headers")
+	datasourcePushCmd.Flags().BoolVar(&pushOpts.FirstRowHeaders, "auto-field-names", false, "Enable to interpret first row as headers")
 }
 
-func runDataSourcePush(cmd *cobra.Command, args []string) {
+func MainDataSourcePush(client *api.Client, pushOpts PushOpts, args []string) {
 	var fixtureNameFor func(string) string
 	if len(args) == 2 {
 		fixtureNameFor = func(fileName string) string {
@@ -96,8 +101,6 @@ func runDataSourcePush(cmd *cobra.Command, args []string) {
 	} else {
 		fixtureType = "structured"
 	}
-
-	client := NewClient()
 
 	var params *api.FileFixtureParams
 	someErrors := false
