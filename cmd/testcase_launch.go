@@ -59,7 +59,6 @@ in your JavaScript definition.
 Available cluster regions are available at https://docs.stormforger.com/reference/test-cluster/#cluster-region
 `,
 			strings.Join(validSizings, "\n  * ")),
-		Run: testRunLaunch,
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
 			if len(args) < 1 {
 				log.Fatal("Missing argument: test case reference")
@@ -77,24 +76,13 @@ Available cluster regions are available at https://docs.stormforger.com/referenc
 				log.Fatalf("%s is not a valid sizing", testRunLaunchOpts.ClusterSizing)
 			}
 		},
+		Run: func(cmd *cobra.Command, args []string) {
+			client := NewClient()
+			MainTestRunLaunch(client, args[0], testRunLaunchOpts)
+		},
 	}
 
-	testRunLaunchOpts struct {
-		OpenInBrowser         bool
-		Title                 string
-		Notes                 string
-		ClusterRegion         string
-		ClusterSizing         string
-		Watch                 bool
-		MaxWatchTime          time.Duration
-		CheckNFR              string
-		DisableGzip           bool
-		SkipWait              bool
-		DumpTraffic           bool
-		SessionValidationMode bool
-		Validate              bool
-		TestRunIDOutputFile   string
-	}
+	testRunLaunchOpts testRunLaunchCmdOpts
 
 	validRegions = []string{
 		"ap-east-1",
@@ -127,6 +115,26 @@ Available cluster regions are available at https://docs.stormforger.com/referenc
 	}
 )
 
+type testRunLaunchCmdOpts struct {
+	OpenInBrowser bool
+
+	Title                    string
+	Notes                    string
+	JavascriptDefinitionFile string
+
+	ClusterRegion         string
+	ClusterSizing         string
+	Watch                 bool
+	MaxWatchTime          time.Duration
+	CheckNFR              string
+	DisableGzip           bool
+	SkipWait              bool
+	DumpTraffic           bool
+	SessionValidationMode bool
+	Validate              bool
+	TestRunIDOutputFile   string
+}
+
 func init() {
 	TestCaseCmd.AddCommand(testRunLaunchCmd)
 
@@ -143,30 +151,45 @@ func init() {
 	testRunLaunchCmd.Flags().BoolVarP(&testRunLaunchOpts.Watch, "watch", "w", false, "Automatically watch newly launched test run")
 	testRunLaunchCmd.Flags().DurationVar(&testRunLaunchOpts.MaxWatchTime, "watch-timeout", 0, "Maximum duration in seconds to watch")
 
-	testRunLaunchCmd.Flags().StringVarP(&testRunLaunchOpts.CheckNFR, "nfr-check-file", "", "", "Check test result against NFR definition (implies --watch)")
+	testRunLaunchCmd.Flags().StringVar(&testRunLaunchOpts.JavascriptDefinitionFile, "test-case-file", "", "Update the test-case definition from this file before the launch")
+	testRunLaunchCmd.Flags().StringVar(&testRunLaunchOpts.CheckNFR, "nfr-check-file", "", "Check test result against NFR definition (implies --watch)")
 
 	// options for debugging
-	testRunLaunchCmd.Flags().BoolVarP(&testRunLaunchOpts.DisableGzip, "disable-gzip", "", false, "Globally disable gzip")
-	testRunLaunchCmd.Flags().BoolVarP(&testRunLaunchOpts.SkipWait, "skip-wait", "", false, "Ignore defined waits")
-	testRunLaunchCmd.Flags().BoolVarP(&testRunLaunchOpts.DumpTraffic, "dump-traffic", "", false, "Create traffic dump")
-	testRunLaunchCmd.Flags().BoolVarP(&testRunLaunchOpts.SessionValidationMode, "session-validation-mode", "", false, "Enable session validation mode")
-	testRunLaunchCmd.Flags().BoolVarP(&testRunLaunchOpts.Validate, "validate", "", false, "Perform validation run")
+	testRunLaunchCmd.Flags().BoolVar(&testRunLaunchOpts.DisableGzip, "disable-gzip", false, "Globally disable gzip")
+	testRunLaunchCmd.Flags().BoolVar(&testRunLaunchOpts.SkipWait, "skip-wait", false, "Ignore defined waits")
+	testRunLaunchCmd.Flags().BoolVar(&testRunLaunchOpts.DumpTraffic, "dump-traffic", false, "Create traffic dump")
+	testRunLaunchCmd.Flags().BoolVar(&testRunLaunchOpts.SessionValidationMode, "session-validation-mode", false, "Enable session validation mode")
+	testRunLaunchCmd.Flags().BoolVar(&testRunLaunchOpts.Validate, "validate", false, "Perform validation run")
 }
 
-func testRunLaunch(cmd *cobra.Command, args []string) {
-	client := NewClient()
-
-	testCaseUID := mustLookupTestCase(client, args[0])
+// MainTestRunLaunch runs a test-case and allows watching and validation that test-run.
+// testCaseSpec is required and specifies the test-case to launch.
+func MainTestRunLaunch(client *api.Client, testCaseSpec string, testRunLaunchOpts testRunLaunchCmdOpts) {
+	testCaseUID := mustLookupTestCase(client, testCaseSpec)
 
 	launchOptions := api.TestRunLaunchOptions{
-		Title:                 testRunLaunchOpts.Title,
-		Notes:                 testRunLaunchOpts.Notes,
+		Title: testRunLaunchOpts.Title,
+		Notes: testRunLaunchOpts.Notes,
+
 		ClusterRegion:         testRunLaunchOpts.ClusterRegion,
 		ClusterSizing:         testRunLaunchOpts.ClusterSizing,
 		DisableGzip:           testRunLaunchOpts.DisableGzip,
 		SkipWait:              testRunLaunchOpts.SkipWait,
 		DumpTraffic:           testRunLaunchOpts.DumpTraffic,
 		SessionValidationMode: testRunLaunchOpts.SessionValidationMode,
+	}
+	if testRunLaunchOpts.JavascriptDefinitionFile != "" {
+		filename, reader, err := readFromStdinOrReadFromArgument(testRunLaunchOpts.JavascriptDefinitionFile, "test-case.js")
+		if err != nil {
+			log.Fatalf("Failed to open %s: %v", filename, err)
+		}
+
+		data, err := ioutil.ReadAll(reader)
+		if err != nil {
+			log.Fatalf("Failed to read %s: %v", filename, err)
+		}
+
+		launchOptions.JavascriptDefinition = string(data)
 	}
 
 	if testRunLaunchOpts.Validate {

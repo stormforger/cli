@@ -17,8 +17,10 @@ import (
 
 // TestRunLaunchOptions represents a single TestRunLaunchOptions
 type TestRunLaunchOptions struct {
-	Title                 string
-	Notes                 string
+	Title                string
+	Notes                string
+	JavascriptDefinition string
+
 	ClusterRegion         string
 	ClusterSizing         string
 	DisableGzip           bool
@@ -206,8 +208,9 @@ func (c *Client) TestRunCreate(testCaseUID string, options TestRunLaunchOptions)
 	}
 
 	type testAttr struct {
-		Title string `json:"title,omitempty"`
-		Notes string `json:"notes,omitempty"`
+		Title                string `json:"title,omitempty"`
+		Notes                string `json:"notes,omitempty"`
+		JavascriptDefinition string `json:"javascript_definition,omitempty"` // optional javascript definition to update the test-case with
 	}
 
 	type payload struct {
@@ -219,6 +222,7 @@ func (c *Client) TestRunCreate(testCaseUID string, options TestRunLaunchOptions)
 		Data payload `json:"data"`
 	}
 
+	// Only upload test_configuration_attributes if one of option is non-zero for this
 	var testConfig *testConfigAttr
 	if options.DisableGzip ||
 		options.SkipWait ||
@@ -239,8 +243,9 @@ func (c *Client) TestRunCreate(testCaseUID string, options TestRunLaunchOptions)
 	jsonPayload, err := json.Marshal(&payloadContainer{
 		Data: payload{
 			Attributes: testAttr{
-				Title: options.Title,
-				Notes: options.Notes,
+				Title:                options.Title,
+				Notes:                options.Notes,
+				JavascriptDefinition: options.JavascriptDefinition,
 			},
 			TestConfig: testConfig,
 		},
