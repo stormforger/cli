@@ -1,6 +1,8 @@
 package api
 
 import (
+	"net/http"
+	"net/http/httptest"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -19,4 +21,18 @@ func TestExtractTestRunResources(t *testing.T) {
 		TestRunResources{Organisation: "zeisss", TestCase: "simple", SequenceID: "10"},
 		ExtractTestRunResources("zeisss/simple/10"),
 	)
+}
+
+// Test that an api response of 404 returns an error with "test-case or logs not found"
+func TestTestRunCallLog_404NotFound(t *testing.T) {
+	srv := httptest.NewServer(http.NotFoundHandler())
+	t.Cleanup(func() { srv.Close() })
+
+	const testCaseUID = "01234567abc"
+	c := NewClient(srv.URL, "")
+	r, err := c.TestRunCallLog(testCaseUID, false)
+	assert.Nil(t, r)
+	assert.NotNil(t, err)
+
+	assert.Equal(t, "test-run or logs not found", err.Error())
 }
