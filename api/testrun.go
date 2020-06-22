@@ -3,8 +3,8 @@ package api
 import (
 	"bytes"
 	"compress/gzip"
-	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"log"
@@ -199,68 +199,59 @@ func (c *Client) TestRunDump(pathID string) (io.ReadCloser, error) {
 // TestRunCreate will send a test case definition (JS) to the API
 // to update an existing test case it.
 func (c *Client) TestRunCreate(testCaseUID string, options TestRunLaunchOptions) (bool, string, error) {
-	type testConfigAttr struct {
-		DisableGzip           bool   `json:"disable_gzip,omitempty"`
-		SkipWait              bool   `json:"skip_wait,omitempty"`
-		DumpTraffic           bool   `json:"dump_traffic_full,omitempty"`
-		SessionValidationMode bool   `json:"session_validation_mode,omitempty"`
-		ClusterSizing         string `json:"cluster_sizing,omitempty"`
-		ClusterRegion         string `json:"cluster_region,omitempty"`
-	}
-
-	type testAttr struct {
-		Title                string `json:"title,omitempty"`
-		Notes                string `json:"notes,omitempty"`
-		JavascriptDefinition string `json:"javascript_definition,omitempty"` // optional javascript definition to update the test-case with
-	}
-
-	type payload struct {
-		Attributes testAttr        `json:"attributes"`
-		TestConfig *testConfigAttr `json:"test_configuration_attributes,omitempty"`
-	}
-
-	type payloadContainer struct {
-		Data payload `json:"data"`
-	}
-
 	// Only upload test_configuration_attributes if one of option is non-zero for this
-	var testConfig *testConfigAttr
-	if options.DisableGzip ||
-		options.SkipWait ||
-		options.DumpTraffic ||
-		options.SessionValidationMode ||
-		options.ClusterRegion != "" ||
-		options.ClusterSizing != "" {
-		testConfig = &testConfigAttr{
-			ClusterSizing:         options.ClusterSizing,
-			ClusterRegion:         options.ClusterRegion,
-			DisableGzip:           options.DisableGzip,
-			SkipWait:              options.SkipWait,
-			DumpTraffic:           options.DumpTraffic,
-			SessionValidationMode: options.SessionValidationMode,
+	method := http.MethodPost
+	uri := c.APIEndpoint + "/test_cases/" + testCaseUID + "/test_runs"
+	payload := url.Values{}
+
+	boolFields := []struct {
+		Field     string
+		BoolValue bool
+	}{
+		{"data[test_configuration_attributes][disable_gzip]", options.DisableGzip},
+		{"data[test_configuration_attributes][skip_wait]", options.SkipWait},
+		{"data[test_configuration_attributes][dump_traffic_full]", options.DumpTraffic},
+		{"data[test_configuration_attributes][session_validation_mode]", options.SessionValidationMode},
+	}
+	for _, f := range boolFields {
+		if f.BoolValue {
+			payload.Add(f.Field, "true")
 		}
 	}
 
-	jsonPayload, err := json.Marshal(&payloadContainer{
-		Data: payload{
-			Attributes: testAttr{
-				Title:                options.Title,
-				Notes:                options.Notes,
-				JavascriptDefinition: options.JavascriptDefinition,
-			},
-			TestConfig: testConfig,
-		},
-	})
-	if err != nil {
-		return false, "", err
+	stringFields := []struct {
+		Field string
+		Value string
+	}{
+		{"data[test_configuration_attributes][cluster_region]", options.ClusterRegion},
+		{"data[test_configuration_attributes][cluster_sizing]", options.ClusterSizing},
+	}
+	for _, f := range stringFields {
+		if f.Value != "" {
+			payload.Add(f.Field, f.Value)
+		}
 	}
 
-	req, err := http.NewRequest("POST", c.APIEndpoint+"/test_cases/"+testCaseUID+"/test_runs", bytes.NewReader(jsonPayload))
-	if err != nil {
-		return false, "", err
-	}
+	payload.Add("data[attributes][title]", options.Title)
+	payload.Add("data[attributes][notes]", options.Notes)
 
-	req.Header.Set("Content-Type", "application/json")
+	fmt.Println(payload.Encode())
+
+	// build a multipart request, if we have a javascript_definition to upload
+	var req *http.Request
+	var err error
+	if options.JavascriptDefinition != "" {
+		req, err = fileUploadRequest(uri, method, payload, "data[attributes][javascript_definition]", "TODOtest-case.js", "application/javascript", strings.NewReader(options.JavascriptDefinition))
+		if err != nil {
+			return false, "", err
+		}
+	} else {
+		req, err = http.NewRequest(method, uri, strings.NewReader(payload.Encode()))
+		if err != nil {
+			return false, "", err
+		}
+		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	}
 
 	response, err := c.doRequestRaw(req)
 	if err != nil {
