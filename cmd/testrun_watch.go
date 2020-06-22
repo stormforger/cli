@@ -7,6 +7,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/stormforger/cli/api/testrun"
+	"github.com/stormforger/cli/internal/stringutil"
 )
 
 var (
@@ -67,7 +68,7 @@ func testRunWatch(cmd *cobra.Command, args []string) {
 }
 
 func testRunOkay(testRun *testrun.TestRun) bool {
-	return stringInSlice(testRun.State, successStates)
+	return stringutil.InSlice(testRun.State, successStates)
 }
 
 func testRunSuccess(testRun *testrun.TestRun) bool {
@@ -75,5 +76,5 @@ func testRunSuccess(testRun *testrun.TestRun) bool {
 		"done",
 	}
 
-	return stringInSlice(testRun.State, successStates)
+	return stringutil.InSlice(testRun.State, successStates)
 }

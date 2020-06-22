@@ -10,6 +10,7 @@ import (
 	"github.com/spf13/viper"
 
 	"github.com/stormforger/cli/api"
+	"github.com/stormforger/cli/internal/stringutil"
 )
 
 var (
@@ -17,7 +18,7 @@ var (
 	RootCmd = &cobra.Command{
 		Use: "forge",
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
-			if !stringInSlice(rootOpts.OutputFormat, []string{"human", "plain", "json"}) {
+			if !stringutil.InSlice(rootOpts.OutputFormat, []string{"human", "plain", "json"}) {
 				log.Fatalf("Unknown output format '%s'", rootOpts.OutputFormat)
 			}
 		},
