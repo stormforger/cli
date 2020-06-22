@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"compress/gzip"
 	"errors"
-	"fmt"
 	"io"
 	"io/ioutil"
 	"log"
@@ -20,7 +19,10 @@ import (
 type TestRunLaunchOptions struct {
 	Title                string
 	Notes                string
-	JavascriptDefinition string
+	JavascriptDefinition struct {
+		Filename string
+		Reader   io.Reader
+	}
 
 	ClusterRegion         string
 	ClusterSizing         string
@@ -203,6 +205,8 @@ func (c *Client) TestRunCreate(testCaseUID string, options TestRunLaunchOptions)
 	method := http.MethodPost
 	uri := c.APIEndpoint + "/test_cases/" + testCaseUID + "/test_runs"
 	payload := url.Values{}
+	payload.Add("data[attributes][title]", options.Title)
+	payload.Add("data[attributes][notes]", options.Notes)
 
 	boolFields := []struct {
 		Field     string
@@ -232,16 +236,11 @@ func (c *Client) TestRunCreate(testCaseUID string, options TestRunLaunchOptions)
 		}
 	}
 
-	payload.Add("data[attributes][title]", options.Title)
-	payload.Add("data[attributes][notes]", options.Notes)
-
-	fmt.Println(payload.Encode())
-
 	// build a multipart request, if we have a javascript_definition to upload
 	var req *http.Request
 	var err error
-	if options.JavascriptDefinition != "" {
-		req, err = fileUploadRequest(uri, method, payload, "data[attributes][javascript_definition]", "TODOtest-case.js", "application/javascript", strings.NewReader(options.JavascriptDefinition))
+	if def := options.JavascriptDefinition; def.Reader != nil {
+		req, err = fileUploadRequest(uri, method, payload, "data[attributes][javascript_definition]", def.Filename, "application/javascript", def.Reader)
 		if err != nil {
 			return false, "", err
 		}

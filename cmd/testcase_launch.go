@@ -184,12 +184,8 @@ func MainTestRunLaunch(client *api.Client, testCaseSpec string, testRunLaunchOpt
 			log.Fatalf("Failed to open %s: %v", filename, err)
 		}
 
-		data, err := ioutil.ReadAll(reader)
-		if err != nil {
-			log.Fatalf("Failed to read %s: %v", filename, err)
-		}
-
-		launchOptions.JavascriptDefinition = string(data)
+		launchOptions.JavascriptDefinition.Filename = filename
+		launchOptions.JavascriptDefinition.Reader = reader
 	}
 
 	if testRunLaunchOpts.Validate {
