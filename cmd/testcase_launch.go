@@ -15,6 +15,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/stormforger/cli/api"
 	"github.com/stormforger/cli/api/testrun"
+	"github.com/stormforger/cli/internal/stringutil"
 )
 
 const defaultNFRData = `version: "0.1"
@@ -68,11 +69,11 @@ Available cluster regions are available at https://docs.stormforger.com/referenc
 				log.Fatal("Too many arguments")
 			}
 
-			if testRunLaunchOpts.ClusterRegion != "" && !stringInSlice(testRunLaunchOpts.ClusterRegion, validRegions) {
+			if testRunLaunchOpts.ClusterRegion != "" && !stringutil.InSlice(testRunLaunchOpts.ClusterRegion, validRegions) {
 				log.Fatalf("%s is not a valid region", testRunLaunchOpts.ClusterRegion)
 			}
 
-			if testRunLaunchOpts.ClusterSizing != "" && !stringInSlice(testRunLaunchOpts.ClusterSizing, validSizings) {
+			if testRunLaunchOpts.ClusterSizing != "" && !stringutil.InSlice(testRunLaunchOpts.ClusterSizing, validSizings) {
 				log.Fatalf("%s is not a valid sizing", testRunLaunchOpts.ClusterSizing)
 			}
 		},

@@ -22,15 +22,6 @@ import (
 	"github.com/stormforger/cli/api/testrun"
 )
 
-func stringInSlice(a string, list []string) bool {
-	for _, b := range list {
-		if b == a {
-			return true
-		}
-	}
-	return false
-}
-
 // FindFixtureByName fetches a FileFixture from a given Organisation.
 func findFixtureByName(client api.Client, orga string, name string) *filefixture.FileFixture {
 	success, result, err := client.ListFileFixture(orga)
