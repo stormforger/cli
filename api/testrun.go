@@ -9,6 +9,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"net/url"
 	"strings"
 
 	"github.com/google/jsonapi"
@@ -304,7 +305,7 @@ func (c *Client) TestRunAbort(testRunUID string) (bool, string, error) {
 // TestRunNfrCheck will upload requirements definition
 // and checks if the given test run matches them.
 func (c *Client) TestRunNfrCheck(uid string, fileName string, data io.Reader) (bool, []byte, error) {
-	extraParams := map[string]string{}
+	extraParams := url.Values{}
 
 	path := "/test_runs/" + uid + "/check_nfr"
 

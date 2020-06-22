@@ -6,12 +6,13 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"net/url"
 )
 
 // Har converts the given HAR archive file into
 // a StormForger test case definition
 func (c *Client) Har(fileName string, data io.Reader) (string, error) {
-	extraParams := map[string]string{}
+	extraParams := url.Values{}
 
 	input, err := ioutil.ReadAll(data)
 	if err != nil {

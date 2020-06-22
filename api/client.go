@@ -145,9 +145,10 @@ func createGZIPFormFile(w *multipart.Writer, fieldname, filename, contenttype st
 	return w.CreatePart(h)
 }
 
-func fileUploadRequest(uri, method string, params map[string]string, fileParamName, fileName, mimeType string, data io.Reader) (*http.Request, error) {
+func fileUploadRequest(uri, method string, params url.Values, fileParamName, fileName, mimeType string, data io.Reader) (*http.Request, error) {
 	body := &bytes.Buffer{}
 	writer := multipart.NewWriter(body)
+
 	part, err := createGZIPFormFile(writer, fileParamName, fileName, mimeType)
 	if err != nil {
 		return nil, err
@@ -161,8 +162,10 @@ func fileUploadRequest(uri, method string, params map[string]string, fileParamNa
 		return nil, err
 	}
 
-	for key, val := range params {
-		_ = writer.WriteField(key, val)
+	for key, valueList := range params {
+		for _, value := range valueList {
+			_ = writer.WriteField(key, value)
+		}
 	}
 	err = writer.Close()
 	if err != nil {
