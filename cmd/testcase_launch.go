@@ -227,6 +227,11 @@ func MainTestRunLaunch(client *api.Client, testCaseSpec string, testRunLaunchOpt
 		if err != nil {
 			log.Fatal(err)
 		}
+
+		if launchOptions.JavascriptDefinition.Reader != nil {
+			fmt.Println("Test-Case successfully updated")
+		}
+
 		fmt.Printf(`Launching test %s
 UID: %s
 Web URL: %s
