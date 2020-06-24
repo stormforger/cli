@@ -4,6 +4,7 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
+	"net/url"
 )
 
 // FileFixtureParams represents params BLA TODO
@@ -55,21 +56,20 @@ func (c *Client) ListFileFixture(organization string) (bool, []byte, error) {
 
 // PushFileFixture uploads (insert or update) a file fixture
 func (c *Client) PushFileFixture(fileName string, data io.Reader, organization string, params *FileFixtureParams) (bool, []byte, error) {
-	extraParams := map[string]string{
-		"file_fixture[name]": params.Name,
-		"file_fixture[type]": params.Type,
-	}
+	extraParams := url.Values{}
+	extraParams.Add("file_fixture[name]", params.Name)
+	extraParams.Add("file_fixture[type]", params.Type)
 
 	if params.FirstRowHeaders {
-		extraParams["file_fixture[file_fixture_version][first_row_headers]"] = "1"
+		extraParams.Add("file_fixture[file_fixture_version][first_row_headers]", "1")
 	}
 
 	if params.Delimiter != "" {
-		extraParams["file_fixture[file_fixture_version][delimiter]"] = params.Delimiter
+		extraParams.Add("file_fixture[file_fixture_version][delimiter]", params.Delimiter)
 	}
 
 	if params.FieldNames != "" {
-		extraParams["file_fixture[file_fixture_version][field_names]"] = params.FieldNames
+		extraParams.Add("file_fixture[file_fixture_version][field_names]", params.FieldNames)
 	}
 
 	req, err := fileUploadRequest(c.APIEndpoint+"/file_fixtures/"+organization, "POST", extraParams, "file_fixture[file_fixture_version][original]", fileName, "application/octet-stream", data)

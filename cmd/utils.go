@@ -82,7 +82,7 @@ func readFromStdinOrReadFromArgument(fileArg, defaultFileName string) (fileName 
 		fileName = filepath.Base(fileArg)
 		reader, err = os.OpenFile(fileArg, os.O_RDONLY, 0755)
 		if err != nil {
-			return "", nil, err
+			return fileName, nil, err
 		}
 	}
 

@@ -3,12 +3,12 @@ package api
 import (
 	"bytes"
 	"compress/gzip"
-	"encoding/json"
 	"errors"
 	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
+	"net/url"
 	"strings"
 
 	"github.com/google/jsonapi"
@@ -17,8 +17,13 @@ import (
 
 // TestRunLaunchOptions represents a single TestRunLaunchOptions
 type TestRunLaunchOptions struct {
-	Title                 string
-	Notes                 string
+	Title                string
+	Notes                string
+	JavascriptDefinition struct {
+		Filename string
+		Reader   io.Reader
+	}
+
 	ClusterRegion         string
 	ClusterSizing         string
 	DisableGzip           bool
@@ -196,65 +201,56 @@ func (c *Client) TestRunDump(pathID string) (io.ReadCloser, error) {
 // TestRunCreate will send a test case definition (JS) to the API
 // to update an existing test case it.
 func (c *Client) TestRunCreate(testCaseUID string, options TestRunLaunchOptions) (bool, string, error) {
-	type testConfigAttr struct {
-		DisableGzip           bool   `json:"disable_gzip,omitempty"`
-		SkipWait              bool   `json:"skip_wait,omitempty"`
-		DumpTraffic           bool   `json:"dump_traffic_full,omitempty"`
-		SessionValidationMode bool   `json:"session_validation_mode,omitempty"`
-		ClusterSizing         string `json:"cluster_sizing,omitempty"`
-		ClusterRegion         string `json:"cluster_region,omitempty"`
-	}
+	// Only upload test_configuration_attributes if one of option is non-zero for this
+	method := http.MethodPost
+	uri := c.APIEndpoint + "/test_cases/" + testCaseUID + "/test_runs"
+	payload := url.Values{}
+	payload.Add("data[attributes][title]", options.Title)
+	payload.Add("data[attributes][notes]", options.Notes)
 
-	type testAttr struct {
-		Title string `json:"title,omitempty"`
-		Notes string `json:"notes,omitempty"`
+	boolFields := []struct {
+		Field     string
+		BoolValue bool
+	}{
+		{"data[test_configuration_attributes][disable_gzip]", options.DisableGzip},
+		{"data[test_configuration_attributes][skip_wait]", options.SkipWait},
+		{"data[test_configuration_attributes][dump_traffic_full]", options.DumpTraffic},
+		{"data[test_configuration_attributes][session_validation_mode]", options.SessionValidationMode},
 	}
-
-	type payload struct {
-		Attributes testAttr        `json:"attributes"`
-		TestConfig *testConfigAttr `json:"test_configuration_attributes,omitempty"`
-	}
-
-	type payloadContainer struct {
-		Data payload `json:"data"`
-	}
-
-	var testConfig *testConfigAttr
-	if options.DisableGzip ||
-		options.SkipWait ||
-		options.DumpTraffic ||
-		options.SessionValidationMode ||
-		options.ClusterRegion != "" ||
-		options.ClusterSizing != "" {
-		testConfig = &testConfigAttr{
-			ClusterSizing:         options.ClusterSizing,
-			ClusterRegion:         options.ClusterRegion,
-			DisableGzip:           options.DisableGzip,
-			SkipWait:              options.SkipWait,
-			DumpTraffic:           options.DumpTraffic,
-			SessionValidationMode: options.SessionValidationMode,
+	for _, f := range boolFields {
+		if f.BoolValue {
+			payload.Add(f.Field, "true")
 		}
 	}
 
-	jsonPayload, err := json.Marshal(&payloadContainer{
-		Data: payload{
-			Attributes: testAttr{
-				Title: options.Title,
-				Notes: options.Notes,
-			},
-			TestConfig: testConfig,
-		},
-	})
-	if err != nil {
-		return false, "", err
+	stringFields := []struct {
+		Field string
+		Value string
+	}{
+		{"data[test_configuration_attributes][cluster_region]", options.ClusterRegion},
+		{"data[test_configuration_attributes][cluster_sizing]", options.ClusterSizing},
+	}
+	for _, f := range stringFields {
+		if f.Value != "" {
+			payload.Add(f.Field, f.Value)
+		}
 	}
 
-	req, err := http.NewRequest("POST", c.APIEndpoint+"/test_cases/"+testCaseUID+"/test_runs", bytes.NewReader(jsonPayload))
-	if err != nil {
-		return false, "", err
+	// build a multipart request, if we have a javascript_definition to upload
+	var req *http.Request
+	var err error
+	if def := options.JavascriptDefinition; def.Reader != nil {
+		req, err = fileUploadRequest(uri, method, payload, "data[attributes][javascript_definition]", def.Filename, "application/javascript", def.Reader)
+		if err != nil {
+			return false, "", err
+		}
+	} else {
+		req, err = http.NewRequest(method, uri, strings.NewReader(payload.Encode()))
+		if err != nil {
+			return false, "", err
+		}
+		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	}
-
-	req.Header.Set("Content-Type", "application/json")
 
 	response, err := c.doRequestRaw(req)
 	if err != nil {
@@ -299,7 +295,7 @@ func (c *Client) TestRunAbort(testRunUID string) (bool, string, error) {
 // TestRunNfrCheck will upload requirements definition
 // and checks if the given test run matches them.
 func (c *Client) TestRunNfrCheck(uid string, fileName string, data io.Reader) (bool, []byte, error) {
-	extraParams := map[string]string{}
+	extraParams := url.Values{}
 
 	path := "/test_runs/" + uid + "/check_nfr"
 

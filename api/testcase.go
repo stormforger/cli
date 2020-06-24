@@ -3,6 +3,7 @@ package api
 import (
 	"io"
 	"io/ioutil"
+	"net/url"
 )
 
 // ListTestCases returns a list of test cases
@@ -25,9 +26,8 @@ func (c *Client) TestCaseValidate(organization string, fileName string, data io.
 	// TODO how to pass options here?
 	//      defining a struct maybe, but where?
 	//      finally: add options here
-	extraParams := map[string]string{
-		"organisation_uid": organization,
-	}
+	extraParams := url.Values{}
+	extraParams.Add("organisation_uid", organization)
 
 	req, err := fileUploadRequest(c.APIEndpoint+"/test_cases/validate", "POST", extraParams, "test_case[javascript_definition]", fileName, "application/javascript", data)
 	if err != nil {
@@ -60,9 +60,8 @@ func (c *Client) TestCaseCreate(organization string, testCaseName string, fileNa
 	// TODO how to pass options here?
 	//      defining a struct maybe, but where?
 	//      finally: add options here
-	extraParams := map[string]string{
-		"test_case[name]": testCaseName,
-	}
+	extraParams := url.Values{}
+	extraParams.Add("test_case[name]", testCaseName)
 
 	req, err := fileUploadRequest(c.APIEndpoint+"/organisations/"+organization+"/test_cases", "POST", extraParams, "test_case[javascript_definition]", fileName, "application/javascript", data)
 	if err != nil {
@@ -95,7 +94,7 @@ func (c *Client) TestCaseUpdate(testCaseUID string, fileName string, data io.Rea
 	// TODO how to pass options here?
 	//      defining a struct maybe, but where?
 	//      finally: add options here
-	extraParams := map[string]string{}
+	extraParams := url.Values{}
 
 	req, err := fileUploadRequest(c.APIEndpoint+"/test_cases/"+testCaseUID, "PATCH", extraParams, "test_case[javascript_definition]", fileName, "application/javascript", data)
 	if err != nil {
