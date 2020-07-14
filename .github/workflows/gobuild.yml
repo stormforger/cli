@@ -37,7 +37,7 @@ jobs:
       run: go vet -mod=readonly ./...
 
     - name: Upload linux binary artifact
-      uses: actions/upload-artifact@v2.0.1
+      uses: actions/upload-artifact@2.1.0
       with:
         name: forge
         path: ./cli
