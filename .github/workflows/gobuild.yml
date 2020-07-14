@@ -36,12 +36,6 @@ jobs:
     - name: Vet
       run: go vet -mod=readonly ./...
 
-    - name: Upload linux binary artifact
-      uses: actions/upload-artifact@2.1.0
-      with:
-        name: forge
-        path: ./cli
-
   gofmt:
     name: Run gofmt
     runs-on: ubuntu-latest
