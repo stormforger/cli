@@ -199,10 +199,13 @@ func MainTestRunLaunch(client *api.Client, testCaseSpec string, testRunLaunchOpt
 	}
 
 	if !status {
-		fmt.Fprintln(os.Stderr, "Could not launch test run!")
-		fmt.Println(response)
+		errorMeta, err := api.UnmarshalErrorMeta(strings.NewReader(response))
+		if err != nil {
+			log.Fatal(err)
+		}
 
-		os.Exit(1)
+		printValidationResultHuman(os.Stderr, launchOptions.JavascriptDefinition.Filename, status, errorMeta)
+		cmdExit(status)
 	}
 
 	testRun, err := testrun.UnmarshalSingle(strings.NewReader(response))
