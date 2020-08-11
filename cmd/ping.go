@@ -71,7 +71,7 @@ func runPingCmd(cmd *cobra.Command, args []string) {
 		Unauthenticated: pingOpts.Unauthenticated,
 		Subject:         user,
 	}
-	printPingCommandResult(os.Stderr, result)
+	printPingCommandResult(os.Stdout, result)
 }
 
 func PrintHumanPingResult(w io.Writer, result PingCommandResult) {
