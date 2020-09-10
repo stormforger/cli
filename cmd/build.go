@@ -14,8 +14,8 @@ import (
 var (
 	buildCmd = &cobra.Command{
 		Use:   "build",
-		Short: "Ping the StormForger API",
-		Long:  `Ping the StormForger API and try to authenticate.`,
+		Short: "Build a test case",
+		Long:  `Build a test case`,
 		Run:   runBuildCmd,
 	}
 
@@ -27,7 +27,7 @@ var (
 func init() {
 	RootCmd.AddCommand(buildCmd)
 
-	buildCmd.PersistentFlags().StringSliceVar(&buildOpts.Replacements, "define", []string{}, "Substitute a list of K=V while parsing: env=production,debug=false")
+	buildCmd.PersistentFlags().StringArrayVar(&buildOpts.Replacements, "define", []string{}, "Substitute a list of K=V while parsing: debug=false")
 }
 
 func runBuildCmd(cmd *cobra.Command, args []string) {
@@ -59,9 +59,9 @@ func runBuildCmd(cmd *cobra.Command, args []string) {
 		Write:       true,
 		LogLevel:    esbuild.LogLevelInfo,
 		Platform:    esbuild.PlatformNode,
-		Sourcemap:   esbuild.SourceMapInline,
-		Defines:     defines,
-		Externals:   []string{"stormforger"},
+		// Sourcemap:   esbuild.SourceMapInline,
+		Defines:   defines,
+		Externals: []string{"stormforger"},
 	})
 
 	if len(result.Errors) > 0 {
