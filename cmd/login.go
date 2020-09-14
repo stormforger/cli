@@ -28,7 +28,8 @@ var (
 
 	It is discouraged to provide the password via the --password flag. By
 	default you are asked to provide the password interactively.`,
-		Run: runLogin,
+		Args: cobra.RangeArgs(0, 1),
+		Run:  runLogin,
 	}
 )
 

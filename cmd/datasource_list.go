@@ -15,21 +15,14 @@ var (
 		Use:     "list <organisation-ref>",
 		Aliases: []string{"ls"},
 		Short:   "List fixtures",
-		Run:     runDataSourceList,
+		Args:    cobra.ExactArgs(1),
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
-			if len(args) > 1 {
-				log.Fatal("Too many arguments")
-			}
-
-			if len(args) < 1 {
-				log.Fatal("Missing organisation")
-			}
-
 			datasourceOpts.Organisation = lookupOrganisationUID(NewClient(), args[0])
 			if datasourceOpts.Organisation == "" {
 				log.Fatal("Missing organisation")
 			}
 		},
+		Run: runDataSourceList,
 	}
 )
 
