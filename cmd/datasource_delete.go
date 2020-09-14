@@ -11,21 +11,14 @@ var (
 		Use:     "rm <organisation-ref> <name>",
 		Aliases: []string{"delete", "remove"},
 		Short:   "Delete a fixture",
-		Run:     runDatasourceDelete,
+		Args:    cobra.ExactArgs(2),
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
-			if len(args) > 2 {
-				log.Fatal("Too many arguments")
-			}
-
-			if len(args) < 1 {
-				log.Fatal("Missing organisation")
-			}
-
 			datasourceOpts.Organisation = lookupOrganisationUID(NewClient(), args[0])
 			if datasourceOpts.Organisation == "" {
 				log.Fatal("Missing organisation")
 			}
 		},
+		Run: runDatasourceDelete,
 	}
 )
 
