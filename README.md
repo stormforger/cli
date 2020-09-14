@@ -1,7 +1,6 @@
 <!-- markdownlint-disable MD041 MD012 -->
-[![Travis CI Status](https://travis-ci.org/stormforger/cli.svg?branch=master)](https://travis-ci.org/stormforger/cli)
+[![Go](https://github.com/stormforger/cli/workflows/Go/badge.svg)](https://github.com/stormforger/cli/actions)
 [![Go Report Card](https://goreportcard.com/badge/github.com/stormforger/cli)](https://goreportcard.com/report/github.com/stormforger/cli)
-
 
 # forge! The StormForger Command Line Client
 
@@ -145,7 +144,7 @@ If you change or update dependencies, run `go mod tidy`.
 
 ### Release
 
-Releases are done via [Travis CI](https://travis-ci.org/stormforger/cli).
+Releases are done via [Github Actions](https://github.com/stormforger/cli/actions).
 
 When ready for a release and pull requests are merged into master, just create and push a new tag:
 
@@ -154,7 +153,7 @@ git tag vA.B.C
 git push --tag
 ```
 
-Travis will make a build and on success automatically publish a release to [GitHub releases](https://github.com/stormforger/cli/releases), to [Docker hub](https://hub.docker.com/r/stormforger/cli) and also update our [homebrew tab](https://github.com/stormforger/homebrew-forge).
+Github Actions will make a build and on success automatically publish a release to [GitHub releases](https://github.com/stormforger/cli/releases), to [Docker hub](https://hub.docker.com/r/stormforger/cli) and also update our [homebrew tab](https://github.com/stormforger/homebrew-forge).
 
 Now go to the [releases page](https://github.com/stormforger/cli/releases) and add release notes.
 

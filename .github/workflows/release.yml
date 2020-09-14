@@ -1,0 +1,39 @@
+name: Release
+on:
+  push:
+    branches:
+      - "!*"
+    tags:
+      - "v*.*.*"
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    name: goreleaser
+    steps:
+    - name: Set up Go 1.14
+      uses: actions/setup-go@v2.1.0
+      with:
+        go-version: 1.14
+      id: go
+
+    - name: Check out code into the Go module directory
+      uses: actions/checkout@v1
+      with:
+        fetch-depth: 0
+
+    - name: 'Wait for status checks'
+      uses: jitterbit/await-check-suites@v1
+      with:
+        token: "${{ secrets.GITHUB_TOKEN }}"
+        timeoutSeconds: 600
+        appSlugFilter: 'github-actions'
+
+    - name: Build and push Docker images
+      run: docker login -u="${{ secrets.DOCKER_USERNAME }}" -p="${{ secrets.DOCKER_PASSWORD }}"
+
+    - name: Release via goreleaser
+      uses: goreleaser/goreleaser-action@master
+      with:
+        args: release
+      env:
+        GITHUB_TOKEN: ${{ secrets.GH_GORELEASER_TOKEN }}
