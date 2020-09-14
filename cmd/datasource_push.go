@@ -17,13 +17,10 @@ import (
 
 var (
 	datasourcePushCmd = &cobra.Command{
-		Use:   "push <organisation-ref> <file>",
+		Use:   "push <organisation-ref> <files...>",
 		Short: "Upload a file",
+		Args:  cobra.MinimumNArgs(2),
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
-			if len(args) < 2 {
-				log.Fatal("Expecting one or more arguments: organisation and file(s) to upload")
-			}
-
 			if pushOpts.Raw && (pushOpts.FieldNames != "" || pushOpts.Delimiter != "" || pushOpts.FirstRowHeaders) {
 				log.Fatal("Raw file fixtures do not support --fields, --delimiter and --auto-field-names")
 			}

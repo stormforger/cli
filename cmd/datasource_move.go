@@ -13,17 +13,14 @@ var (
 		Use:     "mv <organisation-ref> <name> <new-name>",
 		Aliases: []string{"move", "rename"},
 		Short:   "Rename a fixture",
-		Run:     runDataSourceMove,
+		Args:    cobra.ExactArgs(3),
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
-			if len(args) != 3 {
-				log.Fatal("Expecting exactly three arguments: organisation, name of source and destination")
-			}
-
 			datasourceOpts.Organisation = lookupOrganisationUID(NewClient(), args[0])
 			if datasourceOpts.Organisation == "" {
 				log.Fatal("Missing organisation")
 			}
 		},
+		Run: runDataSourceMove,
 	}
 )
 

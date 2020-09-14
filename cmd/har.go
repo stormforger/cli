@@ -9,18 +9,15 @@ import (
 
 var (
 	harCmd = &cobra.Command{
-		Use:   "har FILE",
+		Use:   "har <file>",
 		Short: "Convert HAR to test case",
-		Long:  `Will convert a given HAR archive into a StormForger test case definition.`,
+		Long:  `Will convert a given HAR archive into a StormForger test case definition. Pass - for the file to read from stdin.`,
+		Args:  cobra.ExactArgs(1),
 		Run:   runHar,
 	}
 )
 
 func runHar(cmd *cobra.Command, args []string) {
-	if len(args) == 0 {
-		log.Fatal("Missing argument: HAR file or - to read from stdin")
-	}
-
 	fileName, harFile, err := readFromStdinOrReadFromArgument(args[0], "stdin")
 	if err != nil {
 		log.Fatal(err)
