@@ -2,13 +2,11 @@ package cmd
 
 import (
 	"fmt"
-	"io/ioutil"
 	"log"
-	"os"
 	"strings"
 
-	esbuild "github.com/evanw/esbuild/pkg/api"
 	"github.com/spf13/cobra"
+	"github.com/stormforger/cli/internal/esbundle"
 )
 
 var (
@@ -36,7 +34,6 @@ func runBuildCmd(cmd *cobra.Command, args []string) {
 	}
 
 	defines := make(map[string]string)
-
 	for _, kv := range buildOpts.Replacements {
 		equals := strings.IndexByte(kv, '=')
 		if equals == -1 {
@@ -46,27 +43,11 @@ func runBuildCmd(cmd *cobra.Command, args []string) {
 		defines[kv[:equals]] = kv[equals+1:]
 	}
 
-	tmpfile, err := ioutil.TempFile("", "forge-js-build")
+	res, err := esbundle.Bundle(args[0], defines)
+
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer os.Remove(tmpfile.Name())
 
-	result := esbuild.Build(esbuild.BuildOptions{
-		EntryPoints: []string{args[0]},
-		Outfile:     tmpfile.Name(),
-		Bundle:      true,
-		Write:       true,
-		LogLevel:    esbuild.LogLevelInfo,
-		Platform:    esbuild.PlatformNode,
-		// Sourcemap:   esbuild.SourceMapInline,
-		Defines:   defines,
-		Externals: []string{"stormforger"},
-	})
-
-	if len(result.Errors) > 0 {
-		os.Exit(1)
-	}
-
-	fmt.Print(string(result.OutputFiles[0].Contents))
+	fmt.Print(res)
 }
