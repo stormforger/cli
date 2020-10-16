@@ -33,6 +33,7 @@ to write to.
 				log.Fatal("Too many arguments")
 			}
 		},
+		ValidArgsFunction: completeOrgaAndCase,
 	}
 )
 

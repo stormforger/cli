@@ -80,6 +80,7 @@ Available cluster regions are available at https://docs.stormforger.com/referenc
 			client := NewClient()
 			MainTestRunLaunch(client, args[0], testRunLaunchOpts)
 		},
+		ValidArgsFunction: completeOrgaAndCase,
 	}
 
 	testRunLaunchOpts testRunLaunchCmdOpts

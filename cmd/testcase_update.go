@@ -41,6 +41,7 @@ Examples
 				log.Fatal("Too many arguments")
 			}
 		},
+		ValidArgsFunction: completeOrgaAndCase,
 	}
 )
 

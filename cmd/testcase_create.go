@@ -59,6 +59,7 @@ cat cases/checkout_process.js | forge test-case create acme-inc/checkout -
 				log.Fatal("Missing test case name")
 			}
 		},
+		ValidArgsFunction: completeOrgaAndCase,
 	}
 
 	testCaseCreateOpts struct {

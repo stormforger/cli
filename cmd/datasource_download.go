@@ -21,7 +21,8 @@ var (
 				log.Fatal("Missing organisation")
 			}
 		},
-		Run: runDatasourceDownload,
+		Run:               runDatasourceDownload,
+		ValidArgsFunction: completeOrga,
 	}
 
 	downloadOpts struct {

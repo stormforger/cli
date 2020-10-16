@@ -59,6 +59,7 @@ Examples
 				log.Fatal("Missing organisation")
 			}
 		},
+		ValidArgsFunction: completeOrga,
 	}
 
 	testCaseValidateOpts struct {

@@ -46,6 +46,7 @@ var (
 			client := NewClient()
 			MainDataSourcePush(client, pushOpts, args)
 		},
+		ValidArgsFunction: completeOrga,
 	}
 
 	pushOpts PushOpts
