@@ -4,13 +4,22 @@ release:
     owner: stormforger
     name: cli
 brews:
-  - github:
+  - tap:
       owner: stormforger
       name: homebrew-forge
-    install: bin.install "forge"
     folder: Formula
     homepage: "https://stormforger.com"
     description: "The StormForger Command Line Client, called 'forge'"
+    install: |
+      bin.install "forge"
+
+      # generate and install bash completion
+      output = Utils.safe_popen_read("#{bin}/forge", "completion", "bash")
+      (bash_completion/"forge").write output
+
+      # generate and install zsh completion
+      output = Utils.safe_popen_read("#{bin}/forge", "completion", "zsh")
+      (zsh_completion/"_forge").write output
 dockers:
 - image_templates:
   - 'stormforger/cli:{{ .Tag }}'
