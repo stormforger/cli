@@ -109,4 +109,8 @@ func init() {
 	RootCmd.PersistentFlags().StringVar(&rootOpts.APIEndpoint, "endpoint", "https://api.stormforger.com", "API Endpoint")
 	RootCmd.PersistentFlags().StringVar(&rootOpts.JWT, "jwt", "", "JWT access token")
 	RootCmd.PersistentFlags().StringVar(&rootOpts.OutputFormat, "output", "human", "Output format: human,plain,json")
+
+	RootCmd.RegisterFlagCompletionFunc("output", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		return stringutil.FilterByPrefix(toComplete, []string{"human", "plain", "json"}), cobra.ShellCompDirectiveDefault
+	})
 }

@@ -22,7 +22,8 @@ var (
 				log.Fatal("Missing organisation")
 			}
 		},
-		Run: runDataSourceList,
+		Run:               runDataSourceList,
+		ValidArgsFunction: completeOrga,
 	}
 )
 

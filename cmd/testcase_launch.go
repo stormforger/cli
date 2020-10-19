@@ -80,6 +80,7 @@ Available cluster regions are available at https://docs.stormforger.com/referenc
 			client := NewClient()
 			MainTestRunLaunch(client, args[0], testRunLaunchOpts)
 		},
+		ValidArgsFunction: completeOrgaAndCase,
 	}
 
 	testRunLaunchOpts testRunLaunchCmdOpts
@@ -160,6 +161,16 @@ func init() {
 	testRunLaunchCmd.Flags().BoolVar(&testRunLaunchOpts.DumpTraffic, "dump-traffic", false, "Create traffic dump")
 	testRunLaunchCmd.Flags().BoolVar(&testRunLaunchOpts.SessionValidationMode, "session-validation-mode", false, "Enable session validation mode")
 	testRunLaunchCmd.Flags().BoolVar(&testRunLaunchOpts.Validate, "validate", false, "Perform validation run")
+
+	// hints for completion of flags
+	testRunLaunchCmd.MarkFlagFilename("test-case-file", "js")
+	testRunLaunchCmd.MarkFlagFilename("nfr-check-file", "yml", "yaml")
+	testRunLaunchCmd.RegisterFlagCompletionFunc("region", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		return stringutil.FilterByPrefix(toComplete, validRegions), cobra.ShellCompDirectiveDefault
+	})
+	testRunLaunchCmd.RegisterFlagCompletionFunc("sizing", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		return stringutil.FilterByPrefix(toComplete, validSizings), cobra.ShellCompDirectiveDefault
+	})
 }
 
 // MainTestRunLaunch runs a test-case and allows watching and validation that test-run.

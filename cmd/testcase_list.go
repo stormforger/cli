@@ -31,6 +31,7 @@ var (
 				log.Fatal("Missing organisation")
 			}
 		},
+		ValidArgsFunction: completeOrga,
 	}
 
 	testCaseListOpts struct {
