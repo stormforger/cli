@@ -47,6 +47,7 @@ const (
 // Execute is the entry function for cobra
 func Execute() {
 	setupConfig()
+	initNoColor()
 
 	if err := RootCmd.Execute(); err != nil {
 		fmt.Println(err)
@@ -103,6 +104,12 @@ func setupConfig() {
 	err = viper.BindPFlag("endpoint", RootCmd.PersistentFlags().Lookup("endpoint"))
 	if err != nil {
 		log.Fatal(err)
+	}
+}
+
+func initNoColor() {
+	if _, noColor := os.LookupEnv("NO_COLOR"); noColor {
+		color.NoColor = true
 	}
 }
 
