@@ -37,3 +37,6 @@ jobs:
         args: release
       env:
         GITHUB_TOKEN: ${{ secrets.GH_GORELEASER_TOKEN }}
+
+     - name: Ping Forge to check for new Versions
+       run: curl -d '' https://app.stormforger.com/cli_releases/refresh --user-agent "StormForger Github Action Pipeline" --user ":${{ secrets.FORGE_EXTERNAL_ACCESS_BASIC_AUTH_SECRET }}" --fail
