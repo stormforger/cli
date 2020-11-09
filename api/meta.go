@@ -77,20 +77,19 @@ func UnmarshalErrorMeta(input io.Reader) (ErrorPayload, error) {
 		return ErrorPayload{}, err
 	}
 
-	var errorMeta interface{}
 	for i, e := range data.Errors {
 		switch e.Code {
 		case "E0":
 			data.Errors[i].FormattedError = e.Detail
 		case "E23":
-			errorMeta = new(EvaluationErrorMeta)
+			errorMeta := new(EvaluationErrorMeta)
 			err := json.Unmarshal(e.MetaRaw, errorMeta)
 			if err != nil {
 				log.Fatal(err)
 			}
 
-			data.Errors[i].FormattedError = errorMeta.(*EvaluationErrorMeta).String()
-			data.Errors[i].EvaluationErrorMeta = errorMeta.(*EvaluationErrorMeta)
+			data.Errors[i].FormattedError = errorMeta.String()
+			data.Errors[i].EvaluationErrorMeta = errorMeta
 		}
 	}
 
