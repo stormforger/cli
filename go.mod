@@ -5,7 +5,7 @@ go 1.12
 require (
 	github.com/dustin/go-humanize v1.0.0
 	github.com/evanw/esbuild v0.6.28
-	github.com/fatih/color v1.9.0
+	github.com/fatih/color v1.10.0
 	github.com/google/jsonapi v0.0.0-20200226002910-c8283f632fb7
 	github.com/howeyc/gopass v0.0.0-20190910152052-7cb4b85ec19c
 	github.com/mitchellh/go-homedir v1.1.0
