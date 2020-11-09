@@ -15,6 +15,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/stormforger/cli/api"
 	"github.com/stormforger/cli/api/testrun"
+	"github.com/stormforger/cli/internal/esbundle"
 	"github.com/stormforger/cli/internal/stringutil"
 )
 
@@ -176,6 +177,8 @@ func init() {
 // MainTestRunLaunch runs a test-case and allows watching and validation that test-run.
 // testCaseSpec is required and specifies the test-case to launch.
 func MainTestRunLaunch(client *api.Client, testCaseSpec string, testRunLaunchOpts testRunLaunchCmdOpts) {
+	var mapper esbundle.SourceMapper
+
 	testCaseUID := mustLookupTestCase(client, testCaseSpec)
 
 	launchOptions := api.TestRunLaunchOptions{
@@ -190,11 +193,12 @@ func MainTestRunLaunch(client *api.Client, testCaseSpec string, testRunLaunchOpt
 		SessionValidationMode: testRunLaunchOpts.SessionValidationMode,
 	}
 	if testRunLaunchOpts.JavascriptDefinitionFile != "" {
-		filename, reader, err := readFromStdinOrReadFromArgument(testRunLaunchOpts.JavascriptDefinitionFile, "test-case.js")
+		filename, reader, m, err := readTestCaseBundleFromStdinOrReadFromArgument(testRunLaunchOpts.JavascriptDefinitionFile, "test-case.js")
 		if err != nil {
 			log.Fatalf("Failed to open %s: %v", filename, err)
 		}
 
+		mapper = m
 		launchOptions.JavascriptDefinition.Filename = filename
 		launchOptions.JavascriptDefinition.Reader = reader
 	}
@@ -210,7 +214,7 @@ func MainTestRunLaunch(client *api.Client, testCaseSpec string, testRunLaunchOpt
 	}
 
 	if !status {
-		errorMeta, err := api.UnmarshalErrorMeta(strings.NewReader(response))
+		errorMeta, err := api.ErrorDecoder{SourceMapper: mapper}.UnmarshalErrorMeta(strings.NewReader(response))
 		if err != nil {
 			log.Fatal(err)
 		}

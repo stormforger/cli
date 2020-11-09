@@ -88,7 +88,7 @@ func readFromStdinOrReadFromArgument(fileArg, defaultFileName string) (fileName 
 	return fileName, reader, err
 }
 
-func readTestCaseFromStdinOrReadFromArgument(arg, defaultFileName string) (fileName string, reader io.Reader, err error) {
+func readTestCaseBundleFromStdinOrReadFromArgument(arg, defaultFileName string) (fileName string, r io.Reader, mapper esbundle.SourceMapper, err error) {
 	fileName, testCaseFile, err := readFromStdinOrReadFromArgument(arg, defaultFileName)
 	if err != nil {
 		log.Fatal(err)
@@ -97,16 +97,15 @@ func readTestCaseFromStdinOrReadFromArgument(arg, defaultFileName string) (fileN
 	if arg != "-" {
 		if filepath.Ext(arg) == ".mjs" {
 			// TODO how to pass in bundling options?
-			bundle, err := esbundle.Bundle(arg, nil)
+			result, err := esbundle.Bundle(arg, nil)
 			if err != nil {
 				log.Fatal(err)
 			}
-
-			testCaseFile = strings.NewReader(bundle)
+			return fileName, strings.NewReader(result.CompiledContent), result.SourceMapper, nil
 		}
 	}
 
-	return fileName, testCaseFile, err
+	return fileName, testCaseFile, nil, err
 }
 
 func watchTestRun(testRunUID string, maxWatchTime float64, outputFormat string) {

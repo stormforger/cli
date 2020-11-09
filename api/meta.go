@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"io"
 	"log"
+
+	"github.com/stormforger/cli/internal/esbundle"
 )
 
 // Meta holds meta data of a JSONApi response. Currently
@@ -69,9 +71,13 @@ func UnmarshalMeta(input io.Reader) (Meta, error) {
 	return *data.Meta, nil
 }
 
+type ErrorDecoder struct {
+	SourceMapper esbundle.SourceMapper
+}
+
 // UnmarshalErrorMeta will take the response (io.Reader) and
 // will extract JSONAPI errors.
-func UnmarshalErrorMeta(input io.Reader) (ErrorPayload, error) {
+func (dec ErrorDecoder) UnmarshalErrorMeta(input io.Reader) (ErrorPayload, error) {
 	var data ErrorPayload
 	if err := json.NewDecoder(input).Decode(&data); err != nil {
 		return ErrorPayload{}, err
@@ -86,6 +92,10 @@ func UnmarshalErrorMeta(input io.Reader) (ErrorPayload, error) {
 			err := json.Unmarshal(e.MetaRaw, errorMeta)
 			if err != nil {
 				log.Fatal(err)
+			}
+
+			if dec.SourceMapper != nil {
+				errorMeta.Stack = updateStackFramesFromSourceMapper(errorMeta.Stack, dec.SourceMapper)
 			}
 
 			data.Errors[i].FormattedError = errorMeta.String()
@@ -114,4 +124,22 @@ func (e EvaluationErrorMeta) String() string {
 	}
 
 	return backtrace
+}
+
+func updateStackFramesFromSourceMapper(frames []EvaluationStackFrame, mapper esbundle.SourceMapper) []EvaluationStackFrame {
+	for idx, frame := range frames {
+		if frame.Internal {
+			continue
+		}
+
+		src, name, line, col, ok := mapper(frame.Line, frame.Column)
+		if ok {
+			frame.File = src
+			frame.Line = line
+			frame.Context = name
+			frame.Column = col
+			frames[idx] = frame
+		}
+	}
+	return frames
 }

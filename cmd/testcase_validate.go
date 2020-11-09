@@ -92,7 +92,7 @@ func runTestCaseValidate(cmd *cobra.Command, args []string) {
 
 // returns true if there were any validation ERRORS (not warnings)!
 func runTestCaseValidateArg(cmd *cobra.Command, client *api.Client, fileOrStdin string) (bool, error) {
-	fileName, testCaseFile, err := readTestCaseFromStdinOrReadFromArgument(fileOrStdin, "test_case.js")
+	fileName, testCaseFile, mapper, err := readTestCaseBundleFromStdinOrReadFromArgument(fileOrStdin, "test_case.js")
 	if err != nil {
 		return true, err
 	}
@@ -110,12 +110,12 @@ func runTestCaseValidateArg(cmd *cobra.Command, client *api.Client, fileOrStdin 
 		return !success, nil
 	}
 
-	errorMeta, err := api.UnmarshalErrorMeta(strings.NewReader(message))
+	errorMeta, err := api.ErrorDecoder{SourceMapper: mapper}.UnmarshalErrorMeta(strings.NewReader(message))
 	if err != nil {
 		return true, err
 	}
 
-	if errorMeta.Errors[0].EvaluationErrorMeta != nil {
+	if len(errorMeta.Errors) > 0 && errorMeta.Errors[0].EvaluationErrorMeta != nil {
 		topFrame := errorMeta.Errors[0].EvaluationErrorMeta.Stack[0]
 		log.Printf("JS Eval error in %d:%d (top frame): %+v\n", topFrame.Line, topFrame.Column, topFrame)
 	}

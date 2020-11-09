@@ -49,5 +49,5 @@ func runBuildCmd(cmd *cobra.Command, args []string) {
 		log.Fatal(err)
 	}
 
-	fmt.Print(res)
+	fmt.Print(res.CompiledContent)
 }

@@ -79,7 +79,7 @@ func init() {
 func runTestCaseCreate(cmd *cobra.Command, args []string) {
 	orgaUID := testCaseCreateOpts.Organisation
 
-	fileName, testCaseFile, err := readTestCaseFromStdinOrReadFromArgument(args[1], "test_case.js")
+	fileName, testCaseFile, mapper, err := readTestCaseBundleFromStdinOrReadFromArgument(args[1], "test_case.js")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -122,7 +122,7 @@ func runTestCaseCreate(cmd *cobra.Command, args []string) {
 		cmdExit(success)
 	}
 
-	errorMeta, err := api.UnmarshalErrorMeta(strings.NewReader(message))
+	errorMeta, err := api.ErrorDecoder{SourceMapper: mapper}.UnmarshalErrorMeta(strings.NewReader(message))
 	if err != nil {
 		log.Fatal(err)
 	}
