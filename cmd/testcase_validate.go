@@ -115,6 +115,11 @@ func runTestCaseValidateArg(cmd *cobra.Command, client *api.Client, fileOrStdin 
 		return true, err
 	}
 
+	if errorMeta.Errors[0].EvaluationErrorMeta != nil {
+		topFrame := errorMeta.Errors[0].EvaluationErrorMeta.Stack[0]
+		log.Printf("JS Eval error in %d:%d (top frame): %+v\n", topFrame.Line, topFrame.Column, topFrame)
+	}
+
 	printValidationResultHuman(os.Stderr, fileName, success, errorMeta)
 
 	if len(errorMeta.Errors) == 0 {
