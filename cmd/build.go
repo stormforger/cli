@@ -44,7 +44,6 @@ func runBuildCmd(cmd *cobra.Command, args []string) {
 	}
 
 	res, err := esbundle.Bundle(args[0], defines)
-
 	if err != nil {
 		log.Fatal(err)
 	}

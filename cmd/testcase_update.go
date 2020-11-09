@@ -109,6 +109,8 @@ func printValidationResultHuman(fp io.Writer, fileName string, success bool, err
 
 	for i, e := range errorMeta.Errors {
 		fmt.Fprintf(fp, "\n%d) %s: %s\n", i+1, e.Code, e.Title)
-		fmt.Fprintf(fp, "<%s>\n", e.FormattedError)
+		if e.FormattedError != "" {
+			fmt.Fprintf(fp, "<%s>\n", e.FormattedError)
+		}
 	}
 }
