@@ -79,7 +79,7 @@ func init() {
 func runTestCaseCreate(cmd *cobra.Command, args []string) {
 	orgaUID := testCaseCreateOpts.Organisation
 
-	fileName, testCaseFile, mapper, err := readTestCaseBundleFromStdinOrReadFromArgument(args[1], "test_case.js")
+	result, err := testCaseFileBundler{}.bundle(args[1], "test_case.js")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -108,9 +108,9 @@ func runTestCaseCreate(cmd *cobra.Command, args []string) {
 	if testcaseUID != "" && !testCaseCreateOpts.Update {
 		log.Fatal("Test-Case already exists.")
 	} else if testcaseUID == "" {
-		success, message, errValidation = client.TestCaseCreate(orgaUID, testCaseName, fileName, testCaseFile)
+		success, message, errValidation = client.TestCaseCreate(orgaUID, testCaseName, result.Name, result.Content)
 	} else {
-		success, message, errValidation = client.TestCaseUpdate(testcaseUID, fileName, testCaseFile)
+		success, message, errValidation = client.TestCaseUpdate(testcaseUID, result.Name, result.Content)
 	}
 
 	if errValidation != nil {
@@ -122,7 +122,7 @@ func runTestCaseCreate(cmd *cobra.Command, args []string) {
 		cmdExit(success)
 	}
 
-	errorMeta, err := api.ErrorDecoder{SourceMapper: mapper}.UnmarshalErrorMeta(strings.NewReader(message))
+	errorMeta, err := api.ErrorDecoder{SourceMapper: result.Mapper}.UnmarshalErrorMeta(strings.NewReader(message))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -131,6 +131,6 @@ func runTestCaseCreate(cmd *cobra.Command, args []string) {
 		os.Exit(0)
 	}
 
-	printValidationResultHuman(os.Stderr, fileName, success, errorMeta)
+	printValidationResultHuman(os.Stderr, result.Name, success, errorMeta)
 	cmdExit(success)
 }

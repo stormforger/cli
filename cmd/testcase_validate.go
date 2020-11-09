@@ -90,14 +90,14 @@ func runTestCaseValidate(cmd *cobra.Command, args []string) {
 	}
 }
 
-// returns true if there were any validation ERRORS (not warnings)!
+// runTestCaseValidateArg returns true if there were any validation ERRORS (not warnings)!
 func runTestCaseValidateArg(cmd *cobra.Command, client *api.Client, fileOrStdin string) (bool, error) {
-	fileName, testCaseFile, mapper, err := readTestCaseBundleFromStdinOrReadFromArgument(fileOrStdin, "test_case.js")
+	result, err := testCaseFileBundler{}.bundle(fileOrStdin, "test_case.js")
 	if err != nil {
 		return true, err
 	}
 
-	success, message, errValidation := client.TestCaseValidate(testCaseValidateOpts.Organisation, fileName, testCaseFile)
+	success, message, errValidation := client.TestCaseValidate(testCaseValidateOpts.Organisation, result.Name, result.Content)
 	if errValidation != nil {
 		return true, errValidation
 	}
@@ -110,17 +110,18 @@ func runTestCaseValidateArg(cmd *cobra.Command, client *api.Client, fileOrStdin 
 		return !success, nil
 	}
 
-	errorMeta, err := api.ErrorDecoder{SourceMapper: mapper}.UnmarshalErrorMeta(strings.NewReader(message))
+	errorMeta, err := api.ErrorDecoder{SourceMapper: result.Mapper}.UnmarshalErrorMeta(strings.NewReader(message))
 	if err != nil {
 		return true, err
 	}
 
+	// TODO: can we delete this?
 	if len(errorMeta.Errors) > 0 && errorMeta.Errors[0].EvaluationErrorMeta != nil {
 		topFrame := errorMeta.Errors[0].EvaluationErrorMeta.Stack[0]
 		log.Printf("JS Eval error in %d:%d (top frame): %+v\n", topFrame.Line, topFrame.Column, topFrame)
 	}
 
-	printValidationResultHuman(os.Stderr, fileName, success, errorMeta)
+	printValidationResultHuman(os.Stderr, result.Name, success, errorMeta)
 
 	if len(errorMeta.Errors) == 0 {
 		return false, nil

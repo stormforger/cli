@@ -55,12 +55,12 @@ func runTestCaseUpdate(cmd *cobra.Command, args []string) {
 
 	testCaseUID := mustLookupTestCase(client, args[0])
 
-	fileName, testCaseFile, mapper, err := readTestCaseBundleFromStdinOrReadFromArgument(args[1], "test_case.js")
+	result, err := testCaseFileBundler{}.bundle(args[1], "test_case.js")
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	success, message, err := client.TestCaseUpdate(testCaseUID, fileName, testCaseFile)
+	success, message, err := client.TestCaseUpdate(testCaseUID, result.Name, result.Content)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -76,12 +76,12 @@ func runTestCaseUpdate(cmd *cobra.Command, args []string) {
 	//  200 - with errors field, in case of validation errors where the testcase is still saved
 	//  400 - with errors field, if the testcase could not be parsed and saved
 
-	errorMeta, err := api.ErrorDecoder{SourceMapper: mapper}.UnmarshalErrorMeta(strings.NewReader(message))
+	errorMeta, err := api.ErrorDecoder{SourceMapper: result.Mapper}.UnmarshalErrorMeta(strings.NewReader(message))
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	printValidationResultHuman(os.Stderr, fileName, success, errorMeta)
+	printValidationResultHuman(os.Stderr, result.Name, success, errorMeta)
 	cmdExit(success)
 }
 

@@ -193,14 +193,14 @@ func MainTestRunLaunch(client *api.Client, testCaseSpec string, testRunLaunchOpt
 		SessionValidationMode: testRunLaunchOpts.SessionValidationMode,
 	}
 	if testRunLaunchOpts.JavascriptDefinitionFile != "" {
-		filename, reader, m, err := readTestCaseBundleFromStdinOrReadFromArgument(testRunLaunchOpts.JavascriptDefinitionFile, "test-case.js")
+		result, err := testCaseFileBundler{}.bundle(testRunLaunchOpts.JavascriptDefinitionFile, "test-case.js")
 		if err != nil {
-			log.Fatalf("Failed to open %s: %v", filename, err)
+			log.Fatalf("Failed to open %s: %v", result.Name, err)
 		}
 
-		mapper = m
-		launchOptions.JavascriptDefinition.Filename = filename
-		launchOptions.JavascriptDefinition.Reader = reader
+		mapper = result.Mapper
+		launchOptions.JavascriptDefinition.Filename = result.Name
+		launchOptions.JavascriptDefinition.Reader = result.Content
 	}
 
 	if testRunLaunchOpts.Validate {
