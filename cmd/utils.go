@@ -103,14 +103,12 @@ func (bundler testCaseFileBundler) Bundle(arg, defaultFileName string) (testCase
 		return testCaseFileBundle{}, err
 	}
 
-	if arg != "-" {
-		if filepath.Ext(arg) == ".mjs" {
-			result, err := esbundle.Bundle(arg, bundler.Replacements)
-			if err != nil {
-				return testCaseFileBundle{}, err
-			}
-			return testCaseFileBundle{Name: fileName, Content: strings.NewReader(result.CompiledContent), Mapper: result.SourceMapper}, nil
+	if arg != "-" && filepath.Ext(arg) == ".mjs" {
+		result, err := esbundle.Bundle(arg, bundler.Replacements)
+		if err != nil {
+			return testCaseFileBundle{}, err
 		}
+		return testCaseFileBundle{Name: fileName, Content: strings.NewReader(result.CompiledContent), Mapper: result.SourceMapper}, nil
 	}
 
 	return testCaseFileBundle{Name: fileName, Content: testCaseFile}, err
