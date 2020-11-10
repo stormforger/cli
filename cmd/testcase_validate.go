@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"strings"
@@ -86,7 +87,7 @@ func runTestCaseValidate(cmd *cobra.Command, args []string) {
 	for _, arg := range args[1:] {
 		argValidationError, err := runTestCaseValidateArg(cmd, client, arg)
 		if err != nil {
-			log.Fatalf("ERROR: %v for %s\n", err, arg)
+			fmt.Printf("ERROR: %v for %s\n", err, arg)
 		}
 		if argValidationError {
 			validationError = true
@@ -100,6 +101,8 @@ func runTestCaseValidate(cmd *cobra.Command, args []string) {
 
 // runTestCaseValidateArg returns true if there were any validation ERRORS (not warnings)!
 func runTestCaseValidateArg(cmd *cobra.Command, client *api.Client, fileOrStdin string) (bool, error) {
+	fmt.Fprintf(os.Stderr, "# FILE: %s\n", fileOrStdin)
+
 	bundler := testCaseFileBundler{Replacements: testCaseValidateOpts.Replacements}
 	bundle, err := bundler.Bundle(fileOrStdin, "test_case.js")
 	if err != nil {

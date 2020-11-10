@@ -1,8 +1,9 @@
 package cmd
 
 import (
-	"fmt"
+	"io"
 	"log"
+	"os"
 
 	"github.com/spf13/cobra"
 	"github.com/stormforger/cli/internal/pflagutil"
@@ -74,7 +75,6 @@ func runBuildCmd(cmd *cobra.Command, args []string) {
 	if len(args) == 0 {
 		log.Fatal("Missing argument: Entry file")
 	}
-	fmt.Printf("%v", buildOpts.Replacements)
 
 	bundler := testCaseFileBundler{Replacements: buildOpts.Replacements}
 	bundle, err := bundler.Bundle(args[0], "test_case.js")
@@ -82,5 +82,7 @@ func runBuildCmd(cmd *cobra.Command, args []string) {
 		log.Fatal(err)
 	}
 
-	fmt.Print(bundle.CompiledContent)
+	if _, err := io.Copy(os.Stdout, bundle.Content); err != nil {
+		log.Fatalf("ERROR: %v\n", err)
+	}
 }
