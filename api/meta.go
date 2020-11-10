@@ -30,12 +30,11 @@ type ErrorPayload struct {
 
 // ErrorDetail holds data on a specific JSONAPI error
 type ErrorDetail struct {
-	Code                string          `json:"code"`
-	Title               string          `json:"title"`
-	Detail              string          `json:"detail"`
-	MetaRaw             json.RawMessage `json:"meta"`
-	FormattedError      string
-	EvaluationErrorMeta *EvaluationErrorMeta
+	Code           string          `json:"code"`
+	Title          string          `json:"title"`
+	Detail         string          `json:"detail"`
+	MetaRaw        json.RawMessage `json:"meta"`
+	FormattedError string
 }
 
 // EvaluationErrorMeta holds meta data on JS Evaluation errors
@@ -99,7 +98,6 @@ func (dec ErrorDecoder) UnmarshalErrorMeta(input io.Reader) (ErrorPayload, error
 			}
 
 			data.Errors[i].FormattedError = errorMeta.String()
-			data.Errors[i].EvaluationErrorMeta = errorMeta
 		}
 	}
 
