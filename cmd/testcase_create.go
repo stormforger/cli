@@ -139,6 +139,6 @@ func runTestCaseCreate(cmd *cobra.Command, args []string) {
 		os.Exit(0)
 	}
 
-	printValidationResultHuman(os.Stderr, bundle.Name, success, errorMeta)
+	printValidationResultHuman(os.Stderr, success, errorMeta)
 	cmdExit(success)
 }

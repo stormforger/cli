@@ -127,7 +127,7 @@ func runTestCaseValidateArg(cmd *cobra.Command, client *api.Client, fileOrStdin 
 		return true, err
 	}
 
-	printValidationResultHuman(os.Stderr, bundle.Name, success, errorMeta)
+	printValidationResultHuman(os.Stderr, success, errorMeta)
 
 	if len(errorMeta.Errors) == 0 {
 		return false, nil

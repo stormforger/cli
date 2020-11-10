@@ -234,7 +234,7 @@ func MainTestRunLaunch(client *api.Client, testCaseSpec string, testRunLaunchOpt
 			log.Fatal(err)
 		}
 
-		printValidationResultHuman(os.Stderr, launchOptions.JavascriptDefinition.Filename, status, errorMeta)
+		printValidationResultHuman(os.Stderr, status, errorMeta)
 		cmdExit(status)
 	}
 
