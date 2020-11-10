@@ -5,7 +5,6 @@ import (
 	"log"
 
 	"github.com/spf13/cobra"
-	"github.com/stormforger/cli/internal/esbundle"
 	"github.com/stormforger/cli/internal/pflagutil"
 )
 
@@ -77,10 +76,11 @@ func runBuildCmd(cmd *cobra.Command, args []string) {
 	}
 	fmt.Printf("%v", buildOpts.Replacements)
 
-	res, err := esbundle.Bundle(args[0], buildOpts.Replacements)
+	bundler := testCaseFileBundler{Replacements: buildOpts.Replacements}
+	bundle, err := bundler.Bundle(args[0], "test_case.js")
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	fmt.Print(res.CompiledContent)
+	fmt.Print(bundle.CompiledContent)
 }
