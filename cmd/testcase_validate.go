@@ -87,7 +87,7 @@ func runTestCaseValidate(cmd *cobra.Command, args []string) {
 	for _, arg := range args[1:] {
 		argValidationError, err := runTestCaseValidateArg(cmd, client, arg)
 		if err != nil {
-			fmt.Printf("ERROR: %v for %s\n", err, arg)
+			fmt.Fprintf(os.Stderr, "ERROR: %v for %s\n", err, arg)
 		}
 		if argValidationError {
 			validationError = true
