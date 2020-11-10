@@ -7,6 +7,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/stormforger/cli/api"
+	"github.com/stormforger/cli/internal/pflagutil"
 )
 
 var (
@@ -36,6 +37,10 @@ Examples
 
 	forge test-case validate acme-inc ./dist/foo.js ./dist/bar.js ./dist/foobar.js
 
+Bundling
+--------
+
+Validate automatically bundles your javascript file, if you use the .mjs extension. See 'forge build' for more details.
 `,
 
 		Run: runTestCaseValidate,
@@ -64,11 +69,14 @@ Examples
 
 	testCaseValidateOpts struct {
 		Organisation string
+		Replacements map[string]string
 	}
 )
 
 func init() {
 	TestCaseCmd.AddCommand(testCaseValidateCmd)
+
+	testCaseValidateCmd.PersistentFlags().Var(&pflagutil.KeyValueFlag{Map: &testCaseValidateOpts.Replacements}, "define", "Substitute a list of K=V while parsing: debug=false")
 }
 
 func runTestCaseValidate(cmd *cobra.Command, args []string) {
@@ -92,12 +100,13 @@ func runTestCaseValidate(cmd *cobra.Command, args []string) {
 
 // runTestCaseValidateArg returns true if there were any validation ERRORS (not warnings)!
 func runTestCaseValidateArg(cmd *cobra.Command, client *api.Client, fileOrStdin string) (bool, error) {
-	result, err := testCaseFileBundler{}.bundle(fileOrStdin, "test_case.js")
+	bundler := testCaseFileBundler{Replacements: testCaseValidateOpts.Replacements}
+	bundle, err := bundler.Bundle(fileOrStdin, "test_case.js")
 	if err != nil {
 		return true, err
 	}
 
-	success, message, errValidation := client.TestCaseValidate(testCaseValidateOpts.Organisation, result.Name, result.Content)
+	success, message, errValidation := client.TestCaseValidate(testCaseValidateOpts.Organisation, bundle.Name, bundle.Content)
 	if errValidation != nil {
 		return true, errValidation
 	}
@@ -110,12 +119,12 @@ func runTestCaseValidateArg(cmd *cobra.Command, client *api.Client, fileOrStdin 
 		return !success, nil
 	}
 
-	errorMeta, err := api.ErrorDecoder{SourceMapper: result.Mapper}.UnmarshalErrorMeta(strings.NewReader(message))
+	errorMeta, err := api.ErrorDecoder{SourceMapper: bundle.Mapper}.UnmarshalErrorMeta(strings.NewReader(message))
 	if err != nil {
 		return true, err
 	}
 
-	printValidationResultHuman(os.Stderr, result.Name, success, errorMeta)
+	printValidationResultHuman(os.Stderr, bundle.Name, success, errorMeta)
 
 	if len(errorMeta.Errors) == 0 {
 		return false, nil

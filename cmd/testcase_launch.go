@@ -16,6 +16,7 @@ import (
 	"github.com/stormforger/cli/api"
 	"github.com/stormforger/cli/api/testrun"
 	"github.com/stormforger/cli/internal/esbundle"
+	"github.com/stormforger/cli/internal/pflagutil"
 	"github.com/stormforger/cli/internal/stringutil"
 )
 
@@ -40,6 +41,7 @@ var (
 
 Examples
 --------
+
 * Launch by organisation and test case name
 
   forge test-case launch acme-inc/checkout
@@ -51,6 +53,7 @@ Examples
 
 Configuration
 -------------
+
 You can specify configuration for a test run that will overwrite what is defined
 in your JavaScript definition.
 
@@ -58,6 +61,11 @@ in your JavaScript definition.
   * %s
 
 Available cluster regions are available at https://docs.stormforger.com/reference/test-cluster/#cluster-region
+
+Bundling
+--------
+
+Launch automatically bundles your javascript file, if you use the .mjs extension. See 'forge build' for more details.
 `,
 			strings.Join(validSizings, "\n  * ")),
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
@@ -135,6 +143,8 @@ type testRunLaunchCmdOpts struct {
 	SessionValidationMode bool
 	Validate              bool
 	TestRunIDOutputFile   string
+
+	Replacements map[string]string
 }
 
 func init() {
@@ -163,6 +173,9 @@ func init() {
 	testRunLaunchCmd.Flags().BoolVar(&testRunLaunchOpts.SessionValidationMode, "session-validation-mode", false, "Enable session validation mode")
 	testRunLaunchCmd.Flags().BoolVar(&testRunLaunchOpts.Validate, "validate", false, "Perform validation run")
 
+	// bundling
+	testRunLaunchCmd.PersistentFlags().Var(&pflagutil.KeyValueFlag{Map: &testRunLaunchOpts.Replacements}, "define", "Substitute a list of K=V while parsing: debug=false")
+
 	// hints for completion of flags
 	testRunLaunchCmd.MarkFlagFilename("test-case-file", "js")
 	testRunLaunchCmd.MarkFlagFilename("nfr-check-file", "yml", "yaml")
@@ -172,6 +185,7 @@ func init() {
 	testRunLaunchCmd.RegisterFlagCompletionFunc("sizing", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 		return stringutil.FilterByPrefix(toComplete, validSizings), cobra.ShellCompDirectiveDefault
 	})
+
 }
 
 // MainTestRunLaunch runs a test-case and allows watching and validation that test-run.
@@ -193,14 +207,15 @@ func MainTestRunLaunch(client *api.Client, testCaseSpec string, testRunLaunchOpt
 		SessionValidationMode: testRunLaunchOpts.SessionValidationMode,
 	}
 	if testRunLaunchOpts.JavascriptDefinitionFile != "" {
-		result, err := testCaseFileBundler{}.bundle(testRunLaunchOpts.JavascriptDefinitionFile, "test-case.js")
+		bundler := testCaseFileBundler{Replacements: testRunLaunchOpts.Replacements}
+		bundle, err := bundler.Bundle(testRunLaunchOpts.JavascriptDefinitionFile, "test-case.js")
 		if err != nil {
-			log.Fatalf("Failed to open %s: %v", result.Name, err)
+			log.Fatalf("Failed to open %s: %v", bundle.Name, err)
 		}
 
-		mapper = result.Mapper
-		launchOptions.JavascriptDefinition.Filename = result.Name
-		launchOptions.JavascriptDefinition.Reader = result.Content
+		mapper = bundle.Mapper
+		launchOptions.JavascriptDefinition.Filename = bundle.Name
+		launchOptions.JavascriptDefinition.Reader = bundle.Content
 	}
 
 	if testRunLaunchOpts.Validate {

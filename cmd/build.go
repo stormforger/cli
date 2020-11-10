@@ -3,10 +3,10 @@ package cmd
 import (
 	"fmt"
 	"log"
-	"strings"
 
 	"github.com/spf13/cobra"
 	"github.com/stormforger/cli/internal/esbundle"
+	"github.com/stormforger/cli/internal/pflagutil"
 )
 
 var (
@@ -14,18 +14,18 @@ var (
 		Use:   "build FILE",
 		Short: "Build a test case",
 		Run:   runBuildCmd,
-		Long: `Build a test case
+		Long: `Build a test case bundle
 
 If the references file has the .mjs file extension, you can import other javascript
 files and predefine variables. 'forge build' will compile a single javascript out of
-it, resolving the imports transparently.
+it, resolving the imports transparently and adding defined variables, if used.
 
-This will also be automatically done for you when using the 'forge testcase' commands.
+This is also done automatically for you when using the 'forge testcase' commands.
 
 Imports
 -------
 
-Using 'forge build' allows importing other javascript files via the 'import' statement:
+Using 'forge build' allows importing other javascript files via the 'import' statement, if your first files ends in '.mjs':
 
     import helloWorldScenario from "./modules/scenarios.js"
     definition.session("helloworld", helloWorldScenario);
@@ -48,40 +48,36 @@ Esbuild allows defining variables so your test cases becomes more dynamic.
     }
 
 In this example, configure config.env to the value "staging", if ENV is not defined.
-If you pass a define (e.g. 'forge build --define ENV=prod input.mjs') this will now
+If you pass a define (e.g. 'forge build --define ENV=\"prod\" input.mjs') this will now
 configure config.env to "prod".
-Note that the compiled output no longer contains the fallback to "staging"; Esbuild removed this dead code.
 
+To use multiple defines, pass multiple '--define' flags.
+
+A few caveats:
+
+* the compiled output no longer contains the fallback to "staging"; Esbuild removed this dead code.
+* To use strings as defines, you may need to quote your values twice or escape them, otherwise your shell eats them.
 `,
 	}
 
 	buildOpts struct {
-		Replacements []string
+		Replacements map[string]string
 	}
 )
 
 func init() {
 	RootCmd.AddCommand(buildCmd)
 
-	buildCmd.PersistentFlags().StringArrayVar(&buildOpts.Replacements, "define", []string{}, "Substitute a list of K=V while parsing: debug=false")
+	buildCmd.PersistentFlags().Var(&pflagutil.KeyValueFlag{Map: &buildOpts.Replacements}, "define", "Substitute a list of K=V while parsing: debug=false")
 }
 
 func runBuildCmd(cmd *cobra.Command, args []string) {
 	if len(args) == 0 {
 		log.Fatal("Missing argument: Entry file")
 	}
+	fmt.Printf("%v", buildOpts.Replacements)
 
-	defines := make(map[string]string)
-	for _, kv := range buildOpts.Replacements {
-		equals := strings.IndexByte(kv, '=')
-		if equals == -1 {
-			log.Fatalf("Missing \"=\": %q", kv)
-		}
-
-		defines[kv[:equals]] = kv[equals+1:]
-	}
-
-	res, err := esbundle.Bundle(args[0], defines)
+	res, err := esbundle.Bundle(args[0], buildOpts.Replacements)
 	if err != nil {
 		log.Fatal(err)
 	}

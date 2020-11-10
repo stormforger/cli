@@ -97,7 +97,7 @@ type testCaseFileBundler struct {
 	Replacements map[string]string
 }
 
-func (bundler testCaseFileBundler) bundle(arg, defaultFileName string) (testCaseFileBundle, error) {
+func (bundler testCaseFileBundler) Bundle(arg, defaultFileName string) (testCaseFileBundle, error) {
 	fileName, testCaseFile, err := readFromStdinOrReadFromArgument(arg, defaultFileName)
 	if err != nil {
 		return testCaseFileBundle{}, err

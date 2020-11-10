@@ -10,6 +10,7 @@ import (
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 	"github.com/stormforger/cli/api"
+	"github.com/stormforger/cli/internal/pflagutil"
 )
 
 var (
@@ -31,6 +32,10 @@ Examples
 
   cat cases/checkout_process.js | forge test-case update acme-inc/checkout -
 
+Bundling
+--------
+
+Update automatically bundles your javascript file, if you use the .mjs extension. See 'forge build' for more details.
 `,
 		Run: runTestCaseUpdate,
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
@@ -44,10 +49,16 @@ Examples
 		},
 		ValidArgsFunction: completeOrgaAndCase,
 	}
+
+	testCaseUpdateOpts struct {
+		Replacements map[string]string
+	}
 )
 
 func init() {
 	TestCaseCmd.AddCommand(testCaseUpdateCmd)
+
+	testCaseUpdateCmd.PersistentFlags().Var(&pflagutil.KeyValueFlag{Map: &testCaseUpdateOpts.Replacements}, "define", "Substitute a list of K=V while parsing: debug=false")
 }
 
 func runTestCaseUpdate(cmd *cobra.Command, args []string) {
@@ -55,12 +66,13 @@ func runTestCaseUpdate(cmd *cobra.Command, args []string) {
 
 	testCaseUID := mustLookupTestCase(client, args[0])
 
-	result, err := testCaseFileBundler{}.bundle(args[1], "test_case.js")
+	bundler := testCaseFileBundler{Replacements: testCaseUpdateOpts.Replacements}
+	bundle, err := bundler.Bundle(args[1], "test_case.js")
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	success, message, err := client.TestCaseUpdate(testCaseUID, result.Name, result.Content)
+	success, message, err := client.TestCaseUpdate(testCaseUID, bundle.Name, bundle.Content)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -76,12 +88,12 @@ func runTestCaseUpdate(cmd *cobra.Command, args []string) {
 	//  200 - with errors field, in case of validation errors where the testcase is still saved
 	//  400 - with errors field, if the testcase could not be parsed and saved
 
-	errorMeta, err := api.ErrorDecoder{SourceMapper: result.Mapper}.UnmarshalErrorMeta(strings.NewReader(message))
+	errorMeta, err := api.ErrorDecoder{SourceMapper: bundle.Mapper}.UnmarshalErrorMeta(strings.NewReader(message))
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	printValidationResultHuman(os.Stderr, result.Name, success, errorMeta)
+	printValidationResultHuman(os.Stderr, bundle.Name, success, errorMeta)
 	cmdExit(success)
 }
 

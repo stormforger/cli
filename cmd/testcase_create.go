@@ -9,6 +9,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/stormforger/cli/api"
+	"github.com/stormforger/cli/internal/pflagutil"
 )
 
 var (
@@ -32,6 +33,10 @@ forge test-case create acme-inc/checkout cases/checkout_process.js
 
 cat cases/checkout_process.js | forge test-case create acme-inc/checkout -
 
+Bundling
+--------
+
+Create automatically bundles your javascript file, if you use the .mjs extension. See 'forge build' for more details.
 `,
 		Run: runTestCaseCreate,
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
@@ -66,6 +71,7 @@ cat cases/checkout_process.js | forge test-case create acme-inc/checkout -
 		Organisation string
 		Name         string
 		Update       bool // update test-case if already exists
+		Replacements map[string]string
 	}
 )
 
@@ -74,12 +80,14 @@ func init() {
 
 	testCaseCreateCmd.PersistentFlags().StringVarP(&testCaseCreateOpts.Name, "name", "n", "", "Name of the new test case")
 	testCaseCreateCmd.PersistentFlags().BoolVar(&testCaseCreateOpts.Update, "update", false, "Update test-case instead, if it already exists")
+	testCaseCreateCmd.PersistentFlags().Var(&pflagutil.KeyValueFlag{Map: &testCaseCreateOpts.Replacements}, "define", "Substitute a list of K=V while parsing: debug=false")
 }
 
 func runTestCaseCreate(cmd *cobra.Command, args []string) {
 	orgaUID := testCaseCreateOpts.Organisation
 
-	result, err := testCaseFileBundler{}.bundle(args[1], "test_case.js")
+	bundler := testCaseFileBundler{Replacements: testCaseCreateOpts.Replacements}
+	bundle, err := bundler.Bundle(args[1], "test_case.js")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -108,9 +116,9 @@ func runTestCaseCreate(cmd *cobra.Command, args []string) {
 	if testcaseUID != "" && !testCaseCreateOpts.Update {
 		log.Fatal("Test-Case already exists.")
 	} else if testcaseUID == "" {
-		success, message, errValidation = client.TestCaseCreate(orgaUID, testCaseName, result.Name, result.Content)
+		success, message, errValidation = client.TestCaseCreate(orgaUID, testCaseName, bundle.Name, bundle.Content)
 	} else {
-		success, message, errValidation = client.TestCaseUpdate(testcaseUID, result.Name, result.Content)
+		success, message, errValidation = client.TestCaseUpdate(testcaseUID, bundle.Name, bundle.Content)
 	}
 
 	if errValidation != nil {
@@ -122,7 +130,7 @@ func runTestCaseCreate(cmd *cobra.Command, args []string) {
 		cmdExit(success)
 	}
 
-	errorMeta, err := api.ErrorDecoder{SourceMapper: result.Mapper}.UnmarshalErrorMeta(strings.NewReader(message))
+	errorMeta, err := api.ErrorDecoder{SourceMapper: bundle.Mapper}.UnmarshalErrorMeta(strings.NewReader(message))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -131,6 +139,6 @@ func runTestCaseCreate(cmd *cobra.Command, args []string) {
 		os.Exit(0)
 	}
 
-	printValidationResultHuman(os.Stderr, result.Name, success, errorMeta)
+	printValidationResultHuman(os.Stderr, bundle.Name, success, errorMeta)
 	cmdExit(success)
 }
