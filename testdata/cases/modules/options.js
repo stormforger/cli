@@ -6,4 +6,3 @@ definition.setArrivalPhases([{
     max_clients: 23,
   },
 ]);
-definition.foo(); // Invalid
