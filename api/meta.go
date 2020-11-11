@@ -134,7 +134,10 @@ func updateStackFramesFromSourceMapper(frames []EvaluationStackFrame, mapper esb
 		if ok {
 			frame.File = src
 			frame.Line = line
-			frame.Context = name
+			if name != "" {
+				frame.Context = name
+			}
+
 			frame.Column = col
 			frames[idx] = frame
 		}
