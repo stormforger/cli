@@ -30,10 +30,7 @@ func Bundle(inputFile string, replacements map[string]string) (Result, error) {
 		Platform:          esbuild.PlatformNode,
 		Defines:           replacements,
 		Sourcemap:         esbuild.SourceMapExternal,
-		Outdir:            ".",
-		// Loaders:           map[string]esbuild.Loader{".jsm": esbuild.LoaderJS},
-		// ResolveExtensions: []string{".jsm"},
-		// Externals:         []string{"stormforger"},
+		Outdir:            ".", // required for source maps
 	})
 
 	if len(result.Errors) > 0 {
