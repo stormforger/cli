@@ -18,7 +18,7 @@ var (
 	testCaseUpdateCmd = &cobra.Command{
 		Use:   "update <test-case-ref> <test-case-file>",
 		Short: "Update an existing test case",
-		Long: `Update an existing test case
+		Long: fmt.Sprintf(`Update an existing test case
 
 <test-case-ref> can be 'organisation-name/test-case-name' or 'test-case-uid'.
 
@@ -32,11 +32,8 @@ Examples
 
   cat cases/checkout_process.js | forge test-case update acme-inc/checkout -
 
-Bundling
---------
-
-Update automatically bundles your javascript file, if you use the .mjs extension. See 'forge build' for more details.
-`,
+%s
+`, bundlingHelpInfo),
 		Run: runTestCaseUpdate,
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
 			if len(args) < 2 {

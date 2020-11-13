@@ -18,7 +18,7 @@ var (
 	testCaseCreateCmd = &cobra.Command{
 		Use:   "create <test-case-ref> <test-case-file>",
 		Short: "Create a new test case",
-		Long: `Create a new test case.
+		Long: fmt.Sprintf(`Create a new test case.
 
 		<test-case-ref> is 'organisation-name/test-case-name'.
 		<test-case-file> is a path or - for stdin.
@@ -33,11 +33,8 @@ forge test-case create acme-inc/checkout cases/checkout_process.js
 
 cat cases/checkout_process.js | forge test-case create acme-inc/checkout -
 
-Bundling
---------
-
-Create automatically bundles your javascript file, if you use the .mjs extension. See 'forge build' for more details.
-`,
+%s
+`, bundlingHelpInfo),
 		Run: runTestCaseCreate,
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
 			if len(args) > 2 {

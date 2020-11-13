@@ -16,32 +16,27 @@ var (
 	testCaseValidateCmd = &cobra.Command{
 		Use:   "validate <organisation-ref> <test-case-files>",
 		Short: "Upload a test case definition JavaScript and validate it",
-		Long: `Upload a test case definition JavaScript and validate it.
+		Long: fmt.Sprintf(`Upload a test case definition JavaScript and validate it.
 
 We do require the organisation in order to validate the test case against
 the available resources and limits of that given organisation.
 
-<organisation-ref> is the name or the UID of your organisation
-<test-case-files> is one or more file names to validate
+<organisation-ref> is the name or the UID of your organisation.
+<test-case-files> is one or more file names to validate.
 
-Examples
---------
-* Validate a test case (with limits of 'acme-inc' organisation)
+%s
+`, bundlingHelpInfo),
+		Example: `Validate a test case (with limits of 'acme-inc' organisation):
 
   forge test-case validate acme-inc cases/checkout_process.js
 
-* Alternatively the test definition can be piped in as well
+Alternatively the test definition can be piped in as well:
 
-	cat cases/checkout_process.js | forge test-case validate acme-inc -
+  cat cases/checkout_process.js | forge test-case validate acme-inc -
 
-* Verify multiple files at once
+Verify multiple files at once:
 
-	forge test-case validate acme-inc ./dist/foo.js ./dist/bar.js ./dist/foobar.js
-
-Bundling
---------
-
-Validate automatically bundles your javascript file, if you use the .mjs extension. See 'forge build' for more details.
+  forge test-case validate acme-inc ./dist/foo.js ./dist/bar.js ./dist/foobar.js
 `,
 
 		Run: runTestCaseValidate,

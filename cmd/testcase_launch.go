@@ -38,7 +38,7 @@ var (
 		Long: fmt.Sprintf(`Create and launch a new test run based on given test case
 
 <test-case-ref> can be 'organisation-name/test-case-name' or 'test-case-uid'.
-
+R
 Examples
 --------
 
@@ -49,7 +49,6 @@ Examples
 * Alternatively the test case UID can also be provided
 
   forge test-case launch xPSX5KXM
-
 
 Configuration
 -------------
@@ -62,12 +61,8 @@ in your JavaScript definition.
 
 Available cluster regions are available at https://docs.stormforger.com/reference/test-cluster/#cluster-region
 
-Bundling
---------
-
-Launch automatically bundles your javascript file, if you use the .mjs extension. See 'forge build' for more details.
-`,
-			strings.Join(validSizings, "\n  * ")),
+%s
+`, strings.Join(validSizings, "\n  * "), bundlingHelpInfo),
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
 			if len(args) < 1 {
 				log.Fatal("Missing argument: test case reference")

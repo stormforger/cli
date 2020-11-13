@@ -11,21 +11,24 @@ import (
 
 var (
 	buildCmd = &cobra.Command{
-		Use:   "build FILE",
-		Short: "Build a test case",
-		Run:   runBuildCmd,
+		Use:     "build FILE",
+		Short:   "Build a test case",
+		Run:     runBuildCmd,
+		Example: "forge build --define ENV=\"prod\" index.mjs",
 		Long: `Build a test case bundle
 
-If the references file has the .mjs file extension, you can import other javascript
-files and predefine variables. 'forge build' will compile a single javascript out of
-it, resolving the imports transparently and adding defined variables, if used.
+If the reference file has the .mjs file extension, you can import other
+JavaScript files and predefine variables using ECMAScript modules.
+'forge build' will compile a single JavaScript out of it, resolving the
+imports transparently and adding defined variables, if used.
 
-This is also done automatically for you when using the 'forge testcase' commands.
+This is also done automatically for you when using the 'forge test-case'
+commands.
 
-Imports
--------
-
-Using 'forge build' allows importing other javascript files via the 'import' statement, if your first files ends in '.mjs':
+Imports (ECMAScript modules)
+----------------------------
+Using 'forge build' allows importing other JavaScript files via the 'import'
+statement, if your first files ends in '.mjs':
 
     import helloWorldScenario from "./modules/scenarios.js"
     definition.session("helloworld", helloWorldScenario);
@@ -39,24 +42,26 @@ In 'scenarios.js' we have to export the function 'helloWorldScenario':
 
 Defines
 -------
-
-We use https://esbuild.github.io/ for compiling the various javascript files into a single representation.
-Esbuild allows defining variables so your test cases becomes more dynamic.
+We use https://esbuild.github.io/ for compiling the various JavaScript files
+into a single representation. Esbuild allows defining variables so your test
+cases becomes more dynamic.
 
     const config = {
       env: ENV || "staging",
     }
 
-In this example, configure config.env to the value "staging", if ENV is not defined.
-If you pass a define (e.g. 'forge build --define ENV=\"prod\" input.mjs') this will now
+In this example, configure config.env to the value "staging", if ENV is not
+defined. If you pass a define (e.g. '--define ENV=\"prod\"') this will now
 configure config.env to "prod".
 
 To use multiple defines, pass multiple '--define' flags.
 
 A few caveats:
 
-* the compiled output no longer contains the fallback to "staging"; Esbuild removed this dead code.
-* To use strings as defines, you may need to quote your values twice or escape them, otherwise your shell eats them.
+* the compiled output no longer contains the fallback to "staging"; Esbuild
+  removed this dead code.
+* To use strings as defines, you may need to quote your values twice or escape
+  them, otherwise your shell eats them.
 `,
 	}
 

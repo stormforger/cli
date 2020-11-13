@@ -21,6 +21,12 @@ import (
 	"github.com/stormforger/cli/internal/esbundle"
 )
 
+const bundlingHelpInfo = `Bundling
+--------
+If you use the .mjs file extension, this command will automatically bundle your
+JavaScript file using ECMAScript modules. See 'forge build' for more details.
+`
+
 // FindFixtureByName fetches a FileFixture from a given Organisation.
 func findFixtureByName(client api.Client, orga string, name string) *filefixture.FileFixture {
 	success, result, err := client.ListFileFixture(orga)
