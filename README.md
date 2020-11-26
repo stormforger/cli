@@ -77,12 +77,11 @@ You can...
 * validate a test definition without saving it: `forge test-case validate acme-inc cases/simple.js`
 * create a new test case named `checkout` inside `acme-inc`: `forge test-case create acme-inc/checkout cases/simple.js`
 * update an existing test case named `checkout` inside `acme-inc`: `forge test-case update acme-inc/checkout cases/simple.js`
+* bundle a ESModule based case into a single JavaScript file: `forge test-case build cases/index.mjs`
 
-Commands that take a file, also accept `-` to take input from stdin. Example:
+Commands that take a file, also accept `-` to take input from stdin.
 
-```console
-sed 's/${target}/testapp.loadtest.party/g' tests/templated.js | forge tc update acme-inc/checkout -
-```
+Commands that take a test definition file (JavaScript) do support ESModules if the file extension is `.mjs`. Consult `forge test-case build` for details.
 
 
 ### Test Runs
