@@ -14,12 +14,12 @@ var (
 		Use:     "build FILE",
 		Short:   "Build a test case",
 		Run:     runBuildCmd,
-		Example: "forge build --define ENV=\"prod\" index.mjs",
+		Example: "forge test-case build --define ENV=\"prod\" index.mjs",
 		Long: `Build a test case bundle
 
 If the reference file has the .mjs file extension, you can import other
 JavaScript files and predefine variables using ECMAScript modules.
-'forge build' will compile a single JavaScript out of it, resolving the
+'forge test-case build' will compile a single JavaScript out of it, resolving the
 imports transparently and adding defined variables, if used.
 
 This is also done automatically for you when using the 'forge test-case'
@@ -27,7 +27,7 @@ commands.
 
 Imports (ECMAScript modules)
 ----------------------------
-Using 'forge build' allows importing other JavaScript files via the 'import'
+Using 'forge test-case build' allows importing other JavaScript files via the 'import'
 statement, if your first files ends in '.mjs':
 
     import helloWorldScenario from "./modules/scenarios.js"
@@ -71,7 +71,7 @@ A few caveats:
 )
 
 func init() {
-	RootCmd.AddCommand(buildCmd)
+	TestCaseCmd.AddCommand(buildCmd)
 
 	buildCmd.PersistentFlags().Var(&pflagutil.KeyValueFlag{Map: &buildOpts.Replacements}, "define", "Substitute a list of K=V while parsing: debug=false")
 }
