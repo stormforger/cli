@@ -139,7 +139,7 @@ type testRunLaunchCmdOpts struct {
 	Validate              bool
 	TestRunIDOutputFile   string
 
-	Replacements map[string]string
+	Defines map[string]string
 }
 
 func init() {
@@ -169,7 +169,7 @@ func init() {
 	testRunLaunchCmd.Flags().BoolVar(&testRunLaunchOpts.Validate, "validate", false, "Perform validation run")
 
 	// bundling
-	testRunLaunchCmd.PersistentFlags().Var(&pflagutil.KeyValueFlag{Map: &testRunLaunchOpts.Replacements}, "define", "Substitute a list of K=V while parsing: debug=false")
+	testRunLaunchCmd.PersistentFlags().Var(&pflagutil.KeyValueFlag{Map: &testRunLaunchOpts.Defines}, "define", "Substitute a list of K=V while parsing: debug=false")
 
 	// hints for completion of flags
 	testRunLaunchCmd.MarkFlagFilename("test-case-file", "js")
@@ -202,7 +202,7 @@ func MainTestRunLaunch(client *api.Client, testCaseSpec string, testRunLaunchOpt
 		SessionValidationMode: testRunLaunchOpts.SessionValidationMode,
 	}
 	if testRunLaunchOpts.JavascriptDefinitionFile != "" {
-		bundler := testCaseFileBundler{Replacements: testRunLaunchOpts.Replacements}
+		bundler := testCaseFileBundler{Defines: testRunLaunchOpts.Defines}
 		bundle, err := bundler.Bundle(testRunLaunchOpts.JavascriptDefinitionFile, "test-case.js")
 		if err != nil {
 			log.Fatalf("Failed to open %s: %v", bundle.Name, err)

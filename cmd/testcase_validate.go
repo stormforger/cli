@@ -65,14 +65,14 @@ Verify multiple files at once:
 
 	testCaseValidateOpts struct {
 		Organisation string
-		Replacements map[string]string
+		Defines      map[string]string
 	}
 )
 
 func init() {
 	TestCaseCmd.AddCommand(testCaseValidateCmd)
 
-	testCaseValidateCmd.PersistentFlags().Var(&pflagutil.KeyValueFlag{Map: &testCaseValidateOpts.Replacements}, "define", "Substitute a list of K=V while parsing: debug=false")
+	testCaseValidateCmd.PersistentFlags().Var(&pflagutil.KeyValueFlag{Map: &testCaseValidateOpts.Defines}, "define", "Substitute a list of K=V while parsing: debug=false")
 }
 
 func runTestCaseValidate(cmd *cobra.Command, args []string) {
@@ -98,7 +98,7 @@ func runTestCaseValidate(cmd *cobra.Command, args []string) {
 func runTestCaseValidateArg(cmd *cobra.Command, client *api.Client, fileOrStdin string) (bool, error) {
 	fmt.Fprintf(os.Stderr, "# FILE: %s\n", fileOrStdin)
 
-	bundler := testCaseFileBundler{Replacements: testCaseValidateOpts.Replacements}
+	bundler := testCaseFileBundler{Defines: testCaseValidateOpts.Defines}
 	bundle, err := bundler.Bundle(fileOrStdin, "test_case.js")
 	if err != nil {
 		return true, err

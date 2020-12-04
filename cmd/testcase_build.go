@@ -10,7 +10,7 @@ import (
 )
 
 var (
-	buildCmd = &cobra.Command{
+	testCaseBuildCmd = &cobra.Command{
 		Use:     "build FILE",
 		Short:   "Build a test case",
 		Run:     runBuildCmd,
@@ -66,14 +66,14 @@ A few caveats:
 	}
 
 	buildOpts struct {
-		Replacements map[string]string
+		Defines map[string]string
 	}
 )
 
 func init() {
-	TestCaseCmd.AddCommand(buildCmd)
+	TestCaseCmd.AddCommand(testCaseBuildCmd)
 
-	buildCmd.PersistentFlags().Var(&pflagutil.KeyValueFlag{Map: &buildOpts.Replacements}, "define", "Substitute a list of K=V while parsing: debug=false")
+	testCaseBuildCmd.PersistentFlags().Var(&pflagutil.KeyValueFlag{Map: &buildOpts.Defines}, "define", "Substitute a list of K=V while parsing: debug=false")
 }
 
 func runBuildCmd(cmd *cobra.Command, args []string) {
@@ -81,7 +81,7 @@ func runBuildCmd(cmd *cobra.Command, args []string) {
 		log.Fatal("Missing argument: Entry file")
 	}
 
-	bundler := testCaseFileBundler{Replacements: buildOpts.Replacements}
+	bundler := testCaseFileBundler{Defines: buildOpts.Defines}
 	bundle, err := bundler.Bundle(args[0], "test_case.js")
 	if err != nil {
 		log.Fatal(err)

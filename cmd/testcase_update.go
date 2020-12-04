@@ -48,14 +48,14 @@ Examples
 	}
 
 	testCaseUpdateOpts struct {
-		Replacements map[string]string
+		Defines map[string]string
 	}
 )
 
 func init() {
 	TestCaseCmd.AddCommand(testCaseUpdateCmd)
 
-	testCaseUpdateCmd.PersistentFlags().Var(&pflagutil.KeyValueFlag{Map: &testCaseUpdateOpts.Replacements}, "define", "Substitute a list of K=V while parsing: debug=false")
+	testCaseUpdateCmd.PersistentFlags().Var(&pflagutil.KeyValueFlag{Map: &testCaseUpdateOpts.Defines}, "define", "Substitute a list of K=V while parsing: debug=false")
 }
 
 func runTestCaseUpdate(cmd *cobra.Command, args []string) {
@@ -63,7 +63,7 @@ func runTestCaseUpdate(cmd *cobra.Command, args []string) {
 
 	testCaseUID := mustLookupTestCase(client, args[0])
 
-	bundler := testCaseFileBundler{Replacements: testCaseUpdateOpts.Replacements}
+	bundler := testCaseFileBundler{Defines: testCaseUpdateOpts.Defines}
 	bundle, err := bundler.Bundle(args[1], "test_case.js")
 	if err != nil {
 		log.Fatal(err)

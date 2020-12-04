@@ -100,7 +100,7 @@ type testCaseFileBundle struct {
 	Mapper  esbundle.SourceMapper
 }
 type testCaseFileBundler struct {
-	Replacements map[string]string
+	Defines map[string]string
 }
 
 func (bundler testCaseFileBundler) Bundle(arg, defaultFileName string) (testCaseFileBundle, error) {
@@ -110,7 +110,7 @@ func (bundler testCaseFileBundler) Bundle(arg, defaultFileName string) (testCase
 	}
 
 	if arg != "-" && filepath.Ext(arg) == ".mjs" {
-		result, err := esbundle.Bundle(arg, bundler.Replacements)
+		result, err := esbundle.Bundle(arg, bundler.Defines)
 		if err != nil {
 			return testCaseFileBundle{}, err
 		}
