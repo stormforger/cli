@@ -111,6 +111,9 @@ func (bundler testCaseFileBundler) Bundle(arg, defaultFileName string) (testCase
 		return testCaseFileBundle{Name: fileName, Content: strings.NewReader(result.CompiledContent), Mapper: result.SourceMapper}, nil
 	}
 
+	if len(bundler.Defines) > 0 {
+		log.Println("WARN: --define used with non-module testcase file")
+	}
 	return testCaseFileBundle{Name: fileName, Content: testCaseFile}, err
 }
 
