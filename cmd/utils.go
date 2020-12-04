@@ -24,7 +24,7 @@ import (
 const bundlingHelpInfo = `Bundling
 --------
 If you use the .mjs file extension, this command will automatically bundle your
-JavaScript file using ECMAScript modules. See 'forge build' for more details.
+JavaScript file using ECMAScript modules. See 'forge test-case build' for more details.
 `
 
 // FindFixtureByName fetches a FileFixture from a given Organisation.
