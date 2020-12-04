@@ -37,8 +37,8 @@ var (
 		Short: "Create and launch a new test run",
 		Long: fmt.Sprintf(`Create and launch a new test run based on given test case
 
-<test-case-ref> can be 'organisation-name/test-case-name' or 'test-case-uid'.
-R
+  <test-case-ref> can be 'organisation-name/test-case-name' or 'test-case-uid'.
+
 Examples
 --------
 
@@ -169,7 +169,7 @@ func init() {
 	testRunLaunchCmd.Flags().BoolVar(&testRunLaunchOpts.Validate, "validate", false, "Perform validation run")
 
 	// bundling
-	testRunLaunchCmd.PersistentFlags().Var(&pflagutil.KeyValueFlag{Map: &testRunLaunchOpts.Defines}, "define", "Substitute a list of K=V while parsing: debug=false")
+	testRunLaunchCmd.PersistentFlags().Var(&pflagutil.KeyValueFlag{Map: &testRunLaunchOpts.Defines}, "define", "Defines a list of K=V while parsing: debug=false")
 
 	// hints for completion of flags
 	testRunLaunchCmd.MarkFlagFilename("test-case-file", "js")

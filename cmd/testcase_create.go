@@ -20,18 +20,18 @@ var (
 		Short: "Create a new test case",
 		Long: fmt.Sprintf(`Create a new test case.
 
-		<test-case-ref> is 'organisation-name/test-case-name'.
-		<test-case-file> is a path or - for stdin.
+  <test-case-ref> is 'organisation-name/test-case-name'.
+  <test-case-file> is a path or - for stdin.
 
 Examples
 --------
 * Create a new test case named 'checkout' in the 'acme-inc' organisation
 
-forge test-case create acme-inc/checkout cases/checkout_process.js
+  forge test-case create acme-inc/checkout cases/checkout_process.js
 
 * Alternatively the test definition can be piped in as well
 
-cat cases/checkout_process.js | forge test-case create acme-inc/checkout -
+  cat cases/checkout_process.js | forge test-case create acme-inc/checkout -
 
 %s
 `, bundlingHelpInfo),
@@ -77,7 +77,7 @@ func init() {
 
 	testCaseCreateCmd.PersistentFlags().StringVarP(&testCaseCreateOpts.Name, "name", "n", "", "Name of the new test case")
 	testCaseCreateCmd.PersistentFlags().BoolVar(&testCaseCreateOpts.Update, "update", false, "Update test-case instead, if it already exists")
-	testCaseCreateCmd.PersistentFlags().Var(&pflagutil.KeyValueFlag{Map: &testCaseCreateOpts.Defines}, "define", "Substitute a list of K=V while parsing: debug=false")
+	testCaseCreateCmd.PersistentFlags().Var(&pflagutil.KeyValueFlag{Map: &testCaseCreateOpts.Defines}, "define", "Defines a list of K=V while parsing: debug=false")
 }
 
 func runTestCaseCreate(cmd *cobra.Command, args []string) {

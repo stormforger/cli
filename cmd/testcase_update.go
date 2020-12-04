@@ -20,7 +20,7 @@ var (
 		Short: "Update an existing test case",
 		Long: fmt.Sprintf(`Update an existing test case
 
-<test-case-ref> can be 'organisation-name/test-case-name' or 'test-case-uid'.
+  <test-case-ref> can be 'organisation-name/test-case-name' or 'test-case-uid'.
 
 Examples
 --------
@@ -55,7 +55,7 @@ Examples
 func init() {
 	TestCaseCmd.AddCommand(testCaseUpdateCmd)
 
-	testCaseUpdateCmd.PersistentFlags().Var(&pflagutil.KeyValueFlag{Map: &testCaseUpdateOpts.Defines}, "define", "Substitute a list of K=V while parsing: debug=false")
+	testCaseUpdateCmd.PersistentFlags().Var(&pflagutil.KeyValueFlag{Map: &testCaseUpdateOpts.Defines}, "define", "Defines a list of K=V while parsing: debug=false")
 }
 
 func runTestCaseUpdate(cmd *cobra.Command, args []string) {

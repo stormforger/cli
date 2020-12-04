@@ -72,7 +72,7 @@ Verify multiple files at once:
 func init() {
 	TestCaseCmd.AddCommand(testCaseValidateCmd)
 
-	testCaseValidateCmd.PersistentFlags().Var(&pflagutil.KeyValueFlag{Map: &testCaseValidateOpts.Defines}, "define", "Substitute a list of K=V while parsing: debug=false")
+	testCaseValidateCmd.PersistentFlags().Var(&pflagutil.KeyValueFlag{Map: &testCaseValidateOpts.Defines}, "define", "Defines a list of K=V while parsing: debug=false")
 }
 
 func runTestCaseValidate(cmd *cobra.Command, args []string) {
