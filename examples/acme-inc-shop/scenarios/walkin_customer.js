@@ -6,9 +6,8 @@ const walkinCustomer = function(d, config) {
   })
 }
 
-const foo = {
+const exportData = {
   name: "walkin customer",
   setup: walkinCustomer
-}
-
-export default foo
+};
+export default exportData;

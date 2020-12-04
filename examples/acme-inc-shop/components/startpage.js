@@ -1,5 +1,7 @@
 const startPage = function(ctx, config) {
-  ctx.get(`${config.baseURL}/`)
+  ctx.get(`${config.baseURL}/`, {
+    tag: "start",
+  });
 }
 
-export default startPage
+export default startPage;
