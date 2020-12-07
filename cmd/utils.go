@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"bufio"
 	"bytes"
 	"encoding/json"
 	"fmt"
@@ -9,7 +8,6 @@ import (
 	"log"
 	"os"
 	"path/filepath"
-	"regexp"
 	"strings"
 	"time"
 
@@ -20,6 +18,7 @@ import (
 	"github.com/stormforger/cli/api/organisation"
 	"github.com/stormforger/cli/api/testcase"
 	"github.com/stormforger/cli/api/testrun"
+	"github.com/stormforger/cli/internal/esbundle"
 )
 
 // FindFixtureByName fetches a FileFixture from a given Organisation.
@@ -89,61 +88,33 @@ func readFromStdinOrReadFromArgument(fileArg, defaultFileName string) (fileName 
 	return fileName, reader, err
 }
 
-func readTestCaseFromStdinOrReadFromArgument(arg, defaultFileName string) (fileName string, reader io.Reader, err error) {
-	fileName, testCaseFile, err := readFromStdinOrReadFromArgument(arg, defaultFileName)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	basePath := ""
-	if arg != "-" {
-		basePath = filepath.Dir(arg)
-	} else {
-		var err error
-		basePath, err = os.Getwd()
-		if err != nil {
-			log.Fatal(err)
-		}
-	}
-
-	inputWithIncludes := processIncludes(testCaseFile, basePath)
-
-	return fileName, inputWithIncludes, err
+type testCaseFileBundle struct {
+	Name    string
+	Content io.Reader
+	Mapper  esbundle.SourceMapper
+}
+type testCaseFileBundler struct {
+	Defines map[string]string
 }
 
-func processIncludes(input io.Reader, basePath string) io.Reader {
-	pr, output := io.Pipe()
-	re := regexp.MustCompile("//#include (.+?)$")
+func (bundler testCaseFileBundler) Bundle(arg, defaultFileName string) (testCaseFileBundle, error) {
+	fileName, testCaseFile, err := readFromStdinOrReadFromArgument(arg, defaultFileName)
+	if err != nil {
+		return testCaseFileBundle{}, err
+	}
 
-	go func() {
-		defer output.Close()
-
-		scanner := bufio.NewScanner(input)
-		for scanner.Scan() {
-			line := scanner.Text()
-
-			if match := re.FindStringSubmatch(line); match != nil {
-				includeFile := strings.TrimSpace(match[1])
-
-				if !filepath.IsAbs(includeFile) {
-					includeFile = filepath.Join(basePath, includeFile)
-				}
-
-				f, err := os.Open(includeFile)
-				if err != nil {
-					log.Fatal(err)
-				}
-
-				fmt.Fprint(output, "// == start include ("+includeFile+")\n")
-				io.Copy(output, f)
-				fmt.Fprint(output, "// == end include ("+includeFile+")\n")
-			} else {
-				fmt.Fprintln(output, line)
-			}
+	if arg != "-" && filepath.Ext(arg) == ".mjs" {
+		result, err := esbundle.Bundle(arg, bundler.Defines)
+		if err != nil {
+			return testCaseFileBundle{}, err
 		}
-	}()
+		return testCaseFileBundle{Name: fileName, Content: strings.NewReader(result.CompiledContent), Mapper: result.SourceMapper}, nil
+	}
 
-	return pr
+	if len(bundler.Defines) > 0 {
+		log.Println("WARN: --define used with non-module testcase file")
+	}
+	return testCaseFileBundle{Name: fileName, Content: testCaseFile}, err
 }
 
 func watchTestRun(testRunUID string, maxWatchTime float64, outputFormat string) {

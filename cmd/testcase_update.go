@@ -7,8 +7,10 @@ import (
 	"os"
 	"strings"
 
+	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 	"github.com/stormforger/cli/api"
+	"github.com/stormforger/cli/internal/pflagutil"
 )
 
 var (
@@ -16,9 +18,9 @@ var (
 	testCaseUpdateCmd = &cobra.Command{
 		Use:   "update <test-case-ref> <test-case-file>",
 		Short: "Update an existing test case",
-		Long: `Update an existing test case
+		Long: fmt.Sprintf(`Update an existing test case
 
-<test-case-ref> can be 'organisation-name/test-case-name' or 'test-case-uid'.
+  <test-case-ref> can be 'organisation-name/test-case-name' or 'test-case-uid'.
 
 Examples
 --------
@@ -30,7 +32,8 @@ Examples
 
   cat cases/checkout_process.js | forge test-case update acme-inc/checkout -
 
-`,
+%s
+`, bundlingHelpInfo),
 		Run: runTestCaseUpdate,
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
 			if len(args) < 2 {
@@ -43,10 +46,16 @@ Examples
 		},
 		ValidArgsFunction: completeOrgaAndCase,
 	}
+
+	testCaseUpdateOpts struct {
+		Defines map[string]string
+	}
 )
 
 func init() {
 	TestCaseCmd.AddCommand(testCaseUpdateCmd)
+
+	testCaseUpdateCmd.PersistentFlags().Var(&pflagutil.KeyValueFlag{Map: &testCaseUpdateOpts.Defines}, "define", "Defines a list of K=V while parsing: debug=false")
 }
 
 func runTestCaseUpdate(cmd *cobra.Command, args []string) {
@@ -54,12 +63,13 @@ func runTestCaseUpdate(cmd *cobra.Command, args []string) {
 
 	testCaseUID := mustLookupTestCase(client, args[0])
 
-	fileName, testCaseFile, err := readTestCaseFromStdinOrReadFromArgument(args[1], "test_case.js")
+	bundler := testCaseFileBundler{Defines: testCaseUpdateOpts.Defines}
+	bundle, err := bundler.Bundle(args[1], "test_case.js")
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	success, message, err := client.TestCaseUpdate(testCaseUID, fileName, testCaseFile)
+	success, message, err := client.TestCaseUpdate(testCaseUID, bundle.Name, bundle.Content)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -75,12 +85,12 @@ func runTestCaseUpdate(cmd *cobra.Command, args []string) {
 	//  200 - with errors field, in case of validation errors where the testcase is still saved
 	//  400 - with errors field, if the testcase could not be parsed and saved
 
-	errorMeta, err := api.UnmarshalErrorMeta(strings.NewReader(message))
+	errorMeta, err := api.ErrorDecoder{SourceMapper: bundle.Mapper}.UnmarshalErrorMeta(strings.NewReader(message))
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	printValidationResultHuman(os.Stderr, fileName, success, errorMeta)
+	printValidationResultHuman(os.Stderr, success, errorMeta)
 	cmdExit(success)
 }
 
@@ -96,21 +106,19 @@ func printValidationResultJSON(message string) {
 	fmt.Println(message)
 }
 
-func printValidationResultHuman(fp io.Writer, fileName string, success bool, errorMeta api.ErrorPayload) {
+func printValidationResultHuman(fp io.Writer, success bool, errorMeta api.ErrorPayload) {
 	prefix := "INFO"
 	if !success {
-		prefix = "ERROR"
+		prefix = color.RedString("ERROR")
 	} else if len(errorMeta.Errors) > 0 {
-		prefix = "WARN"
+		prefix = color.YellowString("WARN")
 	}
 
-	if fileName != "" {
-		fmt.Fprintf(fp, "# FILE: %s\n", fileName)
-	}
 	fmt.Fprintf(fp, "%s: %s\n", prefix, errorMeta.Message)
-	if len(errorMeta.Errors) > 0 {
-		for i, e := range errorMeta.Errors {
-			fmt.Fprintf(fp, "\n%d) %s: %s\n", i+1, e.Code, e.Title)
+
+	for i, e := range errorMeta.Errors {
+		fmt.Fprintf(fp, "\n%d) %s: %s\n", i+1, e.Code, e.Title)
+		if e.FormattedError != "" {
 			fmt.Fprintf(fp, "%s\n", e.FormattedError)
 		}
 	}

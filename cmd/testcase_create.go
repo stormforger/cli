@@ -9,6 +9,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/stormforger/cli/api"
+	"github.com/stormforger/cli/internal/pflagutil"
 )
 
 var (
@@ -17,22 +18,23 @@ var (
 	testCaseCreateCmd = &cobra.Command{
 		Use:   "create <test-case-ref> <test-case-file>",
 		Short: "Create a new test case",
-		Long: `Create a new test case.
+		Long: fmt.Sprintf(`Create a new test case.
 
-		<test-case-ref> is 'organisation-name/test-case-name'.
-		<test-case-file> is a path or - for stdin.
+  <test-case-ref> is 'organisation-name/test-case-name'.
+  <test-case-file> is a path or - for stdin.
 
 Examples
 --------
 * Create a new test case named 'checkout' in the 'acme-inc' organisation
 
-forge test-case create acme-inc/checkout cases/checkout_process.js
+  forge test-case create acme-inc/checkout cases/checkout_process.js
 
 * Alternatively the test definition can be piped in as well
 
-cat cases/checkout_process.js | forge test-case create acme-inc/checkout -
+  cat cases/checkout_process.js | forge test-case create acme-inc/checkout -
 
-`,
+%s
+`, bundlingHelpInfo),
 		Run: runTestCaseCreate,
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
 			if len(args) > 2 {
@@ -66,6 +68,7 @@ cat cases/checkout_process.js | forge test-case create acme-inc/checkout -
 		Organisation string
 		Name         string
 		Update       bool // update test-case if already exists
+		Defines      map[string]string
 	}
 )
 
@@ -74,12 +77,14 @@ func init() {
 
 	testCaseCreateCmd.PersistentFlags().StringVarP(&testCaseCreateOpts.Name, "name", "n", "", "Name of the new test case")
 	testCaseCreateCmd.PersistentFlags().BoolVar(&testCaseCreateOpts.Update, "update", false, "Update test-case instead, if it already exists")
+	testCaseCreateCmd.PersistentFlags().Var(&pflagutil.KeyValueFlag{Map: &testCaseCreateOpts.Defines}, "define", "Defines a list of K=V while parsing: debug=false")
 }
 
 func runTestCaseCreate(cmd *cobra.Command, args []string) {
 	orgaUID := testCaseCreateOpts.Organisation
 
-	fileName, testCaseFile, err := readTestCaseFromStdinOrReadFromArgument(args[1], "test_case.js")
+	bundler := testCaseFileBundler{Defines: testCaseCreateOpts.Defines}
+	bundle, err := bundler.Bundle(args[1], "test_case.js")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -108,9 +113,9 @@ func runTestCaseCreate(cmd *cobra.Command, args []string) {
 	if testcaseUID != "" && !testCaseCreateOpts.Update {
 		log.Fatal("Test-Case already exists.")
 	} else if testcaseUID == "" {
-		success, message, errValidation = client.TestCaseCreate(orgaUID, testCaseName, fileName, testCaseFile)
+		success, message, errValidation = client.TestCaseCreate(orgaUID, testCaseName, bundle.Name, bundle.Content)
 	} else {
-		success, message, errValidation = client.TestCaseUpdate(testcaseUID, fileName, testCaseFile)
+		success, message, errValidation = client.TestCaseUpdate(testcaseUID, bundle.Name, bundle.Content)
 	}
 
 	if errValidation != nil {
@@ -122,7 +127,7 @@ func runTestCaseCreate(cmd *cobra.Command, args []string) {
 		cmdExit(success)
 	}
 
-	errorMeta, err := api.UnmarshalErrorMeta(strings.NewReader(message))
+	errorMeta, err := api.ErrorDecoder{SourceMapper: bundle.Mapper}.UnmarshalErrorMeta(strings.NewReader(message))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -131,6 +136,6 @@ func runTestCaseCreate(cmd *cobra.Command, args []string) {
 		os.Exit(0)
 	}
 
-	printValidationResultHuman(os.Stderr, fileName, success, errorMeta)
+	printValidationResultHuman(os.Stderr, success, errorMeta)
 	cmdExit(success)
 }

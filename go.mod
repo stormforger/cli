@@ -4,7 +4,9 @@ go 1.12
 
 require (
 	github.com/dustin/go-humanize v1.0.0
+	github.com/evanw/esbuild v0.6.28
 	github.com/fatih/color v1.10.0
+	github.com/go-sourcemap/sourcemap v2.1.3+incompatible
 	github.com/google/jsonapi v0.0.0-20200226002910-c8283f632fb7
 	github.com/howeyc/gopass v0.0.0-20190910152052-7cb4b85ec19c
 	github.com/mitchellh/go-homedir v1.1.0
@@ -13,6 +15,7 @@ require (
 	github.com/spf13/afero v1.2.2 // indirect
 	github.com/spf13/cobra v1.1.1
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
+	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.7.1
 	github.com/stretchr/testify v1.6.1
 	golang.org/x/crypto v0.0.0-20191011191535-87dc89f01550 // indirect

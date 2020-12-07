@@ -6,6 +6,7 @@ dist/
 
 # secrets & configuration
 .stormforger*.toml
+.stormforger*.toml.dev
 .goxc.local.json
 .stormforger-*
 

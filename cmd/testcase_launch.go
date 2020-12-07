@@ -15,6 +15,8 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/stormforger/cli/api"
 	"github.com/stormforger/cli/api/testrun"
+	"github.com/stormforger/cli/internal/esbundle"
+	"github.com/stormforger/cli/internal/pflagutil"
 	"github.com/stormforger/cli/internal/stringutil"
 )
 
@@ -35,10 +37,11 @@ var (
 		Short: "Create and launch a new test run",
 		Long: fmt.Sprintf(`Create and launch a new test run based on given test case
 
-<test-case-ref> can be 'organisation-name/test-case-name' or 'test-case-uid'.
+  <test-case-ref> can be 'organisation-name/test-case-name' or 'test-case-uid'.
 
 Examples
 --------
+
 * Launch by organisation and test case name
 
   forge test-case launch acme-inc/checkout
@@ -47,9 +50,9 @@ Examples
 
   forge test-case launch xPSX5KXM
 
-
 Configuration
 -------------
+
 You can specify configuration for a test run that will overwrite what is defined
 in your JavaScript definition.
 
@@ -57,8 +60,9 @@ in your JavaScript definition.
   * %s
 
 Available cluster regions are available at https://docs.stormforger.com/reference/test-cluster/#cluster-region
-`,
-			strings.Join(validSizings, "\n  * ")),
+
+%s
+`, strings.Join(validSizings, "\n  * "), bundlingHelpInfo),
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
 			if len(args) < 1 {
 				log.Fatal("Missing argument: test case reference")
@@ -134,6 +138,8 @@ type testRunLaunchCmdOpts struct {
 	SessionValidationMode bool
 	Validate              bool
 	TestRunIDOutputFile   string
+
+	Defines map[string]string
 }
 
 func init() {
@@ -162,6 +168,9 @@ func init() {
 	testRunLaunchCmd.Flags().BoolVar(&testRunLaunchOpts.SessionValidationMode, "session-validation-mode", false, "Enable session validation mode")
 	testRunLaunchCmd.Flags().BoolVar(&testRunLaunchOpts.Validate, "validate", false, "Perform validation run")
 
+	// bundling
+	testRunLaunchCmd.PersistentFlags().Var(&pflagutil.KeyValueFlag{Map: &testRunLaunchOpts.Defines}, "define", "Defines a list of K=V while parsing: debug=false")
+
 	// hints for completion of flags
 	testRunLaunchCmd.MarkFlagFilename("test-case-file", "js")
 	testRunLaunchCmd.MarkFlagFilename("nfr-check-file", "yml", "yaml")
@@ -171,11 +180,14 @@ func init() {
 	testRunLaunchCmd.RegisterFlagCompletionFunc("sizing", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 		return stringutil.FilterByPrefix(toComplete, validSizings), cobra.ShellCompDirectiveDefault
 	})
+
 }
 
 // MainTestRunLaunch runs a test-case and allows watching and validation that test-run.
 // testCaseSpec is required and specifies the test-case to launch.
 func MainTestRunLaunch(client *api.Client, testCaseSpec string, testRunLaunchOpts testRunLaunchCmdOpts) {
+	var mapper esbundle.SourceMapper
+
 	testCaseUID := mustLookupTestCase(client, testCaseSpec)
 
 	launchOptions := api.TestRunLaunchOptions{
@@ -190,13 +202,15 @@ func MainTestRunLaunch(client *api.Client, testCaseSpec string, testRunLaunchOpt
 		SessionValidationMode: testRunLaunchOpts.SessionValidationMode,
 	}
 	if testRunLaunchOpts.JavascriptDefinitionFile != "" {
-		filename, reader, err := readFromStdinOrReadFromArgument(testRunLaunchOpts.JavascriptDefinitionFile, "test-case.js")
+		bundler := testCaseFileBundler{Defines: testRunLaunchOpts.Defines}
+		bundle, err := bundler.Bundle(testRunLaunchOpts.JavascriptDefinitionFile, "test-case.js")
 		if err != nil {
-			log.Fatalf("Failed to open %s: %v", filename, err)
+			log.Fatalf("Failed to open %s: %v", bundle.Name, err)
 		}
 
-		launchOptions.JavascriptDefinition.Filename = filename
-		launchOptions.JavascriptDefinition.Reader = reader
+		mapper = bundle.Mapper
+		launchOptions.JavascriptDefinition.Filename = bundle.Name
+		launchOptions.JavascriptDefinition.Reader = bundle.Content
 	}
 
 	if testRunLaunchOpts.Validate {
@@ -210,12 +224,12 @@ func MainTestRunLaunch(client *api.Client, testCaseSpec string, testRunLaunchOpt
 	}
 
 	if !status {
-		errorMeta, err := api.UnmarshalErrorMeta(strings.NewReader(response))
+		errorMeta, err := api.ErrorDecoder{SourceMapper: mapper}.UnmarshalErrorMeta(strings.NewReader(response))
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		printValidationResultHuman(os.Stderr, launchOptions.JavascriptDefinition.Filename, status, errorMeta)
+		printValidationResultHuman(os.Stderr, status, errorMeta)
 		cmdExit(status)
 	}
 
