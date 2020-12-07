@@ -35,7 +35,7 @@ commands, so you don't need to call this command directly.
 Imports (ECMAScript modules)
 ----------------------------
 Using 'forge test-case build' allows importing other JavaScript files via the 'import'
-statement, if your first files ends in '.mjs':
+statement, if the reference file ends in '.mjs':
 
     import helloWorldScenario from "./modules/scenarios.js"
     definition.session("helloworld", helloWorldScenario);
