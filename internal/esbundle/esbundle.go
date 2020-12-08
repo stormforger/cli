@@ -18,7 +18,7 @@ type Result struct {
 type SourceMapper func(genLine, genColumn int) (source, name string, line, column int, ok bool)
 
 // Bundle returns either a Result or a list of Errors and an error.
-func Bundle(inputFile string, defines map[string]string) (Result, error) {
+func Bundle(inputFile string, define map[string]string) (Result, error) {
 	result := esbuild.Build(esbuild.BuildOptions{
 		EntryPoints:       []string{inputFile},
 		Bundle:            true,
@@ -28,7 +28,7 @@ func Bundle(inputFile string, defines map[string]string) (Result, error) {
 		MinifySyntax:      false,
 		LogLevel:          esbuild.LogLevelInfo,
 		Platform:          esbuild.PlatformNode,
-		Defines:           defines,
+		Define:            define,
 		Sourcemap:         esbuild.SourceMapExternal,
 		Outdir:            ".", // required for source maps
 	})
