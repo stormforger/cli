@@ -68,7 +68,7 @@ Examples
 		Organisation string
 		Name         string
 		Update       bool // update test-case if already exists
-		Defines      map[string]string
+		Define       map[string]string
 	}
 )
 
@@ -77,13 +77,13 @@ func init() {
 
 	testCaseCreateCmd.PersistentFlags().StringVarP(&testCaseCreateOpts.Name, "name", "n", "", "Name of the new test case")
 	testCaseCreateCmd.PersistentFlags().BoolVar(&testCaseCreateOpts.Update, "update", false, "Update test-case instead, if it already exists")
-	testCaseCreateCmd.PersistentFlags().Var(&pflagutil.KeyValueFlag{Map: &testCaseCreateOpts.Defines}, "define", "Defines a list of K=V while parsing: debug=false")
+	testCaseCreateCmd.PersistentFlags().Var(&pflagutil.KeyValueFlag{Map: &testCaseCreateOpts.Define}, "define", "Defines a list of K=V while parsing: debug=false")
 }
 
 func runTestCaseCreate(cmd *cobra.Command, args []string) {
 	orgaUID := testCaseCreateOpts.Organisation
 
-	bundler := testCaseFileBundler{Defines: testCaseCreateOpts.Defines}
+	bundler := testCaseFileBundler{Defines: testCaseCreateOpts.Define}
 	bundle, err := bundler.Bundle(args[1], "test_case.js")
 	if err != nil {
 		log.Fatal(err)
