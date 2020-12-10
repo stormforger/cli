@@ -205,7 +205,7 @@ func MainTestRunLaunch(client *api.Client, testCaseSpec string, testRunLaunchOpt
 		bundler := testCaseFileBundler{Defines: testRunLaunchOpts.Define}
 		bundle, err := bundler.Bundle(testRunLaunchOpts.JavascriptDefinitionFile, "test-case.js")
 		if err != nil {
-			log.Fatalf("Failed to open %s: %v", bundle.Name, err)
+			log.Fatalf("Failed to bundle %s: %v", testRunLaunchOpts.JavascriptDefinitionFile, err)
 		}
 
 		mapper = bundle.Mapper
