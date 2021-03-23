@@ -92,7 +92,6 @@ func MainServiceAccountsList(client *api.Client, org string) (*serviceaccount.Li
 	}
 	list, err := serviceaccount.UnmarshalList(bytes.NewReader(data))
 	if err != nil {
-		fmt.Println(string(data))
 		return nil, fmt.Errorf("failed to unmarshal api list response: %w", err)
 	}
 	return &list, err
