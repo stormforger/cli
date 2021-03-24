@@ -16,6 +16,4 @@ var (
 
 func init() {
 	RootCmd.AddCommand(datasourceCmd)
-
-	datasourceCmd.PersistentFlags().StringVarP(&datasourceOpts.Organisation, "organisation", "o", "", "Name of the organisation")
 }
