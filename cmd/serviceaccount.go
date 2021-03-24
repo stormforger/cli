@@ -23,7 +23,7 @@ var (
 	}
 
 	serviceAccountListCmd = &cobra.Command{
-		Use:     "list ORG",
+		Use:     "list <organisation-ref>",
 		Aliases: []string{"ls"},
 		Short:   "List service accounts",
 		Args:    cobra.ExactArgs(1),
@@ -32,7 +32,7 @@ var (
 			client := NewClient()
 			org := lookupOrganisationUID(client, args[0])
 			if org == "" {
-				log.Fatal("ORG parameter must be provided")
+				log.Fatal("<organisation-ref> parameter must be provided")
 			}
 
 			if list, err := MainServiceAccountsList(client, org); err != nil {
@@ -49,7 +49,7 @@ var (
 	}
 
 	serviceAccountsCreateCmd = &cobra.Command{
-		Use:   "create ORG TOKENLABEL",
+		Use:   "create <organisation-ref> <token-label>",
 		Short: "Create new service accounts",
 		Args:  cobra.ExactArgs(2),
 		Run: func(cmd *cobra.Command, args []string) {
@@ -57,10 +57,10 @@ var (
 			org := lookupOrganisationUID(client, args[0])
 			token_label := args[1]
 			if org == "" {
-				log.Fatal("ORG parameter must be provided")
+				log.Fatal("<organisation-ref> parameter must be provided")
 			}
 			if token_label == "" {
-				log.Fatal("TOKENLABEL parameter must be provided.")
+				log.Fatal("<token-label> parameter must be provided.")
 			}
 
 			if sa, err := MainServiceAccountsCreate(client, org, token_label); err != nil {
