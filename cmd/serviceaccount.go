@@ -133,7 +133,9 @@ func printServiceAccountHuman(w io.Writer, sa serviceaccount.ServiceAccount) {
 
 	// AccessToken is only returned on create()
 	if sa.AccessToken != "" {
-		fmt.Fprintln(w, "Access Token:\t", sa.AccessToken)
+		fmt.Fprintln(w, "")
+		fmt.Fprintln(w, "Access Token (NOTE: This will only be accessible one time when creating):")
+		fmt.Fprintln(w, sa.AccessToken)
 	}
 }
 

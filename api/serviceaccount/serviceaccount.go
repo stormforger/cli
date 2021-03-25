@@ -22,7 +22,7 @@ type ServiceAccount struct {
 	MostRecentAPIAccessAt      *time.Time `jsonapi:"attr,most_recent_api_access_at,iso8601"`
 	MostRecentAPIClientVersion string     `jsonapi:"attr,most_recent_api_client_version"`
 
-	// AccessToken is returned once when creating a new service account
+	// AccessToken is returned only once when creating a new service account and is not available again afterwards
 	AccessToken string `jsonapi:"attr,access_token"`
 }
 
