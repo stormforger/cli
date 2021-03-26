@@ -224,7 +224,19 @@ func (c *Client) fetch(path string) (bool, []byte, error) {
 	}
 	defer response.Body.Close()
 
-	body, err := ioutil.ReadAll(response.Body)
+	var reader io.ReadCloser
+	switch response.Header.Get("Content-Encoding") {
+	case "gzip":
+		reader, err = gzip.NewReader(response.Body)
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer reader.Close()
+	default:
+		reader = response.Body
+	}
+
+	body, err := ioutil.ReadAll(reader)
 	if err != nil {
 		return false, nil, err
 	}
