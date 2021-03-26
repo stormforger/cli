@@ -31,30 +31,30 @@ func newDialer(fingerprint []byte, skipCAVerification bool) dialer {
 			return c, err
 		}
 
-    if addr != "api.stormforger.com:443" {
-      return c, nil
-    } else {
-      connstate := c.ConnectionState()
-      keyPinValid := false
-      for _, peercert := range connstate.PeerCertificates {
-        der, err := x509.MarshalPKIXPublicKey(peercert.PublicKey)
-        hash := sha256.Sum256(der)
-        // log.Println(peercert.Issuer)
-        // log.Printf("%#v\n\n", hash)
-        if err != nil {
-          log.Fatal(err)
-        }
-        if bytes.Compare(hash[0:], fingerprint) == 0 {
-          // log.Println("Pinned Key found")
-          keyPinValid = true
-        }
-      }
-      if keyPinValid == false {
-        log.Fatal("TLS Public Key could not be verified!")
-      }
-      return c, nil
-    }
-  }
+		if addr != "api.stormforger.com:443" {
+			return c, nil
+		} else {
+			connstate := c.ConnectionState()
+			keyPinValid := false
+			for _, peercert := range connstate.PeerCertificates {
+				der, err := x509.MarshalPKIXPublicKey(peercert.PublicKey)
+				hash := sha256.Sum256(der)
+				// log.Println(peercert.Issuer)
+				// log.Printf("%#v\n\n", hash)
+				if err != nil {
+					log.Fatal(err)
+				}
+				if bytes.Compare(hash[0:], fingerprint) == 0 {
+					// log.Println("Pinned Key found")
+					keyPinValid = true
+				}
+			}
+			if keyPinValid == false {
+				log.Fatal("TLS Public Key could not be verified!")
+			}
+			return c, nil
+		}
+	}
 }
 
 func defaultHTTPClient() *http.Client {
