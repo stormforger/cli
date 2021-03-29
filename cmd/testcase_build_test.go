@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"io/ioutil"
-	"path"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -28,14 +27,4 @@ func GivenTestdataContents(t *testing.T, file string) string {
 	require.NoError(t, err)
 
 	return string(data)
-}
-
-func GivenFolder(t *testing.T, files map[string][]byte) string {
-	tempPath := t.TempDir()
-	for name, content := range files {
-		p := path.Join(tempPath, name)
-		err := ioutil.WriteFile(p, content, 0444)
-		require.NoError(t, err)
-	}
-	return tempPath
 }
