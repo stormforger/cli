@@ -19,8 +19,6 @@ var (
 	testCaseBuildCmd = &cobra.Command{
 		Use:     "build FILE",
 		Short:   "Build a test case",
-		Args:    cobra.ExactArgs(1),
-		Run:     runBuildCmd,
 		Example: "forge test-case build --define ENV=\"prod\" index.mjs",
 		Long: `Builds a test case bundle from a javascript module file.
 
@@ -70,6 +68,12 @@ A few caveats:
 * To use strings as defines, you may need to quote your values twice or escape
   them, otherwise your shell eats them.
 `,
+		Args: cobra.ExactArgs(1),
+		Run: func(cmd *cobra.Command, args []string) {
+			if err := MainTestcaseBuild(os.Stdout, args[0], buildOpts.Defines); err != nil {
+				log.Fatalf("ERROR: %v\n", err)
+			}
+		},
 	}
 
 	buildOpts struct {
@@ -83,14 +87,15 @@ func init() {
 	testCaseBuildCmd.PersistentFlags().Var(&pflagutil.KeyValueFlag{Map: &buildOpts.Defines}, "define", "Defines a list of K=V while parsing: debug=false")
 }
 
-func runBuildCmd(cmd *cobra.Command, args []string) {
-	bundler := testCaseFileBundler{Defines: buildOpts.Defines}
-	bundle, err := bundler.Bundle(args[0], "test_case.js")
+func MainTestcaseBuild(w io.Writer, file string, defines map[string]string) error {
+	bundler := testCaseFileBundler{Defines: defines}
+	bundle, err := bundler.Bundle(file, "test_case.js")
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 
-	if _, err := io.Copy(os.Stdout, bundle.Content); err != nil {
-		log.Fatalf("ERROR: %v\n", err)
+	if _, err := io.Copy(w, bundle.Content); err != nil {
+		return err
 	}
+	return nil
 }

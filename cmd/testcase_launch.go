@@ -215,6 +215,7 @@ func MainTestRunLaunch(client *api.Client, testCaseSpec string, testRunLaunchOpt
 
 	if testRunLaunchOpts.Validate {
 		launchOptions.SessionValidationMode = true
+		launchOptions.DumpTraffic = true
 		launchOptions.ClusterSizing = "preflight"
 	}
 
