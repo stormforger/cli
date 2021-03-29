@@ -61,11 +61,10 @@ func defaultHTTPClient() *http.Client {
 	fingerprint := []byte{0x5b, 0x15, 0x6c, 0xda, 0x7b, 0xc3, 0xd, 0x8b, 0xe8, 0x88, 0x57, 0x75, 0xbc, 0x30, 0xc1, 0x84, 0x18, 0x75, 0x6f, 0x2d, 0x3b, 0x81, 0x91, 0xff, 0x34, 0x10, 0xda, 0x13, 0x4a, 0x83, 0x23, 0x9d}
 
 	tr := &http.Transport{
-		MaxIdleConns:       10,
-		IdleConnTimeout:    30 * time.Second,
-		DisableCompression: true,
-		DialTLS:            newDialer(fingerprint, false),
-		Proxy:              http.ProxyURL(getHTTPProxy()),
+		MaxIdleConns:    10,
+		IdleConnTimeout: 30 * time.Second,
+		DialTLS:         newDialer(fingerprint, false),
+		Proxy:           http.ProxyURL(getHTTPProxy()),
 	}
 
 	return &http.Client{
