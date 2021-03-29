@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"os"
+	"io/ioutil"
 	"path"
 	"path/filepath"
 	"strings"
@@ -24,7 +24,7 @@ func TestTestcaseBuild(t *testing.T) {
 func GivenTestdataContents(t *testing.T, file string) string {
 	p := filepath.Join("testdata", file)
 
-	data, err := os.ReadFile(p)
+	data, err := ioutil.ReadFile(p)
 	require.NoError(t, err)
 
 	return string(data)
@@ -34,7 +34,7 @@ func GivenFolder(t *testing.T, files map[string][]byte) string {
 	tempPath := t.TempDir()
 	for name, content := range files {
 		p := path.Join(tempPath, name)
-		err := os.WriteFile(p, content, 0444)
+		err := ioutil.WriteFile(p, content, 0444)
 		require.NoError(t, err)
 	}
 	return tempPath
