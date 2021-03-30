@@ -13,6 +13,7 @@ Using `forge` you can:
 * work with `test-run`s (start, abort, reporting, listing and call logs)
 * work with `test-case`s (list, create, update)
 * work with `data-source`s (list, download, push, rename, show)
+* work with `service-account`s (list, create)
 
 You can use `--help` to get usage information on all commands.
 
@@ -123,23 +124,29 @@ You can...
 
 ## Build
 
----
----
+### Building
 
-You can **STOP READING** now unless you want to know how to build `forge` and make releases!
+We don't have generated code or other complications, so you can use the normal `go` tools:
 
----
----
-
+```console
+go build -o forge .
+```
 
 ### Dependencies
-
-Use `make setup` to install required go build dependencies.
 
 We use [Go modules](https://github.com/golang/go/wiki/Modules) to manage dependencies.
 
 If you change or update dependencies, run `go mod tidy`.
 
+## Testing
+
+Same as building, just use `go`:
+
+```console
+go test ./...
+```
+
+Note that we don't have many tests yet, so any PRs to up the coverage is appreciated!
 
 ### Release
 
