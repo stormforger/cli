@@ -124,6 +124,14 @@ You can...
 
 ## Build
 
+---
+---
+
+You can **STOP READING** now unless you want to know how to build `forge` and make releases!
+
+---
+---
+
 ### Building
 
 We don't have generated code or other complications, so you can use the normal `go` tools:
