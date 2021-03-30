@@ -162,22 +162,3 @@ git push --tag
 Github Actions will make a build and on success automatically publish a release to [GitHub releases](https://github.com/stormforger/cli/releases), to [Docker hub](https://hub.docker.com/r/stormforger/cli) and also update our [homebrew tab](https://github.com/stormforger/homebrew-forge).
 
 Now go to the [releases page](https://github.com/stormforger/cli/releases) and add release notes.
-
-
-#### Local Release
-
-In case there is an issue with the normal release process, a manual (or local) release can be done as well.
-
-Releases are done with `goreleaser`:
-
-```console
-go get -u github.com/goreleaser/goreleaser
-```
-
-In order to publish releases to GitHub, you need a personal access token, which you can acquire [here](https://github.com/settings/tokens).
-
-Now you can make a release with
-
-```console
-GITHUB_TOKEN="geheim" make test local_release
-```
