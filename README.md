@@ -13,6 +13,7 @@ Using `forge` you can:
 * work with `test-run`s (start, abort, reporting, listing and call logs)
 * work with `test-case`s (list, create, update)
 * work with `data-source`s (list, download, push, rename, show)
+* work with `service-account`s (list, create)
 
 You can use `--help` to get usage information on all commands.
 
@@ -131,15 +132,29 @@ You can **STOP READING** now unless you want to know how to build `forge` and ma
 ---
 ---
 
+### Building
+
+We don't have generated code or other complications, so you can use the normal `go` tools:
+
+```console
+go build -o forge .
+```
 
 ### Dependencies
-
-Use `make setup` to install required go build dependencies.
 
 We use [Go modules](https://github.com/golang/go/wiki/Modules) to manage dependencies.
 
 If you change or update dependencies, run `go mod tidy`.
 
+## Testing
+
+Same as building, just use `go`:
+
+```console
+go test ./...
+```
+
+Note that we don't have many tests yet, so any PRs to up the coverage is appreciated!
 
 ### Release
 
@@ -155,22 +170,3 @@ git push --tag
 Github Actions will make a build and on success automatically publish a release to [GitHub releases](https://github.com/stormforger/cli/releases), to [Docker hub](https://hub.docker.com/r/stormforger/cli) and also update our [homebrew tab](https://github.com/stormforger/homebrew-forge).
 
 Now go to the [releases page](https://github.com/stormforger/cli/releases) and add release notes.
-
-
-#### Local Release
-
-In case there is an issue with the normal release process, a manual (or local) release can be done as well.
-
-Releases are done with `goreleaser`:
-
-```console
-go get -u github.com/goreleaser/goreleaser
-```
-
-In order to publish releases to GitHub, you need a personal access token, which you can acquire [here](https://github.com/settings/tokens).
-
-Now you can make a release with
-
-```console
-GITHUB_TOKEN="geheim" make test local_release
-```
