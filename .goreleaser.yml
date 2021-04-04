@@ -31,6 +31,7 @@ builds:
   - windows
   goarch:
   - amd64
+  - arm64
   main: .
   ldflags: -s -w -X github.com/stormforger/cli/buildinfo.version={{.Version}} -X github.com/stormforger/cli/buildinfo.commit={{.Commit}} -X github.com/stormforger/cli/buildinfo.date={{.Date}}
   binary: forge
