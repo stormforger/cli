@@ -2,7 +2,6 @@ package api
 
 import (
 	"bytes"
-	"compress/gzip"
 	"errors"
 	"io"
 	"io/ioutil"
@@ -131,8 +130,6 @@ func (c *Client) TestRunLogs(path string) (io.ReadCloser, error) {
 		return nil, err
 	}
 
-	req.Header.Set("Accept-Encoding", "gzip")
-
 	response, err := c.doRequestRaw(req)
 	if err != nil {
 		return nil, err
@@ -145,18 +142,7 @@ func (c *Client) TestRunLogs(path string) (io.ReadCloser, error) {
 		}
 		return nil, errors.New("could not download log")
 	}
-
-	var reader io.ReadCloser
-	switch response.Header.Get("Content-Encoding") {
-	case "gzip":
-		reader, err = gzip.NewReader(response.Body)
-		if err != nil {
-			return nil, err
-		}
-	default:
-		reader = response.Body
-	}
-	return reader, nil
+	return response.Body, nil
 }
 
 // TestRunDump will fetch a traffic dump for a
@@ -171,8 +157,6 @@ func (c *Client) TestRunDump(pathID string) (io.ReadCloser, error) {
 		return nil, err
 	}
 
-	req.Header.Set("Accept-Encoding", "gzip")
-
 	response, err := c.doRequestRaw(req)
 	if err != nil {
 		response.Body.Close()
@@ -183,19 +167,7 @@ func (c *Client) TestRunDump(pathID string) (io.ReadCloser, error) {
 		response.Body.Close()
 		return nil, errors.New("could not load full dump")
 	}
-
-	var reader io.ReadCloser
-	switch response.Header.Get("Content-Encoding") {
-	case "gzip":
-		reader, err = gzip.NewReader(response.Body)
-		if err != nil {
-			return nil, err
-		}
-	default:
-		reader = response.Body
-	}
-
-	return reader, nil
+	return response.Body, nil
 }
 
 // TestRunCreate will send a test case definition (JS) to the API
