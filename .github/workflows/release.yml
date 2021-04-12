@@ -10,6 +10,13 @@ jobs:
     runs-on: ubuntu-latest
     name: goreleaser
     steps:
+    - name: 'Wait for status checks'
+      uses: jitterbit/await-check-suites@v1
+      with:
+        token: "${{ secrets.GITHUB_TOKEN }}"
+        timeoutSeconds: 600
+        appSlugFilter: 'github-actions'
+
     - name: Check out code
       uses: actions/checkout@v2.3.4
 
@@ -32,13 +39,6 @@ jobs:
         key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
         restore-keys: |
           ${{ runner.os }}-go-
-
-    - name: 'Wait for status checks'
-      uses: jitterbit/await-check-suites@v1
-      with:
-        token: "${{ secrets.GITHUB_TOKEN }}"
-        timeoutSeconds: 600
-        appSlugFilter: 'github-actions'
 
     - name: Build and push Docker images
       run: docker login -u="${{ secrets.DOCKER_USERNAME }}" -p="${{ secrets.DOCKER_PASSWORD }}"
