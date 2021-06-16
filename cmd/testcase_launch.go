@@ -138,6 +138,7 @@ type testRunLaunchCmdOpts struct {
 	SessionValidationMode bool
 	Validate              bool
 	TestRunIDOutputFile   string
+	Labels                map[string]string
 
 	Define map[string]string
 }
@@ -160,6 +161,8 @@ func init() {
 
 	testRunLaunchCmd.Flags().StringVar(&testRunLaunchOpts.JavascriptDefinitionFile, "test-case-file", "", "Update the test-case definition from this file before the launch")
 	testRunLaunchCmd.Flags().StringVar(&testRunLaunchOpts.CheckNFR, "nfr-check-file", "", "Check test result against NFR definition (implies --watch)")
+
+	testRunLaunchCmd.Flags().Var(&pflagutil.KeyValueFlag{Map: &testRunLaunchOpts.Labels}, "label", "Attach one or many labels to a Test Launch.")
 
 	// options for debugging
 	testRunLaunchCmd.Flags().BoolVar(&testRunLaunchOpts.DisableGzip, "disable-gzip", false, "Globally disable gzip")
@@ -200,6 +203,7 @@ func MainTestRunLaunch(client *api.Client, testCaseSpec string, testRunLaunchOpt
 		SkipWait:              testRunLaunchOpts.SkipWait,
 		DumpTraffic:           testRunLaunchOpts.DumpTraffic,
 		SessionValidationMode: testRunLaunchOpts.SessionValidationMode,
+		Labels:                testRunLaunchOpts.Labels,
 	}
 	if testRunLaunchOpts.JavascriptDefinitionFile != "" {
 		bundler := testCaseFileBundler{Defines: testRunLaunchOpts.Define}
@@ -218,6 +222,9 @@ func MainTestRunLaunch(client *api.Client, testCaseSpec string, testRunLaunchOpt
 		launchOptions.DumpTraffic = true
 		launchOptions.ClusterSizing = "preflight"
 	}
+
+	// TODO: Validate label input format
+	launchOptions.Labels = testRunLaunchOpts.Labels
 
 	status, response, err := client.TestRunCreate(testCaseUID, launchOptions)
 	if err != nil {

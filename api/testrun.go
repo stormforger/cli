@@ -3,6 +3,7 @@ package api
 import (
 	"bytes"
 	"errors"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"log"
@@ -29,6 +30,7 @@ type TestRunLaunchOptions struct {
 	SkipWait              bool
 	DumpTraffic           bool
 	SessionValidationMode bool
+	Labels                map[string]string
 }
 
 // TestRunResources describes infos on a test run
@@ -206,6 +208,10 @@ func (c *Client) TestRunCreate(testCaseUID string, options TestRunLaunchOptions)
 		if f.Value != "" {
 			payload.Add(f.Field, f.Value)
 		}
+	}
+
+	for label, value := range options.Labels {
+		payload.Add(fmt.Sprintf("data[custom_data_fields_attributes][%s]", label), value)
 	}
 
 	// build a multipart request, if we have a javascript_definition to upload
