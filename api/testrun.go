@@ -264,6 +264,28 @@ func (c *Client) TestRunAbort(testRunUID string) (bool, string, error) {
 	return response.StatusCode < 400, string(body), nil
 }
 
+// TestRunAbortAll sends a request to abort all running test cases.
+func (c *Client) TestRunAbortAll() (bool, string, error) {
+	req, err := http.NewRequest("POST", c.APIEndpoint+"/test_runs/abort_all", nil)
+	if err != nil {
+		return false, "", err
+	}
+
+	resp, err := c.doRequestRaw(req)
+	if err != nil {
+		return false, "", err
+	}
+
+	defer close(resp.Body)
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return false, "", err
+	}
+
+	return resp.StatusCode < 400, string(body), nil
+}
+
 // TestRunNfrCheck will upload requirements definition
 // and checks if the given test run matches them.
 func (c *Client) TestRunNfrCheck(uid string, fileName string, data io.Reader) (bool, []byte, error) {

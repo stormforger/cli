@@ -9,7 +9,7 @@ import (
 )
 
 var (
-	// testRunAbortCmd represents the calllog command
+	// testRunAbortCmd represents the abort command
 	testRunAbortCmd = &cobra.Command{
 		Use:   "abort <test-run-id>",
 		Short: "Abort the given running test",
@@ -21,10 +21,18 @@ var (
 			}
 		},
 	}
+
+	testRunAbortAllCmd = &cobra.Command{
+		Use:   "abort-all",
+		Short: "Abort all running tests",
+		Long:  "Abort all running tests",
+		Run:   testRunAbortAll,
+	}
 )
 
 func init() {
 	TestRunCmd.AddCommand(testRunAbortCmd)
+	TestRunCmd.AddCommand(testRunAbortAllCmd)
 }
 
 func testRunAbort(cmd *cobra.Command, args []string) {
@@ -47,4 +55,21 @@ func testRunAbort(cmd *cobra.Command, args []string) {
 
 		os.Exit(1)
 	}
+}
+
+func testRunAbortAll(cmd *cobra.Command, args []string) {
+	c := NewClient()
+	ok, resp, err := c.TestRunAbortAll()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	if ok {
+		fmt.Println(resp)
+		os.Exit(0)
+	}
+
+	fmt.Fprintln(os.Stderr, "Could not abort all test runs!")
+	fmt.Println(resp)
+	os.Exit(1)
 }
