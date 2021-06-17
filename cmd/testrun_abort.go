@@ -21,28 +21,13 @@ var (
 			}
 		},
 	}
-	testRunAbortAllOpts struct {
-		Organisation string
-	}
 
 	testRunAbortAllCmd = &cobra.Command{
-		Use:   "abort-all <organisation-ref>",
-		Short: "Abort all running tests for a given organisation",
-		Long:  "Abort all running tests for a given organisation",
-		Run:   testRunAbortAll,
-		PersistentPreRun: func(cmd *cobra.Command, args []string) {
-			if len(args) > 1 {
-				log.Fatal("Too many arguments")
-			}
-			if len(args) < 1 {
-				log.Fatal("Missing organisation")
-			}
-
-			testRunAbortAllOpts.Organisation = lookupOrganisationUID(NewClient(), args[0])
-			if testRunAbortAllOpts.Organisation == "" {
-				log.Fatal("Missing organisation")
-			}
-		},
+		Use:               "abort-all <organisation-ref>",
+		Short:             "Abort all running tests for a given organisation",
+		Long:              "Abort all running tests for a given organisation",
+		Args:              cobra.ExactArgs(1),
+		Run:               testRunAbortAll,
 		ValidArgsFunction: completeOrga,
 	}
 )
@@ -75,18 +60,17 @@ func testRunAbort(cmd *cobra.Command, args []string) {
 }
 
 func testRunAbortAll(cmd *cobra.Command, args []string) {
-	c := NewClient()
-	ok, resp, err := c.TestRunAbortAll(testRunAbortAllOpts.Organisation)
+	uid := lookupOrganisationUID(NewClient(), args[0])
+	ok, resp, err := NewClient().TestRunAbortAll(uid)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	if ok {
+	if !ok {
+		fmt.Fprintln(os.Stderr, "Could not abort all test runs!")
 		fmt.Println(resp)
-		os.Exit(0)
+		os.Exit(1)
 	}
 
-	fmt.Fprintln(os.Stderr, "Could not abort all test runs!")
 	fmt.Println(resp)
-	os.Exit(1)
 }
