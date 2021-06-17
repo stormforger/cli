@@ -21,12 +21,29 @@ var (
 			}
 		},
 	}
+	testRunAbortAllOpts struct {
+		Organisation string
+	}
 
 	testRunAbortAllCmd = &cobra.Command{
-		Use:   "abort-all",
-		Short: "Abort all running tests",
-		Long:  "Abort all running tests",
+		Use:   "abort-all <organisation-ref>",
+		Short: "Abort all running tests for a given organisation",
+		Long:  "Abort all running tests for a given organisation",
 		Run:   testRunAbortAll,
+		PersistentPreRun: func(cmd *cobra.Command, args []string) {
+			if len(args) > 1 {
+				log.Fatal("Too many arguments")
+			}
+			if len(args) < 1 {
+				log.Fatal("Missing organisation")
+			}
+
+			testRunAbortAllOpts.Organisation = lookupOrganisationUID(NewClient(), args[0])
+			if testRunAbortAllOpts.Organisation == "" {
+				log.Fatal("Missing organisation")
+			}
+		},
+		ValidArgsFunction: completeOrga,
 	}
 )
 
@@ -59,7 +76,7 @@ func testRunAbort(cmd *cobra.Command, args []string) {
 
 func testRunAbortAll(cmd *cobra.Command, args []string) {
 	c := NewClient()
-	ok, resp, err := c.TestRunAbortAll()
+	ok, resp, err := c.TestRunAbortAll(testRunAbortAllOpts.Organisation)
 	if err != nil {
 		log.Fatal(err)
 	}

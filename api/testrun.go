@@ -265,8 +265,11 @@ func (c *Client) TestRunAbort(testRunUID string) (bool, string, error) {
 }
 
 // TestRunAbortAll sends a request to abort all running test cases.
-func (c *Client) TestRunAbortAll() (bool, string, error) {
-	req, err := http.NewRequest("POST", c.APIEndpoint+"/test_runs/abort_all", nil)
+func (c *Client) TestRunAbortAll(organisationUID string) (bool, string, error) {
+	payload := url.Values{}
+	payload.Add("id", organisationUID)
+
+	req, err := http.NewRequest("POST", c.APIEndpoint+"/test_runs/abort_all", strings.NewReader(payload.Encode()))
 	if err != nil {
 		return false, "", err
 	}
