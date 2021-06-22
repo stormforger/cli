@@ -223,7 +223,6 @@ func MainTestRunLaunch(client *api.Client, testCaseSpec string, testRunLaunchOpt
 		launchOptions.ClusterSizing = "preflight"
 	}
 
-	// TODO: Validate label input format
 	launchOptions.Labels = testRunLaunchOpts.Labels
 
 	status, response, err := client.TestRunCreate(testCaseUID, launchOptions)
