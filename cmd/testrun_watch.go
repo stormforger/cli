@@ -42,7 +42,6 @@ var successStates = []string{
 	"fetching_logs",
 	"finished",
 	"launching",
-	"log_fetched",
 	"running",
 	"starting",
 }
