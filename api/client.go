@@ -131,8 +131,11 @@ func newPatchRequest(uri string, params map[string]string) (*http.Request, error
 	}
 
 	req, err := http.NewRequest("PATCH", uri, body)
+	if err != nil {
+		return nil, err
+	}
 	req.Header.Set("Content-Type", writer.FormDataContentType())
-	return req, err
+	return req, nil
 }
 
 // createGZIPFormFile creates a "mime/multipart".Writer header similar to CreateFormFile but with content-encoding=gzip.
@@ -171,14 +174,17 @@ func fileUploadRequest(uri, method string, params url.Values, fileParamName, fil
 			_ = writer.WriteField(key, value)
 		}
 	}
-	err = writer.Close()
-	if err != nil {
+
+	if err := writer.Close(); err != nil {
 		return nil, err
 	}
 
 	req, err := http.NewRequest(method, uri, body)
+	if err != nil {
+		return nil, err
+	}
 	req.Header.Set("Content-Type", writer.FormDataContentType())
-	return req, err
+	return req, nil
 }
 
 func (c *Client) addDefaultHeaders(request *http.Request) {
