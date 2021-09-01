@@ -72,10 +72,6 @@ Available cluster regions are available at https://docs.stormforger.com/referenc
 				log.Fatal("Too many arguments")
 			}
 
-			if testRunLaunchOpts.ClusterRegion != "" && !stringutil.InSlice(testRunLaunchOpts.ClusterRegion, validRegions) {
-				log.Fatalf("%s is not a valid region", testRunLaunchOpts.ClusterRegion)
-			}
-
 			if testRunLaunchOpts.ClusterSizing != "" && !stringutil.InSlice(testRunLaunchOpts.ClusterSizing, validSizings) {
 				log.Fatalf("%s is not a valid sizing", testRunLaunchOpts.ClusterSizing)
 			}
@@ -89,7 +85,7 @@ Available cluster regions are available at https://docs.stormforger.com/referenc
 
 	testRunLaunchOpts testRunLaunchCmdOpts
 
-	validRegions = []string{
+	supportedAwsRegions = []string{
 		"ap-east-1",
 		"ap-northeast-1",
 		"ap-northeast-2",
@@ -178,7 +174,7 @@ func init() {
 	testRunLaunchCmd.MarkFlagFilename("test-case-file", "js")
 	testRunLaunchCmd.MarkFlagFilename("nfr-check-file", "yml", "yaml")
 	testRunLaunchCmd.RegisterFlagCompletionFunc("region", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-		return stringutil.FilterByPrefix(toComplete, validRegions), cobra.ShellCompDirectiveDefault
+		return stringutil.FilterByPrefix(toComplete, supportedAwsRegions), cobra.ShellCompDirectiveDefault
 	})
 	testRunLaunchCmd.RegisterFlagCompletionFunc("sizing", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 		return stringutil.FilterByPrefix(toComplete, validSizings), cobra.ShellCompDirectiveDefault
