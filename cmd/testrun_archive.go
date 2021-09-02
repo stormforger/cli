@@ -4,10 +4,10 @@ import "github.com/spf13/cobra"
 
 var (
 	testRunArchiveCmd = &cobra.Command{
-		Use: "archive <test-run-ref>",
-		Short: "Mark a test run as archived.",
-		Long: `Mark a test run as archived.`,
-		Run: testRunArchive,
+		Use:              "archive <test-run-ref>",
+		Short:            "Mark a test run as archived.",
+		Long:             `Mark a test run as archived.`,
+		Run:              testRunArchive,
 		PersistentPreRun: nil, // TODO
 
 	}
