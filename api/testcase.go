@@ -121,6 +121,18 @@ func (c *Client) TestCaseUpdate(testCaseUID string, fileName string, data io.Rea
 	return true, string(body), nil
 }
 
+// TestCaseArchive will mark a test case as archived
+func (c *Client) TestCaseArchive(uid string) bool {
+	// TODO
+	return true
+}
+
+// TestCaseUnArchive will mark a test case as not archived
+func (c *Client) TestCaseUnArchive(uid string) bool {
+	// TODO
+	return true
+}
+
 // DownloadTestCaseDefinition returns the JS definition
 // of a given test case
 func (c *Client) DownloadTestCaseDefinition(uid string) (bool, []byte, error) {
