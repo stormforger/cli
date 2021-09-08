@@ -241,6 +241,22 @@ func (c *Client) fetch(path string) (bool, []byte, error) {
 	return true, body, nil
 }
 
+func (c *Client) put(path string) (int, error) {
+	// TODO
+	req, err := http.NewRequest("PUT", c.APIEndpoint+path, nil)
+	if err != nil {
+		return 0, err
+	}
+
+	response, err := c.doRequestRaw(req)
+	if err != nil {
+		return response.StatusCode, err
+	}
+	defer response.Body.Close()
+
+	return response.StatusCode, nil
+}
+
 func close(c io.Closer) {
 	err := c.Close()
 	if err != nil {
