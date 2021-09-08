@@ -207,23 +207,8 @@ func (c *Client) doRequestRaw(request *http.Request) (*http.Response, error) {
 	return response, nil
 }
 
-// LookupAndFetchResource tries to download a given resource from the API
-func (c *Client) LookupAndFetchResource(resourceType, input string) (bool, []byte, error) {
-	return c.FetchResource("/lookup?type=" + resourceType + "&q=" + input)
-}
-
-// FetchResource tries to download a given resource from the API
-func (c *Client) FetchResource(path string) (bool, []byte, error) {
-	return c.fetch(path)
-}
-
-func (c *Client) fetch(path string) (bool, []byte, error) {
-	req, err := http.NewRequest("GET", c.APIEndpoint+path, nil)
-	if err != nil {
-		return false, nil, err
-	}
-
-	response, err := c.doRequestRaw(req)
+func (c *Client) doRequest(request *http.Request) (bool, []byte, error) {
+	response, err := c.doRequestRaw(request)
 	if err != nil {
 		return false, nil, err
 	}
@@ -241,20 +226,32 @@ func (c *Client) fetch(path string) (bool, []byte, error) {
 	return true, body, nil
 }
 
-func (c *Client) put(path string) (int, error) {
-	// TODO
-	req, err := http.NewRequest("PUT", c.APIEndpoint+path, nil)
+// LookupAndFetchResource tries to download a given resource from the API
+func (c *Client) LookupAndFetchResource(resourceType, input string) (bool, []byte, error) {
+	return c.FetchResource("/lookup?type=" + resourceType + "&q=" + input)
+}
+
+// FetchResource tries to download a given resource from the API
+func (c *Client) FetchResource(path string) (bool, []byte, error) {
+	return c.fetch(path)
+}
+
+func (c *Client) fetch(path string) (bool, []byte, error) {
+	req, err := http.NewRequest("GET", c.APIEndpoint+path, nil)
 	if err != nil {
-		return 0, err
+		return false, nil, err
 	}
 
-	response, err := c.doRequestRaw(req)
-	if err != nil {
-		return response.StatusCode, err
-	}
-	defer response.Body.Close()
+	return c.doRequest(req)
+}
 
-	return response.StatusCode, nil
+func (c *Client) put(path string, body []byte) (bool, []byte, error) {
+	req, err := http.NewRequest("PUT", c.APIEndpoint+path, bytes.NewReader(body))
+	if err != nil {
+		return false, nil, err
+	}
+
+	return c.doRequest(req)
 }
 
 func close(c io.Closer) {
