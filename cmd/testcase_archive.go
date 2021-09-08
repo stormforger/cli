@@ -17,7 +17,15 @@ var (
 <test-case-ref> can be 'organisation-name/test-case-name' or 'test-case-uid'.
 `,
 		Run:               runTestCaseArchive,
-		PersistentPreRun:  nil, // TODO
+		PersistentPreRun:  func(cmd *cobra.Command, args []string) {
+			if len(args) < 1 {
+				log.Fatal("Missing argument: test case reference")
+			}
+
+			if len(args) > 2 {
+				log.Fatal("Too many arguments")
+			}
+		},
 		ValidArgsFunction: completeOrgaAndCase,
 	}
 )
