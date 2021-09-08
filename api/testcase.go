@@ -1,8 +1,10 @@
 package api
 
 import (
+	"fmt"
 	"io"
 	"io/ioutil"
+	"net/http"
 	"net/url"
 )
 
@@ -122,15 +124,30 @@ func (c *Client) TestCaseUpdate(testCaseUID string, fileName string, data io.Rea
 }
 
 // TestCaseArchive will mark a test case as archived
-func (c *Client) TestCaseArchive(uid string) bool {
+func (c *Client) TestCaseArchive(uid string) (bool, error) {
 	// TODO
-	return true
+	path := "/test_cases/" + uid + "/archive"
+
+	req, err := http.NewRequest("PUT", c.APIEndpoint+path, nil)
+	if err != nil {
+		return false, err
+	}
+
+	response, err := c.doRequestRaw(req)
+	if err != nil {
+		return false, err
+	}
+	defer response.Body.Close()
+
+	fmt.Println("Response code: ", response.StatusCode)
+
+	return true, nil
 }
 
 // TestCaseUnArchive will mark a test case as not archived
-func (c *Client) TestCaseUnArchive(uid string) bool {
+func (c *Client) TestCaseUnArchive(uid string) (bool, error) {
 	// TODO
-	return true
+	return true, nil
 }
 
 // DownloadTestCaseDefinition returns the JS definition
@@ -139,4 +156,11 @@ func (c *Client) DownloadTestCaseDefinition(uid string) (bool, []byte, error) {
 	path := "/test_cases/" + uid + "/download"
 
 	return c.fetch(path)
+}
+
+// testCaseArchived returns true if a test case is archived, false if not
+// The returned error will be nil unless an error occurs during the api request
+func (c *Client) testCaseArchived(uid string) (bool, error) {
+	// TODO
+	return true, nil
 }

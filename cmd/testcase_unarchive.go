@@ -5,7 +5,7 @@ import "github.com/spf13/cobra"
 var (
 	// testCaseArchiveCmd represents the test case archive command
 	testCaseUnArchiveCmd = &cobra.Command{
-		Use:     "archive <test-case-ref>",
+		Use:     "unarchive <test-case-ref>",
 		Aliases: []string{},
 		Short:   "Mark a test case as not archived",
 		Long: `Mark the specified test case as not archived"

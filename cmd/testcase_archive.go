@@ -1,6 +1,10 @@
 package cmd
 
-import "github.com/spf13/cobra"
+import (
+	"log"
+
+	"github.com/spf13/cobra"
+)
 
 var (
 	// testCaseArchiveCmd represents the test case archive command
@@ -24,4 +28,16 @@ func init() {
 
 func runTestCaseArchive(cmd *cobra.Command, args []string) {
 	// TODO
+	client := NewClient()
+
+	testCaseUID := mustLookupTestCase(client, args[0])
+
+	success, err := client.TestCaseArchive(testCaseUID)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	if !success {
+		log.Fatalf("Test case definition could not be archived.\n")
+	}
 }
