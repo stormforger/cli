@@ -122,35 +122,21 @@ func (c *Client) TestCaseUpdate(testCaseUID string, fileName string, data io.Rea
 }
 
 // TestCaseArchive will mark a test case as archived
-func (c *Client) TestCaseArchive(uid string) (bool, error) {
+func (c *Client) TestCaseArchive(uid string) (bool, []byte, error) {
 	// TODO
 	path := "/test_cases/" + uid + "/archive"
 
-	code, err := c.put(path)
-	if err != nil {
-		return false, err
-	}
+	return c.put(path, nil)
 
-	if code == 200 {
-		return true, nil
-	}
-	return false, nil
 }
 
 // TestCaseUnArchive will mark a test case as not archived
-func (c *Client) TestCaseUnArchive(uid string) (bool, error) {
+func (c *Client) TestCaseUnArchive(uid string) (bool, []byte, error) {
 	// TODO
 	path := "/test_cases/" + uid + "/unarchive"
 
-	code, err := c.put(path)
-	if err != nil {
-		return false, err
-	}
+	return c.put(path, nil)
 
-	if code == 200 {
-		return true, nil
-	}
-	return false, nil
 }
 
 // DownloadTestCaseDefinition returns the JS definition

@@ -10,14 +10,14 @@ var (
 	// testCaseUnArchiveCmd represents the test case unarchive command
 	testCaseUnArchiveCmd = &cobra.Command{
 		Use:     "unarchive <test-case-ref>",
-		Aliases: []string{},
-		Short:   "Mark a test case as not archived",
+		Aliases: []string{"unar", "ua"},
+		Short:   "Unarchive a test case.",
 		Long: `Mark the specified test case as not archived"
 
 <test-case-ref> can be 'organisation-name/test-case-name' or 'test-case-uid'.
 `,
-		Run:               runTestCaseUnArchive,
-		PersistentPreRun:  func(cmd *cobra.Command, args []string) {
+		Run: runTestCaseUnArchive,
+		PersistentPreRun: func(cmd *cobra.Command, args []string) {
 			if len(args) < 1 {
 				log.Fatal("Missing argument: test case reference")
 			}
@@ -40,12 +40,12 @@ func runTestCaseUnArchive(cmd *cobra.Command, args []string) {
 
 	testCaseUID := mustLookupTestCase(client, args[0])
 
-	success, err := client.TestCaseUnArchive(testCaseUID)
+	success, response, err := client.TestCaseUnArchive(testCaseUID)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	if !success {
-		log.Fatalf("Test case definition could not be unarchived.\n")
+		log.Fatalf("Test case definition could not be unarchived!\n%s\n", string(response))
 	}
 }
