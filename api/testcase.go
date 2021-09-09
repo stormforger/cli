@@ -144,4 +144,3 @@ func (c *Client) DownloadTestCaseDefinition(uid string) (bool, []byte, error) {
 
 	return c.fetch(path)
 }
-
