@@ -123,7 +123,6 @@ func (c *Client) TestCaseUpdate(testCaseUID string, fileName string, data io.Rea
 
 // TestCaseArchive will mark a test case as archived
 func (c *Client) TestCaseArchive(uid string) (bool, []byte, error) {
-	// TODO
 	path := "/test_cases/" + uid + "/archive"
 
 	return c.put(path, nil)
@@ -132,7 +131,6 @@ func (c *Client) TestCaseArchive(uid string) (bool, []byte, error) {
 
 // TestCaseUnArchive will mark a test case as not archived
 func (c *Client) TestCaseUnArchive(uid string) (bool, []byte, error) {
-	// TODO
 	path := "/test_cases/" + uid + "/unarchive"
 
 	return c.put(path, nil)
@@ -147,9 +145,3 @@ func (c *Client) DownloadTestCaseDefinition(uid string) (bool, []byte, error) {
 	return c.fetch(path)
 }
 
-// testCaseArchived returns true if a test case is archived, false if not
-// The returned error will be nil unless an error occurs during the api request
-func (c *Client) testCaseArchived(uid string) (bool, error) {
-	// TODO
-	return true, nil
-}

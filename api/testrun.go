@@ -325,7 +325,6 @@ func (c *Client) TestRunNfrCheck(uid string, fileName string, data io.Reader) (b
 
 // TestRunArchive marks a given test run as archived.
 func (c *Client) TestRunArchive(testRunUID string) (bool, []byte, error) {
-	// TODO
 	path := "/test_runs/" + testRunUID + "/archive"
 
 	return c.put(path, nil)
@@ -333,7 +332,6 @@ func (c *Client) TestRunArchive(testRunUID string) (bool, []byte, error) {
 
 // TestRunUnArchive marks a given test run as not archived.
 func (c *Client) TestRunUnArchive(testRunUID string) (bool, []byte, error) {
-	// TODO
 	path := "/test_runs/" + testRunUID + "/unarchive"
 
 	return c.put(path, nil)

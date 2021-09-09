@@ -30,7 +30,6 @@ func init() {
 }
 
 func testRunArchive(cmd *cobra.Command, args []string) {
-	// TODO
 	client := NewClient()
 
 	testRunUID := getTestRunUID(*client, args[0])

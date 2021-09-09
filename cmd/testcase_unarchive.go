@@ -35,7 +35,6 @@ func init() {
 }
 
 func runTestCaseUnArchive(cmd *cobra.Command, args []string) {
-	// TODO
 	client := NewClient()
 
 	testCaseUID := mustLookupTestCase(client, args[0])
