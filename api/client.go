@@ -8,7 +8,6 @@ import (
 	"crypto/x509"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"mime/multipart"
 	"net"
@@ -207,6 +206,25 @@ func (c *Client) doRequestRaw(request *http.Request) (*http.Response, error) {
 	return response, nil
 }
 
+func (c *Client) doRequest(request *http.Request) (bool, []byte, error) {
+	response, err := c.doRequestRaw(request)
+	if err != nil {
+		return false, nil, err
+	}
+	defer response.Body.Close()
+
+	body, err := io.ReadAll(response.Body)
+	if err != nil {
+		return false, nil, err
+	}
+
+	if response.StatusCode != 200 {
+		return false, body, nil
+	}
+
+	return true, body, nil
+}
+
 // LookupAndFetchResource tries to download a given resource from the API
 func (c *Client) LookupAndFetchResource(resourceType, input string) (bool, []byte, error) {
 	return c.FetchResource("/lookup?type=" + resourceType + "&q=" + input)
@@ -223,22 +241,16 @@ func (c *Client) fetch(path string) (bool, []byte, error) {
 		return false, nil, err
 	}
 
-	response, err := c.doRequestRaw(req)
+	return c.doRequest(req)
+}
+
+func (c *Client) put(path string, body []byte) (bool, []byte, error) {
+	req, err := http.NewRequest("PUT", c.APIEndpoint+path, bytes.NewReader(body))
 	if err != nil {
 		return false, nil, err
 	}
-	defer response.Body.Close()
 
-	body, err := ioutil.ReadAll(response.Body)
-	if err != nil {
-		return false, nil, err
-	}
-
-	if response.StatusCode != 200 {
-		return false, body, nil
-	}
-
-	return true, body, nil
+	return c.doRequest(req)
 }
 
 func close(c io.Closer) {

@@ -323,6 +323,20 @@ func (c *Client) TestRunNfrCheck(uid string, fileName string, data io.Reader) (b
 	return response.StatusCode < 400, body, nil
 }
 
+// TestRunArchive marks a given test run as archived.
+func (c *Client) TestRunArchive(testRunUID string) (bool, []byte, error) {
+	path := "/test_runs/" + testRunUID + "/archive"
+
+	return c.put(path, nil)
+}
+
+// TestRunUnArchive marks a given test run as not archived.
+func (c *Client) TestRunUnArchive(testRunUID string) (bool, []byte, error) {
+	path := "/test_runs/" + testRunUID + "/unarchive"
+
+	return c.put(path, nil)
+}
+
 // ExtractTestRunResources will try to extract information to the
 // given test run based on a "reference".
 //
