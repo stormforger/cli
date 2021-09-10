@@ -42,7 +42,7 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-go-
 
-    - name: Build and push Docker images
+    - name: docker login
       run: docker login -u="${{ secrets.DOCKER_USERNAME }}" -p="${{ secrets.DOCKER_PASSWORD }}"
 
     - name: Release via goreleaser
