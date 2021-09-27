@@ -5,7 +5,7 @@ go 1.17
 require (
 	github.com/dustin/go-humanize v1.0.0
 	github.com/evanw/esbuild v0.12.27
-	github.com/fatih/color v1.12.0
+	github.com/fatih/color v1.13.0
 	github.com/go-sourcemap/sourcemap v2.1.3+incompatible
 	github.com/google/jsonapi v0.0.0-20200226002910-c8283f632fb7
 	github.com/howeyc/gopass v0.0.0-20190910152052-7cb4b85ec19c
@@ -24,8 +24,8 @@ require (
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
 	github.com/magiconair/properties v1.8.5 // indirect
-	github.com/mattn/go-colorable v0.1.8 // indirect
-	github.com/mattn/go-isatty v0.0.12 // indirect
+	github.com/mattn/go-colorable v0.1.9 // indirect
+	github.com/mattn/go-isatty v0.0.14 // indirect
 	github.com/mitchellh/mapstructure v1.4.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/spf13/afero v1.6.0 // indirect
