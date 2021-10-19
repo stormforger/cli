@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
@@ -65,7 +66,8 @@ Use forge login to obtain a new JWT token.
 
 // NewClient initializes a new API Client
 func NewClient() *api.Client {
-	return api.NewClient(viper.GetString("endpoint"), viper.GetString("jwt"))
+	token := strings.TrimSpace(viper.GetString("jwt"))
+	return api.NewClient(viper.GetString("endpoint"), token)
 }
 
 /*
