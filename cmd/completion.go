@@ -19,13 +19,13 @@ var completionCmd = &cobra.Command{
 
 Bash:
 
-$ source <(yourprogram completion bash)
+$ source <(forge completion bash)
 
 # To load completions for each session, execute once:
 Linux:
-  $ yourprogram completion bash > /etc/bash_completion.d/yourprogram
+  $ forge completion bash > /etc/bash_completion.d/forge
 MacOS:
-  $ yourprogram completion bash > /usr/local/etc/bash_completion.d/yourprogram
+  $ forge completion bash > /usr/local/etc/bash_completion.d/forge
 
 Zsh:
 
@@ -35,16 +35,16 @@ Zsh:
 $ echo "autoload -U compinit; compinit" >> ~/.zshrc
 
 # To load completions for each session, execute once:
-$ yourprogram completion zsh > "${fpath[1]}/_yourprogram"
+$ forge completion zsh > "${fpath[1]}/_forge"
 
 # You will need to start a new shell for this setup to take effect.
 
 Fish:
 
-$ yourprogram completion fish | source
+$ forge completion fish | source
 
 # To load completions for each session, execute once:
-$ yourprogram completion fish > ~/.config/fish/completions/yourprogram.fish
+$ forge completion fish > ~/.config/fish/completions/forge.fish
 `,
 	DisableFlagsInUseLine: true,
 	ValidArgs:             []string{"bash", "zsh", "fish", "powershell"},
