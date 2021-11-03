@@ -73,8 +73,10 @@ func runLogin(cmd *cobra.Command, args []string) {
 		} else {
 			color.White("\nLogin successful!\n\n")
 			color.Red("Found %s. File will not be overridden!\n\n", stormforgerConfig)
-			color.White("Add the JWT token to a .stormforger.toml file like this:\n\n")
-			color.Green("  echo 'jwt = \"" + jwt + "\"' >> ~/.stormforger.toml")
+			color.White("If you wish to use the following authentication token, you can place it in the .stormforger.toml configuration file in your home directory by adding a line like this:\n")
+			color.Blue("jwt = \"<authentication token>\"\n")
+			color.White("Note that if you have multiple jwt entries in your .stormforger.toml, only the first will be used.\n\n")
+			color.Green("Authentication token:\n" + jwt)
 			color.Green("\n\n")
 		}
 	}
