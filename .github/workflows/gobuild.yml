@@ -15,7 +15,7 @@ jobs:
         echo "::set-output name=go::$(go mod edit -json | jq -r .Go)"
 
     - name: Set up Go
-      uses: actions/setup-go@v2.1.4
+      uses: actions/setup-go@v2.1.5
       with:
         go-version: "${{ steps.read_versions.outputs.go }}"
       id: go
@@ -54,7 +54,7 @@ jobs:
         echo "::set-output name=go::$(go mod edit -json | jq -r .Go)"
 
     - name: Set up Go
-      uses: actions/setup-go@v2.1.4
+      uses: actions/setup-go@v2.1.5
       with:
         go-version: "${{ steps.read_versions.outputs.go }}"
       id: go
