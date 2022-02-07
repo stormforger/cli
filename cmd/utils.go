@@ -112,7 +112,7 @@ func (bundler testCaseFileBundler) Bundle(arg, defaultFileName string) (testCase
 	}
 
 	if len(bundler.Defines) > 0 {
-		log.Println("WARN: --define used with non-module testcase file")
+		log.Println("WARN: --define used with non-module testcase file - missing .mjs file extension")
 	}
 	return testCaseFileBundle{Name: fileName, Content: testCaseFile}, err
 }
