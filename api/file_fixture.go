@@ -47,9 +47,10 @@ func (c *Client) MoveFileFixture(organization string, fileFixtureUID string, new
 
 // ListFileFixture returns a list of the organizations fixtures
 func (c *Client) ListFileFixture(organization string) (bool, []byte, error) {
-	path := "/file_fixtures/" + organization + "?only=structured"
-
-	success, response, err := c.fetch(path)
+	path := "/file_fixtures/" + organization
+	var query url.Values
+	query.Set("only", "structured")
+	success, response, err := c.fetchWithQuery(path, query)
 
 	return success, response, err
 }

@@ -44,15 +44,16 @@ type TestRunResources struct {
 // TestRunList will list all test runs for a given test case
 func (c *Client) TestRunList(testCaseUID string, filter string) (bool, []byte, error) {
 	path := "/test_cases/" + testCaseUID + "/test_runs"
+	query := url.Values{}
 
 	switch filter {
 	case "archived":
-		path = path + "/?only=archived"
+		query.Set("only", "archived")
 	case "all":
-		path = path + "/?only=all"
+		query.Set("only", "all")
 	}
 
-	status, response, err := c.fetch(path)
+	status, response, err := c.fetchWithQuery(path, query)
 
 	return status, response, err
 }

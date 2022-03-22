@@ -8,16 +8,18 @@ import (
 
 // ListTestCases returns a list of test cases
 func (c *Client) ListTestCases(organization string, filter string) (bool, []byte, error) {
-	path := "/organisations/" + organization + "/test_cases"
+	path := "/v2/test_cases"
+	query := url.Values{}
+	query.Set("scope", organization)
 
 	switch filter {
 	case "archived":
-		path = path + "/?only=archived"
+		query.Set("only", "archived")
 	case "all":
-		path = path + "/?only=all"
+		query.Set("only", "all")
 	}
 
-	return c.fetch(path)
+	return c.fetchWithQuery(path, query)
 }
 
 // TestCaseValidate will send a test case definition (JS) to the API
@@ -27,9 +29,9 @@ func (c *Client) TestCaseValidate(organization string, fileName string, data io.
 	//      defining a struct maybe, but where?
 	//      finally: add options here
 	extraParams := url.Values{}
-	extraParams.Add("organisation_uid", organization)
+	extraParams.Add("scope", organization)
 
-	req, err := fileUploadRequest(c.APIEndpoint+"/test_cases/validate", "POST", extraParams, "test_case[javascript_definition]", fileName, "application/javascript", data)
+	req, err := fileUploadRequest(c.APIEndpoint+"/v2/test_cases/validate", "POST", extraParams, "test_case[javascript_definition]", fileName, "application/javascript", data)
 	if err != nil {
 		return false, "", err
 	}
@@ -62,8 +64,9 @@ func (c *Client) TestCaseCreate(organization string, testCaseName string, fileNa
 	//      finally: add options here
 	extraParams := url.Values{}
 	extraParams.Add("test_case[name]", testCaseName)
+	extraParams.Set("scope", organization)
 
-	req, err := fileUploadRequest(c.APIEndpoint+"/organisations/"+organization+"/test_cases", "POST", extraParams, "test_case[javascript_definition]", fileName, "application/javascript", data)
+	req, err := fileUploadRequest(c.APIEndpoint+"/v2/test_cases", "POST", extraParams, "test_case[javascript_definition]", fileName, "application/javascript", data)
 	if err != nil {
 		return false, "", err
 	}
@@ -96,7 +99,7 @@ func (c *Client) TestCaseUpdate(testCaseUID string, fileName string, data io.Rea
 	//      finally: add options here
 	extraParams := url.Values{}
 
-	req, err := fileUploadRequest(c.APIEndpoint+"/test_cases/"+testCaseUID, "PATCH", extraParams, "test_case[javascript_definition]", fileName, "application/javascript", data)
+	req, err := fileUploadRequest(c.APIEndpoint+"/v2/test_cases/"+testCaseUID, "PATCH", extraParams, "test_case[javascript_definition]", fileName, "application/javascript", data)
 	if err != nil {
 		return false, "", err
 	}
@@ -123,7 +126,7 @@ func (c *Client) TestCaseUpdate(testCaseUID string, fileName string, data io.Rea
 
 // TestCaseArchive will mark a test case as archived
 func (c *Client) TestCaseArchive(uid string) (bool, []byte, error) {
-	path := "/test_cases/" + uid + "/archive"
+	path := "/v2/test_cases/" + uid + "/archive"
 
 	return c.put(path, nil)
 
@@ -131,7 +134,7 @@ func (c *Client) TestCaseArchive(uid string) (bool, []byte, error) {
 
 // TestCaseUnArchive will mark a test case as not archived
 func (c *Client) TestCaseUnArchive(uid string) (bool, []byte, error) {
-	path := "/test_cases/" + uid + "/unarchive"
+	path := "/v2/test_cases/" + uid + "/unarchive"
 
 	return c.put(path, nil)
 

@@ -227,14 +227,13 @@ func (c *Client) doRequest(request *http.Request) (bool, []byte, error) {
 
 // LookupAndFetchResource tries to download a given resource from the API
 func (c *Client) LookupAndFetchResource(resourceType, input string) (bool, []byte, error) {
-	return c.FetchResource("/lookup?type=" + resourceType + "&q=" + input)
+	query := url.Values{}
+	query.Set("type", resourceType)
+	query.Set("q", input)
+	return c.fetchWithQuery("/lookup", query)
 }
 
-// FetchResource tries to download a given resource from the API
-func (c *Client) FetchResource(path string) (bool, []byte, error) {
-	return c.fetch(path)
-}
-
+// fetch tries to download a given resource from the API
 func (c *Client) fetch(path string) (bool, []byte, error) {
 	req, err := http.NewRequest("GET", c.APIEndpoint+path, nil)
 	if err != nil {
@@ -242,6 +241,10 @@ func (c *Client) fetch(path string) (bool, []byte, error) {
 	}
 
 	return c.doRequest(req)
+}
+
+func (c *Client) fetchWithQuery(path string, query url.Values) (bool, []byte, error) {
+	return c.fetch(path + "?" + query.Encode())
 }
 
 func (c *Client) put(path string, body []byte) (bool, []byte, error) {
