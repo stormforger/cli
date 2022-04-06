@@ -9,6 +9,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/stormforger/cli/api/testrun"
+	"github.com/stormforger/cli/internal/stringutil"
 )
 
 var (
@@ -79,11 +80,18 @@ func testRunList(cmd *cobra.Command, args []string) {
 		log.Fatal(err)
 	}
 
+	if rootOpts.OutputFormat == "human" {
+		fmt.Println("ID        Started At           Title")
+	}
 	for _, item := range items.TestRuns {
 		if rootOpts.OutputFormat == "human" {
-			fmt.Printf("%s (ID: %s)\n", item.Scope, item.ID)
-		} else {
-			fmt.Printf("%s\n", item.Scope)
+			fmt.Printf("%s  %s %s\n",
+				item.ID,
+				stringutil.Coalesce(item.StartedAt, "<no startet_at date>"),
+				stringutil.Coalesce(item.Title, "<no title>"),
+			)
+		} else { // plain
+			fmt.Printf("%s\n", item.ID)
 		}
 	}
 }

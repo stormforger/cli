@@ -263,11 +263,12 @@ func MainTestRunLaunch(client *api.Client, testCaseSpec string, testRunLaunchOpt
 			fmt.Println("Test-Case successfully updated")
 		}
 
-		fmt.Printf(`Launching test %s
-UID: %s
+		fmt.Printf(`Launching test %s (%s)
+TestRun UID: %s
 Web URL: %s
 `,
-			testRun.Scope,
+			testCaseSpec,
+			testCaseUID,
 			testRun.ID,
 			meta.Links.SelfWeb,
 		)

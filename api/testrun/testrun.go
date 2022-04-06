@@ -16,7 +16,6 @@ type List struct {
 // TestRun represents a single TestRun
 type TestRun struct {
 	ID                string             `jsonapi:"primary,test_runs"`
-	Scope             string             `jsonapi:"attr,scope"`
 	Title             string             `jsonapi:"attr,title,omitempty"`
 	Notes             string             `jsonapi:"attr,notes,omitempty"`
 	State             string             `jsonapi:"attr,state,omitempty"`

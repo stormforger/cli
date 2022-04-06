@@ -23,3 +23,13 @@ func FilterByPrefix(prefix string, list []string) []string {
 
 	return list
 }
+
+// Coalesce returns the first non empty (trimmed) string.
+func Coalesce(a ...string) string {
+	for _, s := range a {
+		if strings.TrimSpace(s) != "" {
+			return s
+		}
+	}
+	return ""
+}

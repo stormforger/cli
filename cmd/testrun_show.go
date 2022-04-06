@@ -67,7 +67,7 @@ func testRunShow(cmd *cobra.Command, args []string) {
 		return
 	}
 
-	fmt.Printf("%s (%s, %s)\n", testRun.Scope, testRun.State, testRun.ID)
+	fmt.Printf("ID      %s (%s)\n", testRun.ID, testRun.State)
 	fmt.Printf("Report  %s\n", meta.Links.SelfWeb)
 	if testRun.Title != "" {
 		fmt.Printf("Title   %s\n", testRun.Title)
