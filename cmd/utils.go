@@ -387,7 +387,7 @@ func (checker *NfrChecker) displayNfrResult(items testrun.NfrResultList) bool {
 	whiteBold := color.New(color.FgWhite, color.Bold).SprintFunc()
 
 	checkStatus := ""
-
+	anyFails := false
 	var success, total int
 	for _, item := range items.NfrResults {
 		total++ // we count everything, including disable and unavailable here.
@@ -400,6 +400,7 @@ func (checker *NfrChecker) displayNfrResult(items testrun.NfrResultList) bool {
 					checkStatus = green("\u2713")
 					actualSubject = fmt.Sprintf("was %s", item.SubjectWithUnit())
 				} else {
+					anyFails = true
 					checkStatus = red("\u2717")
 					actualSubject = fmt.Sprintf("but actually was %s", item.SubjectWithUnit())
 				}
@@ -435,7 +436,6 @@ func (checker *NfrChecker) displayNfrResult(items testrun.NfrResultList) bool {
 	}
 
 	fmt.Printf("%d/%d checks passed\n", success, total)
-	anyFails := success != total
 	if !anyFails {
 		fmt.Println(green("\nAll checks passed!"))
 	} else {
