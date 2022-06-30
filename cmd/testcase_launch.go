@@ -319,10 +319,27 @@ Web URL: %s
 				nfrData = bytes.NewBufferString(defaultNFRData)
 			}
 
-			runNfrCheck(*client, testRun.ID, fileName, nfrData)
+			c := NfrChecker{Client: client, TestRunUID: testRun.ID}
+			if testRunLaunchOpts.Validate && testRunLaunchOpts.CheckNFR == "" {
+				// Ignore "checks" items as long as the test-run has no checks defined, IF the user did not provide a custom NFR check file.
+				c.ResultFilter = nfrResultChecksSubjectUnavailableFilter
+			}
+			c.runNfrCheck(fileName, nfrData)
 		} else {
 			result := fetchTestRun(*client, testRun.ID)
 			fmt.Println(string(result))
 		}
 	}
+}
+
+func nfrResultChecksSubjectUnavailableFilter(items testrun.NfrResultList) testrun.NfrResultList {
+	newItems := make([]*testrun.NfrResult, 0, len(items.NfrResults))
+
+	for _, item := range items.NfrResults {
+		if item.SubjectAvailable || item.Type != "checks" {
+			newItems = append(newItems, item)
+		}
+	}
+	items.NfrResults = newItems
+	return items
 }

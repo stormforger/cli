@@ -318,12 +318,22 @@ func convertToLocalTZ(timeToConvert time.Time) time.Time {
 	return timeToConvert.In(loc)
 }
 
-func runNfrCheck(client api.Client, testRunUID string, fileName string, nfrData io.Reader) {
-	status, result, err := client.TestRunNfrCheck(testRunUID, fileName, nfrData)
+type NfrChecker struct {
+	Client       *api.Client
+	TestRunUID   string
+	ResultFilter func(items testrun.NfrResultList) testrun.NfrResultList
+}
+
+func (checker *NfrChecker) runNfrCheck(fileName string, nfrData io.Reader) {
+	status, result, err := checker.Client.TestRunNfrCheck(checker.TestRunUID, fileName, nfrData)
 	if err != nil {
 		log.Fatal(err)
 	}
 
+	checker.handleNfrResponseData(status, result)
+}
+
+func (checker *NfrChecker) handleNfrResponseData(status bool, result []byte) {
 	if rootOpts.OutputFormat == "json" {
 		fmt.Println(string(result))
 		return
@@ -358,14 +368,18 @@ func runNfrCheck(client api.Client, testRunUID string, fileName string, nfrData 
 		log.Fatal(err)
 	}
 
-	anyFails := displayNfrResult(items)
+	if checker.ResultFilter != nil {
+		items = checker.ResultFilter(items)
+	}
+
+	anyFails := checker.displayNfrResult(items)
 
 	if anyFails {
 		os.Exit(1)
 	}
 }
 
-func displayNfrResult(items testrun.NfrResultList) bool {
+func (checker *NfrChecker) displayNfrResult(items testrun.NfrResultList) bool {
 	green := color.New(color.FgGreen).SprintFunc()
 	red := color.New(color.FgRed).SprintFunc()
 	redBg := color.New(color.BgRed).Add(color.FgWhite).SprintFunc()
@@ -373,7 +387,7 @@ func displayNfrResult(items testrun.NfrResultList) bool {
 	whiteBold := color.New(color.FgWhite, color.Bold).SprintFunc()
 
 	checkStatus := ""
-	anyFails := false
+
 	var success, total int
 	for _, item := range items.NfrResults {
 		total++ // we count everything, including disable and unavailable here.
@@ -386,7 +400,6 @@ func displayNfrResult(items testrun.NfrResultList) bool {
 					checkStatus = green("\u2713")
 					actualSubject = fmt.Sprintf("was %s", item.SubjectWithUnit())
 				} else {
-					anyFails = true
 					checkStatus = red("\u2717")
 					actualSubject = fmt.Sprintf("but actually was %s", item.SubjectWithUnit())
 				}
@@ -422,10 +435,11 @@ func displayNfrResult(items testrun.NfrResultList) bool {
 	}
 
 	fmt.Printf("%d/%d checks passed\n", success, total)
+	anyFails := success != total
 	if !anyFails {
-		fmt.Printf(green("\nAll checks passed!\n"))
+		fmt.Println(green("\nAll checks passed!"))
 	} else {
-		fmt.Printf(red("\nYou have failing checks!\n"))
+		fmt.Println(red("\nYou have failing checks!"))
 	}
 
 	return anyFails
