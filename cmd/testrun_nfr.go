@@ -38,5 +38,6 @@ func testRunNfrRun(cmd *cobra.Command, args []string) {
 		log.Fatal(err)
 	}
 
-	runNfrCheck(*client, testRunUID, fileName, file)
+	c := NfrChecker{Client: client, TestRunUID: testRunUID}
+	c.runNfrCheck(fileName, file)
 }
