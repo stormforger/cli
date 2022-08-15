@@ -4,7 +4,7 @@ go 1.17
 
 require (
 	github.com/dustin/go-humanize v1.0.0
-	github.com/evanw/esbuild v0.14.48
+	github.com/evanw/esbuild v0.15.3
 	github.com/fatih/color v1.13.0
 	github.com/go-sourcemap/sourcemap v2.1.3+incompatible
 	github.com/google/jsonapi v0.0.0-20200226002910-c8283f632fb7
@@ -34,7 +34,7 @@ require (
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/subosito/gotenv v1.3.0 // indirect
 	golang.org/x/crypto v0.0.0-20220411220226-7b82a4e95df4 // indirect
-	golang.org/x/sys v0.0.0-20220520151302-bc2c85ada10a // indirect
+	golang.org/x/sys v0.0.0-20220715151400-c0bba94af5f8 // indirect
 	golang.org/x/term v0.0.0-20201126162022-7de9c90e9dd1 // indirect
 	golang.org/x/text v0.3.7 // indirect
 	gopkg.in/ini.v1 v1.66.4 // indirect
