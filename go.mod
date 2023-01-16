@@ -3,7 +3,7 @@ module github.com/stormforger/cli
 go 1.17
 
 require (
-	github.com/dustin/go-humanize v1.0.0
+	github.com/dustin/go-humanize v1.0.1
 	github.com/evanw/esbuild v0.16.10
 	github.com/fatih/color v1.13.0
 	github.com/go-sourcemap/sourcemap v2.1.3+incompatible
