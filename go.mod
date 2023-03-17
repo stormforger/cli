@@ -7,7 +7,7 @@ require (
 	github.com/evanw/esbuild v0.17.4
 	github.com/fatih/color v1.15.0
 	github.com/go-sourcemap/sourcemap v2.1.3+incompatible
-	github.com/google/jsonapi v0.0.0-20200226002910-c8283f632fb7
+	github.com/google/jsonapi v1.0.0
 	github.com/howeyc/gopass v0.0.0-20190910152052-7cb4b85ec19c
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/pelletier/go-toml v1.9.5
