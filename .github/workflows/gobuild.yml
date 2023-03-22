@@ -13,7 +13,6 @@ jobs:
       uses: actions/setup-go@v4
       with:
         go-version-file: "go.mod"
-        cache: true
 
     - name: Print Go Version
       run: go version
@@ -38,7 +37,6 @@ jobs:
       uses: actions/setup-go@v4
       with:
         go-version-file: "go.mod"
-        cache: true
 
     - name: gofmt
       run: |
