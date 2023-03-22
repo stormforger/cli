@@ -9,25 +9,11 @@ jobs:
     - name: Check out code
       uses: actions/checkout@v3
 
-    - name: Read Go version
-      id: read_versions
-      run: |
-        echo "::set-output name=go::$(go mod edit -json | jq -r .Go)"
-
     - name: Set up Go
       uses: actions/setup-go@v4
       with:
-        go-version: "${{ steps.read_versions.outputs.go }}"
-      id: go
-
-    - uses: actions/cache@v3
-      with:
-        path: |
-          ~/go/pkg/mod
-          ~/.cache/go-build
-        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-        restore-keys: |
-          ${{ runner.os }}-go-
+        go-version-file: "go.mod"
+        cache: true
 
     - name: Print Go Version
       run: go version
@@ -48,16 +34,11 @@ jobs:
     - name: Check out code into the Go module directory
       uses: actions/checkout@v3
 
-    - name: Read go version
-      id: read_versions
-      run: |
-        echo "::set-output name=go::$(go mod edit -json | jq -r .Go)"
-
     - name: Set up Go
       uses: actions/setup-go@v4
       with:
-        go-version: "${{ steps.read_versions.outputs.go }}"
-      id: go
+        go-version-file: "go.mod"
+        cache: true
 
     - name: gofmt
       run: |
