@@ -22,16 +22,10 @@ jobs:
       with:
         fetch-depth: 0
 
-    - name: Read Go version
-      id: read_versions
-      run: |
-        echo "::set-output name=go::$(go mod edit -json | jq -r .Go)"
-
     - name: Set up Go
       uses: actions/setup-go@v4
       with:
-        go-version: "${{ steps.read_versions.outputs.go }}"
-      id: go
+        go-version-file: "go.mod"
 
     - uses: actions/cache@v3
       with:
