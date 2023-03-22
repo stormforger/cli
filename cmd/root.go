@@ -71,10 +71,10 @@ func NewClient() *api.Client {
 }
 
 /*
-	Configuration for JWT can come from (in this order)
-	* Environment
-	* Configuration ~/.stormforger.toml, ./.stormforger.toml
-	* Command line flag
+Configuration for JWT can come from (in this order)
+* Environment
+* Configuration ~/.stormforger.toml, ./.stormforger.toml
+* Command line flag
 */
 func setupConfig() {
 	var err error
