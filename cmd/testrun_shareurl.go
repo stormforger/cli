@@ -36,7 +36,7 @@ func shareUrl(cmd *cobra.Command, args []string) {
 
 	testRunUID := getTestRunUID(*client, args[0])
 
-	shareURL, err := client.TestRunShareURL(testRunUID, shareURLOpts.ExpireDuration)
+	shareURL, err := client.TestRunShareURL(cmd.Context(), testRunUID, shareURLOpts.ExpireDuration)
 	if err != nil {
 		log.Fatal(err)
 	}

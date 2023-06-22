@@ -2,6 +2,7 @@ package api
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -340,14 +341,14 @@ func (c *Client) TestRunUnArchive(testRunUID string) (bool, []byte, error) {
 }
 
 // TestRunShareURL requests a shareable URL. A positive expireDuration is passed to the remote server.
-func (c *Client) TestRunShareURL(testRunUID string, expireDuration time.Duration) (*testrun.TestRunShareUrlResponse, error) {
+func (c *Client) TestRunShareURL(ctx context.Context, testRunUID string, expireDuration time.Duration) (*testrun.TestRunShareUrlResponse, error) {
 	payload := url.Values{}
 
 	if expireDuration != 0 {
 		payload.Add("expire_duration", fmt.Sprintf("%d", int(expireDuration.Seconds())))
 	}
 
-	req, err := http.NewRequest("POST", c.APIEndpoint+"/test_runs/"+url.PathEscape(testRunUID)+"/share_url", strings.NewReader(payload.Encode()))
+	req, err := http.NewRequestWithContext(ctx, "POST", c.APIEndpoint+"/test_runs/"+url.PathEscape(testRunUID)+"/share_url", strings.NewReader(payload.Encode()))
 	if err != nil {
 		return nil, err
 	}
