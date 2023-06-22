@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"reflect"
+	"time"
 
 	"github.com/google/jsonapi"
 )
@@ -58,6 +59,11 @@ type NfrResult struct {
 	Disabled         bool   `jsonapi:"attr,disabled"`
 	Filter           string `jsonapi:"attr,filter"`
 	Metric           string `jsonapi:"attr,metric"`
+}
+
+type TestRunShareUrlResponse struct {
+	URL       string     `json:"url"`
+	ExpiresAt *time.Time `json:"expires_at"`
 }
 
 // Unmarshal unmarshals a list of TestRun records
