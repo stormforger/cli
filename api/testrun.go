@@ -361,7 +361,11 @@ func (c *Client) TestRunShareURL(ctx context.Context, testRunUID string, expireD
 
 	var responseData testrun.TestRunShareUrlResponse
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("unexpected status code %d, expected 200", resp.StatusCode)
+		payload, err := ErrorDecoder{}.UnmarshalErrorMeta(resp.Body)
+		if err != nil {
+			return nil, fmt.Errorf("unexpected status code %d, expected 200", resp.StatusCode)
+		}
+		return nil, fmt.Errorf("unexpected response: %s", payload.Message)
 	}
 	if err := json.NewDecoder(resp.Body).Decode(&responseData); err != nil {
 		return nil, err
