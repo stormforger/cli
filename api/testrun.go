@@ -2,6 +2,8 @@ package api
 
 import (
 	"bytes"
+	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -10,6 +12,7 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"time"
 
 	"github.com/google/jsonapi"
 	"github.com/stormforger/cli/api/testrun"
@@ -335,6 +338,39 @@ func (c *Client) TestRunUnArchive(testRunUID string) (bool, []byte, error) {
 	path := "/test_runs/" + testRunUID + "/unarchive"
 
 	return c.put(path, nil)
+}
+
+// TestRunShareURL requests a shareable URL. A positive expireDuration is passed to the remote server.
+func (c *Client) TestRunShareURL(ctx context.Context, testRunUID string, expireDuration time.Duration) (*testrun.TestRunShareUrlResponse, error) {
+	payload := url.Values{}
+
+	if expireDuration != 0 {
+		payload.Add("expire_duration", fmt.Sprintf("%d", int(expireDuration.Seconds())))
+	}
+
+	req, err := http.NewRequestWithContext(ctx, "POST", c.APIEndpoint+"/test_runs/"+url.PathEscape(testRunUID)+"/share_url", strings.NewReader(payload.Encode()))
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := c.doRequestRaw(req)
+	if err != nil {
+		return nil, err
+	}
+	defer close(resp.Body)
+
+	var responseData testrun.TestRunShareUrlResponse
+	if resp.StatusCode != http.StatusOK {
+		payload, err := ErrorDecoder{}.UnmarshalErrorMeta(resp.Body)
+		if err != nil {
+			return nil, fmt.Errorf("unexpected status code %d, expected 200", resp.StatusCode)
+		}
+		return nil, fmt.Errorf("unexpected response: %s", payload.Message)
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&responseData); err != nil {
+		return nil, err
+	}
+	return &responseData, nil
 }
 
 // ExtractTestRunResources will try to extract information to the
