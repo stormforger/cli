@@ -160,7 +160,7 @@ Note that we don't have many tests yet, so any PRs to up the coverage is appreci
 
 Releases are done via [Github Actions](https://github.com/stormforger/cli/actions).
 
-When ready for a release and pull requests are merged into master, just create and push a new tag:
+When ready for a release and pull requests are merged into main, just create and push a new tag:
 
 ```console
 git tag vA.B.C
