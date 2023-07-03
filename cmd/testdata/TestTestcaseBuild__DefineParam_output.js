@@ -1,2 +1,6 @@
 // testdata/TestTestcaseBuild__DefineParam_main.mjs
-definition.addTarget(env);
+defines = {};
+var config = {
+  target: "http://example.com"
+};
+definition.addTarget(config.target);

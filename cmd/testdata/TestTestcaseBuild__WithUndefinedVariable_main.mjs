@@ -1,5 +1,6 @@
-const config = {
-  env: ENV || "staging", // Intentionally undefined in the go test
+defines = {}
+var config = {
+  target: defines.target || "http://testapp.loadtest.party"
 }
 
-definition.addTarget(env);
+definition.addTarget(config.target);
