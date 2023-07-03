@@ -1,5 +1,5 @@
 defines = {}
-var config = {
+const config = {
   target: defines.target || "http://testapp.loadtest.party"
 }
 
