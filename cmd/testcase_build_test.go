@@ -23,7 +23,7 @@ func TestTestcaseBuild(t *testing.T) {
 func TestTestcaseBuild__DefineParam(t *testing.T) {
 	var expectedOutput = GivenTestdataContents(t, t.Name()+"_output.js")
 	defines := map[string]string{
-		"ENV": "\"production\"", // DOUBLE QUOTING!
+		"defines.target": "\"http://example.com\"", // DOUBLE QUOTING!
 	}
 
 	var output strings.Builder

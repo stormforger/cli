@@ -1,6 +1,7 @@
 // testdata/TestTestcaseBuild__WithUndefinedVariable_main.mjs
+defines = {};
 var config = {
-  env: ENV || "staging"
-  // Intentionally undefined in the go test
+  target: defines.target || "http://testapp.loadtest.party"
 };
-definition.addTarget(env);
+definition.setArrivalPhases([{ duration: 60, rate: 0 }]);
+definition.addTarget(config.target);
