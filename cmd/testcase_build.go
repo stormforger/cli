@@ -24,49 +24,79 @@ var (
 
 If the reference file has the .mjs file extension, you can import other
 JavaScript files and predefine variables using ECMAScript modules.
-'forge test-case build' will compile a single JavaScript out of it, resolving the
-imports transparently and adding defined variables, if used.
 
-This is also done automatically for you when using other 'forge test-case'
-commands, so you don't need to call this command directly.
+## Imports (ECMAScript modules)
 
-Imports (ECMAScript modules)
-----------------------------
-Using 'forge test-case build' allows importing other JavaScript files via the 'import'
-statement, if the reference file ends in '.mjs':
+You can use the CLI to create a test case that imports other JavaScript code from your local machine using ECMAScript
+modules. The CLI uses https://esbuild.github.io/ for compiling the various JavaScript files into a single representation.
 
-    import helloWorldScenario from "./modules/scenarios.js"
-    definition.session("helloworld", helloWorldScenario);
+    // file: testcase.mjs
+    definition.setTarget("http://testapp.loadtest.party");
 
-In 'scenarios.js' we have to export the function 'helloWorldScenario':
+    definition.setArrivalPhases([
+      {
+        duration: 5 * 60,
+        rate: 1.0,
+      },
+    ]);
 
+    import helloWorldScenario from "./exported_modules.js";
+    definition.session("hello world", helloWorldScenario);
+
+In 'exported_modules.js' we have to export the function 'helloWorldScenario':
+
+    // file: exported_modules.js
     function helloWorldScenario(session) {
       session.get("/hello");
     }
+
     export default helloWorldScenario;
 
-Defines
--------
-We use https://esbuild.github.io/ for compiling the various JavaScript files
-into a single representation. Esbuild allows defining variables so your test
-cases becomes more dynamic.
+This example will be automatically processed (because of the .mjs file extension), for example when using the 'test-case create' command:
 
+    forge test-case create my-modular-testcase testcase.mjs
+
+## Defines
+
+In addition to ECMAScript modules, the CLI also supports passing values via the command line (via --define)
+to make test cases more dynamic. We use esbuild's define feature here:
+
+> This feature provides a way to replace global identifiers with constant expressions.
+
+To pass a value from the CLI, use '--define name=value' (e.g. '--define users=123' or '--define env=\"prod\"').
+The name must be an expression from your test case that you want to adjust and value a valid javascript value.
+
+To default values, we recommend wrapping them in an object that gets defaulted:
+
+    // NOTE: --define works on global identifiers only! To make defines a global identifier,
+    //       it MUST NOT be defined via var/let/const.
+    defines = {}
     const config = {
-      env: ENV || "staging",
+        env: defines.ENV || "staging",
     }
 
-In this example, configure config.env to the value "staging", if ENV is not
-defined. If you pass a define (e.g. '--define ENV=\"prod\"') this will now
-configure config.env to "prod".
+In this example, config.env is set to "staging" by default, but by using define (e.g. --define defines.ENV=\"prod\")
+config.env is set to "prod". Note the escaped quotes around the value to pass the double quotes to the javascript
+environment too - this might not be necessary depending on your shell.
 
-To use multiple defines, pass multiple '--define' flags.
+    forge test-case update my-modular-testcase testcase.mjs --define defines.ENV=\"prod\"
+
+*Note*
+We recommend wrapping and defaulting every defined parameter you expected as shown above, as it becomes hard to use
+to reuse test cases in temporary tests if your test case has more than one or two such parameters.
+
+To use multiple defines, pass multiple --define flags.
 
 A few caveats:
 
-* the compiled output no longer contains the fallback to "staging"; Esbuild
-  removed this dead code.
-* To use strings as defines, you may need to quote your values twice or escape
-  them, otherwise your shell eats them.
+* The compiled output no longer contains the fallback to “staging”; Esbuild removed this dead code
+* You can use --define only if you also provide the test case file
+* To use strings as defines, you may need to quote your values twice to escape them, otherwise your shell eats them
+* If you want defaulting, if no --define is used, you have to define a global identifier first as shown above
+
+## Documentation
+
+You can also find these information in our docs at https://docs.stormforge.io/perftest/guides/advanced-cli-usage/.
 `,
 		Args: cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
