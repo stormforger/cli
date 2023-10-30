@@ -1,9 +1,12 @@
 name: Go
-on: [push]
+on:
+  push:
+  # Also allow this workflow to be callable.
+  workflow_call:
 jobs:
-
   build:
     name: Build
+    # stick with Ubuntu 20.04 LTS for older glibc compatibility
     runs-on: "ubuntu-20.04"
     steps:
     - name: Check out code
