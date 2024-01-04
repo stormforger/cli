@@ -1,6 +1,6 @@
 module github.com/stormforger/cli
 
-go 1.21.3
+go 1.21.5
 
 require (
 	github.com/dustin/go-humanize v1.0.1
