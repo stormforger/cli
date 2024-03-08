@@ -90,7 +90,7 @@ func runTestCaseUpdate(cmd *cobra.Command, args []string) {
 		log.Fatal(err)
 	}
 
-	printValidationResultHuman(os.Stderr, success, errorMeta)
+	printErrorPayloadHuman(os.Stderr, success, errorMeta)
 	cmdExit(success)
 }
 
@@ -106,7 +106,7 @@ func printValidationResultJSON(message string) {
 	fmt.Println(message)
 }
 
-func printValidationResultHuman(fp io.Writer, success bool, errorMeta api.ErrorPayload) {
+func printErrorPayloadHuman(fp io.Writer, success bool, errorMeta api.ErrorPayload) {
 	prefix := "INFO"
 	if !success {
 		prefix = color.RedString("ERROR")
