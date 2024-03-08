@@ -132,10 +132,6 @@ func runTestCaseCreate(cmd *cobra.Command, args []string) {
 		log.Fatal(err)
 	}
 
-	if len(errorMeta.Errors) == 0 {
-		os.Exit(0)
-	}
-
 	printValidationResultHuman(os.Stderr, success, errorMeta)
 	cmdExit(success)
 }
