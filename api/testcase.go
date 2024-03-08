@@ -114,7 +114,7 @@ func (c *Client) TestCaseUpdate(testCaseUID string, fileName string, data io.Rea
 
 	defer close(response.Body)
 
-	if response.StatusCode != 200 {
+	if response.StatusCode >= 300 {
 		return false, string(body), nil
 	}
 
