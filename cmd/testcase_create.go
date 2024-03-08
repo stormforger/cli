@@ -111,7 +111,10 @@ func runTestCaseCreate(cmd *cobra.Command, args []string) {
 		errValidation error
 	)
 	if testcaseUID != "" && !testCaseCreateOpts.Update {
-		log.Fatal("Test-Case already exists.")
+		printErrorPayloadHuman(os.Stderr, false, api.ErrorPayload{
+			Message: "Test-Case already exists.",
+		})
+		cmdExit(false)
 	} else if testcaseUID == "" {
 		success, message, errValidation = client.TestCaseCreate(orgaUID, testCaseName, bundle.Name, bundle.Content)
 	} else {
