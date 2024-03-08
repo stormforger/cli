@@ -81,7 +81,7 @@ func (c *Client) TestCaseCreate(organization string, testCaseName string, fileNa
 
 	defer close(response.Body)
 
-	if response.StatusCode != 200 {
+	if response.StatusCode >= 300 {
 		return false, string(body), nil
 	}
 
