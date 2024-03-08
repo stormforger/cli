@@ -78,35 +78,31 @@ func init() {
 func runTestCaseValidate(cmd *cobra.Command, args []string) {
 	client := NewClient()
 
-	validationError := false
+	allValid := true
 	for _, arg := range args[1:] {
-		argValidationError, err := runTestCaseValidateArg(cmd, client, arg)
+		argValid, err := runTestCaseValidateArg(cmd, client, arg)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "ERROR: %v for %s\n", err, arg)
+			fmt.Fprintf(cmd.ErrOrStderr(), "ERROR: %v for %s\n", err, arg)
 		}
-		if argValidationError {
-			validationError = true
-		}
+		allValid = allValid && argValid
 	}
 
-	if validationError {
-		os.Exit(1)
-	}
+	cmdExit(allValid)
 }
 
-// runTestCaseValidateArg returns true if there were any validation ERRORS (not warnings)!
+// runTestCaseValidateArg validates the argument and returns true is the testcase was valid.
 func runTestCaseValidateArg(cmd *cobra.Command, client *api.Client, fileOrStdin string) (bool, error) {
-	fmt.Fprintf(os.Stderr, "# FILE: %s\n", fileOrStdin)
+	fmt.Fprintf(cmd.ErrOrStderr(), "# FILE: %s\n", fileOrStdin)
 
 	bundler := testCaseFileBundler{Defines: testCaseValidateOpts.Define}
 	bundle, err := bundler.Bundle(fileOrStdin, "test_case.js")
 	if err != nil {
-		return true, err
+		return false, err
 	}
 
 	success, message, errValidation := client.TestCaseValidate(testCaseValidateOpts.Organisation, bundle.Name, bundle.Content)
 	if errValidation != nil {
-		return true, errValidation
+		return false, errValidation
 	}
 	// NOTE: We can get success, success with warnings or just straight up validation errors (success=false)
 	// see testcase_update.go
@@ -114,18 +110,14 @@ func runTestCaseValidateArg(cmd *cobra.Command, client *api.Client, fileOrStdin 
 	if rootOpts.OutputFormat == "json" {
 		// if the user wants json, we don't bother to parse it and just dump it.
 		printValidationResultJSON(message)
-		return !success, nil
+		return success, nil
 	}
 
 	errorMeta, err := api.ErrorDecoder{SourceMapper: bundle.Mapper}.UnmarshalErrorMeta(strings.NewReader(message))
 	if err != nil {
-		return true, err
+		return false, err
 	}
 
 	printValidationResultHuman(os.Stderr, success, errorMeta)
-
-	if len(errorMeta.Errors) == 0 {
-		return false, nil
-	}
-	return true, nil
+	return success, nil
 }
