@@ -118,6 +118,6 @@ func runTestCaseValidateArg(cmd *cobra.Command, client *api.Client, fileOrStdin 
 		return false, err
 	}
 
-	printValidationResultHuman(os.Stderr, success, errorMeta)
+	printErrorPayloadHuman(os.Stderr, success, errorMeta)
 	return success, nil
 }

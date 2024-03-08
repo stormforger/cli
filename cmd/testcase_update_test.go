@@ -10,7 +10,7 @@ import (
 
 func TestPrintValidationResultHuman_NoErrors(t *testing.T) {
 	var buf strings.Builder
-	printValidationResultHuman(&buf, true, api.ErrorPayload{
+	printErrorPayloadHuman(&buf, true, api.ErrorPayload{
 		Message: "TestCase updated.",
 	})
 	assert.Equal(t, buf.String(), "INFO: TestCase updated.\n")
@@ -18,7 +18,7 @@ func TestPrintValidationResultHuman_NoErrors(t *testing.T) {
 
 func TestPrintValidationResultHuman_ValidationErrors(t *testing.T) {
 	var buf strings.Builder
-	printValidationResultHuman(&buf, true, api.ErrorPayload{
+	printErrorPayloadHuman(&buf, true, api.ErrorPayload{
 		Message: "TestCase updated, but validation errors occured.",
 		Errors: []api.ErrorDetail{
 			{Code: "E0", Title: "Validation Error"},
@@ -29,7 +29,7 @@ func TestPrintValidationResultHuman_ValidationErrors(t *testing.T) {
 
 func TestPrintValidationResultHuman_Error(t *testing.T) {
 	var buf strings.Builder
-	printValidationResultHuman(&buf, false, api.ErrorPayload{
+	printErrorPayloadHuman(&buf, false, api.ErrorPayload{
 		Message: "TestCase update failed.",
 		Errors: []api.ErrorDetail{
 			{Code: "E0", Title: "Error"},

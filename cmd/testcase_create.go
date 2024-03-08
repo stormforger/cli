@@ -135,6 +135,6 @@ func runTestCaseCreate(cmd *cobra.Command, args []string) {
 		log.Fatal(err)
 	}
 
-	printValidationResultHuman(os.Stderr, success, errorMeta)
+	printErrorPayloadHuman(os.Stderr, success, errorMeta)
 	cmdExit(success)
 }

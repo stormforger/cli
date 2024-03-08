@@ -232,7 +232,7 @@ func MainTestRunLaunch(client *api.Client, testCaseSpec string, testRunLaunchOpt
 			log.Fatal(err)
 		}
 
-		printValidationResultHuman(os.Stderr, status, errorMeta)
+		printErrorPayloadHuman(os.Stderr, status, errorMeta)
 		cmdExit(status)
 	}
 
