@@ -4,10 +4,10 @@ release:
     owner: stormforger
     name: cli
 brews:
-  - tap:
+  - repository:
       owner: stormforger
       name: homebrew-forge
-    folder: Formula
+    directory: Formula
     homepage: "https://stormforger.com"
     description: "The StormForger Command Line Client, called 'forge'"
     install: |
