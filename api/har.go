@@ -27,7 +27,7 @@ func (c *Client) Har(fileName string, data io.Reader) (string, error) {
 		return "", err
 	}
 
-	c.setUserAgent(req)
+	c.addDefaultHeaders(req)
 
 	resp, err := c.HTTPClient.Do(req)
 	if err != nil {
