@@ -2,7 +2,6 @@ package api
 
 import (
 	"io"
-	"io/ioutil"
 	"net/url"
 )
 
@@ -40,7 +39,7 @@ func (c *Client) TestCaseValidate(organization string, fileName string, data io.
 	}
 	defer response.Body.Close()
 
-	body, err := ioutil.ReadAll(response.Body)
+	body, err := io.ReadAll(response.Body)
 	if err != nil {
 		return false, "", err
 	}
@@ -74,7 +73,7 @@ func (c *Client) TestCaseCreate(organization string, testCaseName string, fileNa
 	}
 	defer response.Body.Close()
 
-	body, err := ioutil.ReadAll(response.Body)
+	body, err := io.ReadAll(response.Body)
 	if err != nil {
 		return false, "", err
 	}
@@ -107,7 +106,7 @@ func (c *Client) TestCaseUpdate(testCaseUID string, fileName string, data io.Rea
 	}
 	defer response.Body.Close()
 
-	body, err := ioutil.ReadAll(response.Body)
+	body, err := io.ReadAll(response.Body)
 	if err != nil {
 		return false, "", err
 	}

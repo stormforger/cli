@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/url"
 )
 
@@ -14,7 +13,7 @@ import (
 func (c *Client) Har(fileName string, data io.Reader) (string, error) {
 	extraParams := url.Values{}
 
-	input, err := ioutil.ReadAll(data)
+	input, err := io.ReadAll(data)
 	if err != nil {
 		return "", fmt.Errorf("%s: %v", fileName, err)
 	}
@@ -28,12 +27,14 @@ func (c *Client) Har(fileName string, data io.Reader) (string, error) {
 		return "", err
 	}
 
+	c.setUserAgent(req)
+
 	resp, err := c.HTTPClient.Do(req)
 	if err != nil {
 		return "", err
 	}
 
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return "", err
 	}

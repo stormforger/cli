@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	"io/ioutil"
+	"io"
 	"net/http"
 )
 
@@ -12,18 +12,19 @@ import (
 func (c *Client) Login(email string, password string) (string, error) {
 	data := map[string]string{"email": email, "password": password}
 
-	body := new(bytes.Buffer)
-	err := json.NewEncoder(body).Encode(data)
+	var body bytes.Buffer
+	err := json.NewEncoder(&body).Encode(data)
 	if err != nil {
 		return "", err
 	}
 
-	req, err := http.NewRequest("POST", c.APIEndpoint+"/user/token", body)
+	req, err := http.NewRequest("POST", c.APIEndpoint+"/user/token", &body)
 	if err != nil {
 		return "", err
 	}
 
 	req.Header.Set("Content-Type", "application/json")
+	c.setUserAgent(req)
 
 	resp, err := c.HTTPClient.Do(req)
 	if err != nil {
@@ -32,7 +33,7 @@ func (c *Client) Login(email string, password string) (string, error) {
 
 	defer close(resp.Body)
 
-	responseBody, err := ioutil.ReadAll(resp.Body)
+	responseBody, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return "", err
 	}

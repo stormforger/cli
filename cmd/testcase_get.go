@@ -3,7 +3,6 @@ package cmd
 import (
 	"bytes"
 	"io"
-	"io/ioutil"
 	"log"
 	"os"
 
@@ -56,7 +55,7 @@ func runTestCaseGet(cmd *cobra.Command, args []string) {
 	}
 
 	if len(args) == 2 && args[1] != "-" {
-		err := ioutil.WriteFile(args[1], response, 0644)
+		err := os.WriteFile(args[1], response, 0644)
 		if err != nil {
 			log.Fatal(err)
 		}

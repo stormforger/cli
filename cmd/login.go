@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
@@ -62,7 +61,7 @@ func runLogin(cmd *cobra.Command, args []string) {
 				log.Fatal(err)
 			}
 
-			err = ioutil.WriteFile(stormforgerConfig, content, 0644)
+			err = os.WriteFile(stormforgerConfig, content, 0644)
 			if err != nil {
 				log.Fatal(err)
 			}

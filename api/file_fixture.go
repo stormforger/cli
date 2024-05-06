@@ -2,7 +2,6 @@ package api
 
 import (
 	"io"
-	"io/ioutil"
 	"net/http"
 	"net/url"
 )
@@ -31,7 +30,7 @@ func (c *Client) MoveFileFixture(organization string, fileFixtureUID string, new
 	}
 	defer response.Body.Close()
 
-	body, err := ioutil.ReadAll(response.Body)
+	body, err := io.ReadAll(response.Body)
 	if err != nil {
 		return false, "", err
 	}
@@ -83,7 +82,7 @@ func (c *Client) PushFileFixture(fileName string, data io.Reader, organization s
 	}
 	defer response.Body.Close()
 
-	body, err := ioutil.ReadAll(response.Body)
+	body, err := io.ReadAll(response.Body)
 	if err != nil {
 		return false, nil, err
 	}
@@ -110,7 +109,7 @@ func (c *Client) DeleteFileFixture(fileFixtureUID string, organization string) (
 	}
 	defer response.Body.Close()
 
-	body, err := ioutil.ReadAll(response.Body)
+	body, err := io.ReadAll(response.Body)
 	if err != nil {
 		return false, "", err
 	}
