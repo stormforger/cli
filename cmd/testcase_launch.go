@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
@@ -243,7 +242,7 @@ func MainTestRunLaunch(client *api.Client, testCaseSpec string, testRunLaunchOpt
 
 	if testRunLaunchOpts.TestRunIDOutputFile != "" {
 		f := testRunLaunchOpts.TestRunIDOutputFile
-		err := ioutil.WriteFile(f, []byte(testRun.ID), 0644)
+		err := os.WriteFile(f, []byte(testRun.ID), 0644)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "Failed to write file: %v\n", err)
 			os.Exit(1)

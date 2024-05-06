@@ -7,7 +7,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"net/url"
@@ -86,7 +85,7 @@ func (c *Client) TestRunWatch(uid string) (testrun.TestRun, string, error) {
 	}
 	defer response.Body.Close()
 
-	body, err := ioutil.ReadAll(response.Body)
+	body, err := io.ReadAll(response.Body)
 	if err != nil {
 		return testrun.TestRun{}, "", err
 	}
@@ -239,7 +238,7 @@ func (c *Client) TestRunCreate(testCaseUID string, options TestRunLaunchOptions)
 	}
 	defer response.Body.Close()
 
-	body, err := ioutil.ReadAll(response.Body)
+	body, err := io.ReadAll(response.Body)
 	if err != nil {
 		return false, "", err
 	}
@@ -263,7 +262,7 @@ func (c *Client) TestRunAbort(testRunUID string) (bool, string, error) {
 	}
 	defer response.Body.Close()
 
-	body, err := ioutil.ReadAll(response.Body)
+	body, err := io.ReadAll(response.Body)
 	if err != nil {
 		return false, "", err
 	}
@@ -290,7 +289,7 @@ func (c *Client) TestRunAbortAll(organisationUID string) (bool, string, error) {
 
 	defer close(resp.Body)
 
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return false, "", err
 	}
@@ -316,7 +315,7 @@ func (c *Client) TestRunNfrCheck(uid string, fileName string, data io.Reader) (b
 	}
 	defer response.Body.Close()
 
-	body, err := ioutil.ReadAll(response.Body)
+	body, err := io.ReadAll(response.Body)
 	if err != nil {
 		return false, nil, err
 	}

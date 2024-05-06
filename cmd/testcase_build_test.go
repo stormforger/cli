@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"io/ioutil"
+	"os"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -48,7 +48,7 @@ func TestTestcaseBuild__WithUndefinedVariable(t *testing.T) {
 func GivenTestdataContents(t *testing.T, file string) string {
 	p := filepath.Join("testdata", file)
 
-	data, err := ioutil.ReadFile(p)
+	data, err := os.ReadFile(p)
 	require.NoError(t, err)
 
 	return string(data)
