@@ -5,7 +5,7 @@ go 1.22.2
 require (
 	github.com/dustin/go-humanize v1.0.1
 	github.com/evanw/esbuild v0.21.2
-	github.com/fatih/color v1.16.0
+	github.com/fatih/color v1.17.0
 	github.com/go-sourcemap/sourcemap v2.1.4+incompatible
 	github.com/google/jsonapi v1.0.0
 	github.com/howeyc/gopass v0.0.0-20190910152052-7cb4b85ec19c
@@ -39,7 +39,7 @@ require (
 	go.uber.org/multierr v1.9.0 // indirect
 	golang.org/x/crypto v0.17.0 // indirect
 	golang.org/x/exp v0.0.0-20230905200255-921286631fa9 // indirect
-	golang.org/x/sys v0.15.0 // indirect
+	golang.org/x/sys v0.18.0 // indirect
 	golang.org/x/term v0.15.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
