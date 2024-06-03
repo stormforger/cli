@@ -72,6 +72,9 @@ func runPingCmd(cmd *cobra.Command, args []string) {
 		Subject:         user,
 	}
 	printPingCommandResult(os.Stdout, result)
+	if !result.Success {
+		os.Exit(1)
+	}
 }
 
 func PrintHumanPingResult(w io.Writer, result PingCommandResult) {
