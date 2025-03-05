@@ -4,7 +4,7 @@ go 1.23.4
 
 require (
 	github.com/dustin/go-humanize v1.0.1
-	github.com/evanw/esbuild v0.24.2
+	github.com/evanw/esbuild v0.25.0
 	github.com/fatih/color v1.18.0
 	github.com/go-sourcemap/sourcemap v2.1.4+incompatible
 	github.com/google/jsonapi v1.0.0
@@ -12,7 +12,7 @@ require (
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/pelletier/go-toml v1.9.5
 	github.com/pkg/browser v0.0.0-20180916011732-0a3d74bf9ce4
-	github.com/spf13/cobra v1.8.1
+	github.com/spf13/cobra v1.9.1
 	github.com/spf13/pflag v1.0.6
 	github.com/spf13/viper v1.19.0
 	github.com/stretchr/testify v1.10.0
