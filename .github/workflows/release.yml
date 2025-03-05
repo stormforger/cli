@@ -11,8 +11,8 @@ jobs:
     secrets: inherit
 
   build:
-    # stick with Ubuntu 20.04 LTS for older glibc compatibility
-    runs-on: "ubuntu-20.04"
+    # stick with Ubuntu 22.04 LTS for older glibc compatibility
+    runs-on: "ubuntu-22.04"
     name: goreleaser
     needs: buildandtest
     steps:
