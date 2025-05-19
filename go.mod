@@ -4,7 +4,7 @@ go 1.24.3
 
 require (
 	github.com/dustin/go-humanize v1.0.1
-	github.com/evanw/esbuild v0.25.3
+	github.com/evanw/esbuild v0.25.4
 	github.com/fatih/color v1.18.0
 	github.com/go-sourcemap/sourcemap v2.1.4+incompatible
 	github.com/google/jsonapi v1.0.0
